@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>{{ title }}</title></head>
+<head><meta charset="utf-8"><title>{{ page[2] }}</title></head>
 <body>
-    <h1>{{ title }}</h1>
-    <div>{{ content|safe }}</div>
-    <p><a href="{{ url_for('edit_page', cat_id=0, page_id=page_id) }}">수정</a></p>
-    <p><a href="{{ url_for('index') }}">← 목차로 돌아가기</a></p>
+    <h1>{{ page[2] }}</h1>
+    <div>{{ page[3]|safe }}</div>
+    <p>
+        <a href="{{ url_for('edit_page', page_id=page[0]) }}">수정</a> |
+        <a href="{{ url_for('delete_page', page_id=page[0]) }}">삭제</a> |
+        <a href="{{ url_for('new_page', parent_id=page[0]) }}">+ 하위 문서 추가</a>
+    </p>
+    {% if children %}
+    <h2>하위 문서</h2>
+    <ul>
+        {% for child in children %}
+        <li><a href="{{ url_for('view_page', page_id=child[0]) }}">{{ child[1] }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <p><a href="{{ url_for('index') }}">← 홈으로</a></p>
 </body>
 </html>

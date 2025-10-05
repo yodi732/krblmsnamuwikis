@@ -1,32 +1,20 @@
-{% extends "base.html" %}
-{% block content %}
-  {% if page %}
-    <h2>문서 편집</h2>
-  {% else %}
-    <h2>새 문서 생성 (목차: {{ category['name'] if category else "" }})</h2>
-  {% endif %}
-  <form method="post">
-    <label>제목<br><input type="text" name="title" value="{{ page['title'] if page else '' }}" required></label><br>
-    <label>목차<br>
-      <select name="category_id">
-        {% if category %}
-          <option value="{{ category['id'] }}">{{ category['name'] }}</option>
-        {% endif %}
-        {% if categories %}
-          {% for c in categories %}
-            <option value="{{ c['id'] }}">{{ c['name'] }}</option>
-          {% endfor %}
-        {% endif %}
-      </select>
-    </label><br>
-    <label>내용 (Markdown)<br>
-      <textarea name="content" rows="16">{{ page['content'] if page else '' }}</textarea>
-    </label><br>
-    <button type="submit">저장</button>
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>{% if page %}문서 수정{% else %}문서 생성{% endif %}</title></head>
+<body>
+    <h1>{% if page %}문서 수정{% else %}문서 생성{% endif %}</h1>
+    <form method="post">
+        제목: <input type="text" name="title" value="{{ page[2] if page else '' }}"><br>
+        내용:<br>
+        <textarea name="content" rows="20" cols="80">{{ page[3] if page else '' }}</textarea><br>
+        <input type="submit" value="저장">
+    </form>
     {% if page %}
-      <a href="{{ url_for('view_page', pid=page['id']) }}">취소</a>
+    <p><a href="{{ url_for('view_page', page_id=page[0]) }}">← 돌아가기</a></p>
+    {% elif parent_id %}
+    <p><a href="{{ url_for('view_page', page_id=parent_id) }}">← 돌아가기</a></p>
     {% else %}
-      <a href="{{ url_for('show_category', cid=category['id']) }}">취소</a>
+    <p><a href="{{ url_for('index') }}">← 홈으로</a></p>
     {% endif %}
-  </form>
-{% endblock %}
+</body>
+</html>
