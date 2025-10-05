@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if category %}
+    <h2>목차 편집</h2>
+  {% else %}
+    <h2>새 목차 만들기</h2>
+  {% endif %}
+  <form method="post">
+    <label>목차 이름<br><input type="text" name="name" value="{{ category['name'] if category else '' }}" required></label><br>
+    <button type="submit">저장</button>
+    <a href="{{ url_for('index') }}">취소</a>
+  </form>
+{% endblock %}

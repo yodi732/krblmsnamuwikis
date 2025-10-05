@@ -1,8 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>✏️ {{ title }} 편집</h1>
-<form method="post">
-  <textarea name="content" rows="20">{{ content }}</textarea><br>
-  <button type="submit">저장</button>
-</form>
+  {% if page %}
+    <h2>문서 편집</h2>
+  {% else %}
+    <h2>새 문서 생성 (목차: {{ category['name'] if category else "" }})</h2>
+  {% endif %}
+  <form method="post">
+    <label>제목<br><input type="text" name="title" value="{{ page['title'] if page else '' }}" required></label><br>
+    <label>목차<br>
+      <select name="category_id">
+        {% if category %}
+          <option value="{{ category['id'] }}">{{ category['name'] }}</option>
+        {% endif %}
+        {% if categories %}
+          {% for c in categories %}
+            <option value="{{ c['id'] }}">{{ c['name'] }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </label><br>
+    <label>내용 (Markdown)<br>
+      <textarea name="content" rows="16">{{ page['content'] if page else '' }}</textarea>
+    </label><br>
+    <button type="submit">저장</button>
+    {% if page %}
+      <a href="{{ url_for('view_page', pid=page['id']) }}">취소</a>
+    {% else %}
+      <a href="{{ url_for('show_category', cid=category['id']) }}">취소</a>
+    {% endif %}
+  </form>
 {% endblock %}
