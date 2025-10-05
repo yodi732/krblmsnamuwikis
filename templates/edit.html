@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>✏️ {{ title }} 편집</h1>
+<form method="post">
+  <textarea name="content" rows="20">{{ content }}</textarea><br>
+  <button type="submit">저장</button>
+</form>
+{% endblock %}

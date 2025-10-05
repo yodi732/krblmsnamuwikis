@@ -1,0 +1,5 @@
+body { font-family: "Noto Sans KR", sans-serif; margin: 40px; background: #fafafa; }
+nav { margin-bottom: 20px; }
+nav a { margin-right: 10px; text-decoration: none; color: #333; }
+textarea { width: 100%; font-family: monospace; }
+button { padding: 8px 14px; border: none; background: #4a90e2; color: white; border-radius: 6px; }
