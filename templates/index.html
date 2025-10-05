@@ -1,18 +1,20 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>목차들</h2>
-  {% if categories|length == 0 %}
-    <p>아직 목차가 없습니다. 새 목차를 만들어보세요.</p>
-  {% endif %}
-  <ul class="categories">
-    {% for c in categories %}
-      <li>
-        <a href="{{ url_for('show_category', cid=c['id']) }}">{{ c['name'] }}</a>
-        <a class="small" href="{{ url_for('edit_category', cid=c['id']) }}">(편집)</a>
-        <form class="inline" action="{{ url_for('delete_category', cid=c['id']) }}" method="post" onsubmit="return confirm('목차와 하위 문서들을 삭제하시겠습니까?');">
-          <button type="submit" class="small danger">삭제</button>
-        </form>
-      </li>
-    {% endfor %}
-  </ul>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>위키 - 목차</title>
+</head>
+<body>
+    <h1>위키 목차</h1>
+    <ul>
+        {% for cat in categories %}
+        <li>
+            <a href="{{ url_for('view_category', cat_id=cat[0]) }}">{{ cat[1] }}</a>
+            [<a href="{{ url_for('edit_category', cat_id=cat[0]) }}">수정</a>]
+            [<a href="{{ url_for('delete_category', cat_id=cat[0]) }}">삭제</a>]
+        </li>
+        {% endfor %}
+    </ul>
+    <p><a href="{{ url_for('edit_category', cat_id=0) }}">+ 새 목차 추가</a></p>
+</body>
+</html>
