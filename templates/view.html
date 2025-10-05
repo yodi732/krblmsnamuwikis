@@ -1,22 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>{{ page[2] }}</title></head>
-<body>
-    <h1>{{ page[2] }}</h1>
-    <div>{{ page[3]|safe }}</div>
-    <p>
-        <a href="{{ url_for('edit_page', page_id=page[0]) }}">수정</a> |
-        <a href="{{ url_for('delete_page', page_id=page[0]) }}">삭제</a> |
-        <a href="{{ url_for('new_page', parent_id=page[0]) }}">+ 하위 문서 추가</a>
-    </p>
-    {% if children %}
-    <h2>하위 문서</h2>
-    <ul>
-        {% for child in children %}
-        <li><a href="{{ url_for('view_page', page_id=child[0]) }}">{{ child[1] }}</a></li>
-        {% endfor %}
-    </ul>
+{% extends "base.html" %}
+{% block content %}
+  <article class="wiki-page">
+    <h1 class="page-title">{{ title }}</h1>
+    {% if content %}
+      <aside class="page-toc">
+        {% if toc %}
+          <nav>
+            <ul>
+            {% for item in toc %}
+              <li class="toc-level-{{ item.level }}"><a href="#{{ item.anchor }}">{{ item.text }}</a></li>
+            {% endfor %}
+            </ul>
+          </nav>
+        {% endif %}
+      </aside>
+      <div class="page-content">{{ content|safe }}</div>
+      <div class="page-actions">
+        <a class="btn" href="{{ url_for('edit', title=title) }}">편집</a>
+        <form method="post" action="{{ url_for('delete', title=title) }}" onsubmit="return confirm('문서를 삭제하시겠습니까?');" style="display:inline">
+          <button class="btn danger" type="submit">삭제</button>
+        </form>
+      </div>
+    {% else %}
+      <p>문서가 존재하지 않습니다. <a href="{{ url_for('edit', title=title) }}">새로 작성</a></p>
     {% endif %}
-    <p><a href="{{ url_for('index') }}">← 홈으로</a></p>
-</body>
-</html>
+    <p><a href="{{ url_for('index') }}">홈으로</a></p>
+  </article>
+{% endblock %}

@@ -1,13 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>위키 홈</title></head>
-<body>
-    <h1>위키 홈</h1>
-    <ul>
-        {% for page in roots %}
-        <li><a href="{{ url_for('view_page', page_id=page[0]) }}">{{ page[1] }}</a></li>
+{% extends "base.html" %}
+{% block content %}
+  <div class="home-grid">
+    <section class="recent">
+      <h2>최근 변경</h2>
+      {% if recent %}
+        <ul>
+        {% for r in recent %}
+          <li><a href="{{ url_for('view', title=r['title']) }}">{{ r['title'] }}</a> <span class="time">{{ r['updated_at'] }}</span></li>
         {% endfor %}
-    </ul>
-    <p><a href="{{ url_for('new_page', parent_id='None') }}">+ 최상위 문서 추가</a></p>
-</body>
-</html>
+        </ul>
+      {% else %}
+        <p>아직 문서가 없습니다. <a href="{{ url_for('edit', title='새 문서') }}">문서 만들기</a></p>
+      {% endif %}
+    </section>
+    <section class="search-results">
+      {% if query %}
+        <h2>검색 결과: "{{ query }}"</h2>
+        {% if results %}
+          <ul>
+          {% for r in results %}
+            <li><a href="{{ url_for('view', title=r['title']) }}">{{ r['title'] }}</a></li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <p>검색 결과가 없습니다.</p>
+        {% endif %}
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

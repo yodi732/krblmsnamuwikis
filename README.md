@@ -1,14 +1,13 @@
+# Namuwiki-like Flask Wiki (교육용 데모) - Final
 
-# Modified School Wiki (Category + Pages)
+구성:
+- /w/<title> : 문서 보기 (없는 문서면 편집으로 유도)
+- /edit/<title> : 편집/생성 (제목 변경 가능, 충돌 검사)
+- /delete/<title> : POST로 삭제 (홈으로 리다이렉트)
+- 제목 기반 URL 사용 (인코딩 처리) - 공백, 특수문자 주의
 
-간단한 Flask 기반 위키입니다.
-목차(categories)와 하위 문서(pages)를 CRUD 할 수 있습니다.
-
-실행 방법 (로컬):
+실행:
 $ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ python app.py
-웹 브라우저에서 http://localhost:5000 접속
-
-참고: 최초 실행 시 wiki.db 파일이 생성됩니다.

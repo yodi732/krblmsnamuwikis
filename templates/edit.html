@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>{% if page %}문서 수정{% else %}문서 생성{% endif %}</title></head>
-<body>
-    <h1>{% if page %}문서 수정{% else %}문서 생성{% endif %}</h1>
-    <form method="post">
-        제목: <input type="text" name="title" value="{{ page[2] if page else '' }}"><br>
-        내용:<br>
-        <textarea name="content" rows="20" cols="80">{{ page[3] if page else '' }}</textarea><br>
-        <input type="submit" value="저장">
-    </form>
-    {% if page %}
-    <p><a href="{{ url_for('view_page', page_id=page[0]) }}">← 돌아가기</a></p>
-    {% elif parent_id %}
-    <p><a href="{{ url_for('view_page', page_id=parent_id) }}">← 돌아가기</a></p>
-    {% else %}
-    <p><a href="{{ url_for('index') }}">← 홈으로</a></p>
-    {% endif %}
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ '문서 편집' if content else '문서 생성' }}</h1>
+  <form method="post">
+    <label>제목<br><input type="text" name="title" value="{{ title }}" required></label>
+    <label>내용 (마크다운 + ==헤딩== 문법, [[문서]] 링크 지원)<br>
+      <textarea name="content" rows="18">{{ content if content else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+      <button class="btn" type="submit">저장</button>
+      <a class="btn secondary" href="{{ url_for('view', title=title) }}">취소</a>
+    </div>
+  </form>
+{% endblock %}
