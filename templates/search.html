@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Search results for '{{ q }}'</h2>
-{% if results %}
-  <ul>
+<h2>Search results for "{{ query }}"</h2>
+<ul>
   {% for r in results %}
-    <li><a href="{{ url_for('view_page', title=r['title']) }}">{{ r['title'] }}</a> <span class="muted">({{ r['updated_at'] }})</span></li>
+    <li><a href="{{ url_for('view_page', page_id=r['id']) }}">{{ r['title'] }}</a></li>
+  {% else %}
+    <li>No results.</li>
   {% endfor %}
-  </ul>
-{% else %}
-  <p>No results.</p>
-{% endif %}
+</ul>
 {% endblock %}

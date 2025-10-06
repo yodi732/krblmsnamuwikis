@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Create section</h2>
+<h2>Create new section</h2>
 <form method="post">
-  <label>Title</label><br>
-  <input name="title"/><br><br>
-  <button type="submit" class="btn">Create</button>
-  <a href="{{ url_for('index') }}" class="btn">Cancel</a>
+  <input name="title" placeholder="Section title">
+  <button type="submit">Create</button>
 </form>
 {% endblock %}

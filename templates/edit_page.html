@@ -1,14 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Edit: {{ page['title'] }}</h2>
+<h2>Edit page: {{ page['title'] }}</h2>
 <form method="post">
-  <label>Content (Markdown supported)</label><br>
-  <textarea name="content" rows="20">{{ page['content'] }}</textarea><br>
-  <button type="submit" class="btn">Save</button>
-  <a href="{{ url_for('view_page', page_id=page['id']) }}" class="btn">Cancel</a>
+  <input name="title" value="{{ page['title'] }}"><br>
+  <textarea name="content" rows="10" cols="60">{{ page['content'] }}</textarea><br>
+  <button type="submit">Save</button>
 </form>
-<section class="help">
-  <h3>Quick help</h3>
-  <p>Use <code>[[Page Title]]</code> to link to another page.</p>
-</section>
 {% endblock %}
