@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: simple-wiki-tree
+    name: krblmsnamuwikis
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app -b 0.0.0.0:$PORT"
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
