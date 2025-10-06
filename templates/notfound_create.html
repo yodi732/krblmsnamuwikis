@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Page '{{ title }}' not found</h2>
+<p>You can create it under one of the existing sections.</p>
+<ul>
+  {% for s in sections %}
+    <li><a href="{{ url_for('add_page', section_id=s['id']) }}?title={{ title|urlencode }}">{{ s['title'] }}</a></li>
+  {% endfor %}
+</ul>
+<p>Or <a href="{{ url_for('add_section') }}">create a new section</a> first.</p>
+{% endblock %}

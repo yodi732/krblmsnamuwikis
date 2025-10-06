@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <article class="page">
-  <h2>{{ title }}</h2>
-  <div class="meta">Last updated: {{ updated_at }}</div>
+  <h2>{{ page['title'] }}</h2>
+  <div class="meta">Section: {% if page['section_title'] %}<a href='{{ url_for('view_section', section_id=page['section_id'])}}'>{{ page['section_title'] }}</a>{% else %}None{% endif %} · Last updated: {{ page['updated_at'] }}</div>
   <div class="content">{{ content }}</div>
   <p class="actions">
-    <a href="{{ url_for('edit_page', title=title) }}" class="btn">Edit</a>
-    <a href="{{ url_for('delete_page', title=title) }}" class="btn danger">Delete</a>
-    <a href="{{ url_for('index') }}" class="btn">Home</a>
+    <a href="{{ url_for('edit_page', page_id=page['id']) }}" class="btn">Edit</a>
+    <a href="{{ url_for('delete_page', page_id=page['id']) }}" class="btn danger">Delete</a>
   </p>
 </article>
 {% endblock %}

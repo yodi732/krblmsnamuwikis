@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Delete page: {{ page['title'] }}</h2>
+<p>Are you sure you want to delete this page?</p>
+<form method="post">
+  <button type="submit" class="btn danger">Yes, delete</button>
+  <a href="{{ url_for('view_page', page_id=page['id']) }}" class="btn">Cancel</a>
+</form>
+{% endblock %}

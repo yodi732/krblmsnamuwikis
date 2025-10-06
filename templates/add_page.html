@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create page in section: {{ section['title'] }}</h2>
+<form method="post">
+  <label>Page title</label><br>
+  <input name="title"/><br><br>
+  <label>Content (Markdown supported)</label><br>
+  <textarea name="content" rows="18"></textarea><br>
+  <button type="submit" class="btn">Create page</button>
+  <a href="{{ url_for('view_section', section_id=section['id']) }}" class="btn">Cancel</a>
+</form>
+{% endblock %}

@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Top-level pages</h2>
-<p><a href="{{ url_for('edit_page', title='FrontPage') }}" class="btn">Create FrontPage</a></p>
-<ul class="page-list">
-{% for p in pages %}
-  <li><a href="{{ url_for('view_page', title=p) }}">{{ p }}</a></li>
-{% else %}
-  <li>No pages yet.</li>
+<h2>Sections</h2>
+<p>Create a section to start adding pages.</p>
+<ul class="section-list">
+{% for s in sections %}
+  <li>
+    <a href="{{ url_for('view_section', section_id=s['id']) }}" class="section-link">{{ s['title'] }}</a>
+    <span class="muted">({{ s['page_count'] }} pages)</span>
+    <a href="{{ url_for('delete_section', section_id=s['id']) }}" class="btn danger small">Delete</a>
+  </li>
 {% endfor %}
 </ul>
+<hr/>
+<h3>Create new section</h3>
+<form method="post" action="{{ url_for('add_section') }}" class="inline-form">
+  <input name="title" placeholder="Section title"/>
+  <button type="submit" class="btn">Create</button>
+</form>
 {% endblock %}

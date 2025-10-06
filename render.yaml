@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: simple-wiki-stable
+    name: simple-wiki-tree
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"

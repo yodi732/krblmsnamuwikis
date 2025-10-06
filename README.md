@@ -1,13 +1,15 @@
-# Namuwiki-like Flask Wiki (교육용 데모) - Final
+# Simple Tree-style Wiki (Render-ready)
 
-구성:
-- /w/<title> : 문서 보기 (없는 문서면 편집으로 유도)
-- /edit/<title> : 편집/생성 (제목 변경 가능, 충돌 검사)
-- /delete/<title> : POST로 삭제 (홈으로 리다이렉트)
-- 제목 기반 URL 사용 (인코딩 처리) - 공백, 특수문자 주의
+This is a minimal tree-structured wiki inspired by Namuwiki. Features:
+- Sections (목차) and Pages (하위문서)
+- Create / Edit / Delete sections and pages
+- Internal links using [[Page Title]]
+- Logs of add/edit/delete actions (view at /logs)
+- SQLite DB stored as wiki.db (preserved between deploys unless you remove it)
+- No search (requested)
+- Render-ready (render.yaml included), start command uses gunicorn
 
-실행:
-$ python3 -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-$ python app.py
+To deploy:
+1. Upload repo to GitHub
+2. Connect repository to Render (it will use render.yaml)
+3. Build will run `pip install -r requirements.txt` and start gunicorn

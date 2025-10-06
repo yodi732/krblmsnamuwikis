@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Recent logs</h2>
+<table class="logs">
+  <thead><tr><th>When</th><th>Action</th><th>Object</th><th>Details</th></tr></thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td class="muted">{{ l['timestamp'] }}</td>
+      <td>{{ l['action'] }}</td>
+      <td>{{ l['object_type'] }}: {{ l['object_title'] }}</td>
+      <td>{{ l['details'] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
