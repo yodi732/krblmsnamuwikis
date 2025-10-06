@@ -51,3 +51,37 @@ def page(page_id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
+
+# --- Automatic database initialization (added automatically) ---
+import sqlite3, logging
+from pathlib import Path
+
+def ensure_database():
+    try:
+        here = Path(__file__).parent
+        instance_dir = here / 'instance'
+        instance_dir.mkdir(exist_ok=True)
+        db_path = instance_dir / 'database.db'
+        if not db_path.exists():
+            schema_path = here / 'schema.sql'
+            if schema_path.exists():
+                con = sqlite3.connect(str(db_path))
+                with open(schema_path, 'r', encoding='utf-8') as f:
+                    con.executescript(f.read())
+                con.commit()
+                con.close()
+                logging.info(f"Database initialized automatically at {db_path}")
+            else:
+                logging.error("schema.sql not found; cannot initialize database automatically.")
+        else:
+            logging.info("Database already exists; skipping initialization.")
+    except Exception as e:
+        logging.exception(f"Error ensuring database: {e}")
+
+# Automatically ensure DB when app starts
+try:
+    ensure_database()
+except Exception as e:
+    print("Automatic DB init failed:", e)
+# --- End automatic initialization block ---
