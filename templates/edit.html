@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>{{ '문서 편집' if content else '문서 생성' }}</h1>
-  <form method="post">
-    <label>제목<br><input type="text" name="title" value="{{ title }}" required></label>
-    <label>내용 (마크다운 + ==헤딩== 문법, [[문서]] 링크 지원)<br>
-      <textarea name="content" rows="18">{{ content if content else '' }}</textarea>
-    </label>
-    <div class="form-actions">
-      <button class="btn" type="submit">저장</button>
-      <a class="btn secondary" href="{{ url_for('view', title=title) }}">취소</a>
-    </div>
-  </form>
+<h2>Edit: {{ title }}</h2>
+<form method="post">
+  <textarea name="content" rows="20">{{ content }}</textarea><br>
+  <button type="submit" class="btn">Save</button>
+  <a href="{{ url_for('view_page', title=title) }}" class="btn">Cancel</a>
+</form>
+<section class="help">
+  <h3>Quick help</h3>
+  <p>Use <code>[[Page name]]</code> to link to other pages.</p>
+  <p>Markdown is supported (code fences, lists, tables).</p>
+</section>
 {% endblock %}

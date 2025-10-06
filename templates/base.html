@@ -1,35 +1,36 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>나무위키 스타일 위키</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{ title or 'Wiki' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1 class="site-title"><a href="{{ url_for('index') }}">학교 위키 (나무위키 스타일)</a></h1>
-      <form action="{{ url_for('index') }}" method="get" class="search-form" role="search">
-        <input type="text" name="q" value="{{ query if query is defined else '' }}" placeholder="문서 검색...">
-        <button type="submit">검색</button>
-      </form>
-    </div>
+  <header>
+    <h1><a href="{{ url_for('index') }}">Simple Wiki</a></h1>
+    <form action="{{ url_for('search') }}" method="get" class="search">
+      <input name="q" placeholder="Search titles..." value="{{ request.args.get('q','') }}"/>
+      <button type="submit">Search</button>
+    </form>
+    <nav>
+      <a href="{{ url_for('index') }}">Home</a> ·
+      <a href="{{ url_for('list_pages') }}">All pages</a> ·
+      <a href="{{ url_for('recent') }}">Recent changes</a>
+    </nav>
   </header>
-  <main class="container">
+  <main>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <ul class="flashes">
-        {% for category, msg in messages %}
-          <li class="flash {{ category }}">{{ msg }}</li>
+        {% for cat, msg in messages %}
+          <li class="flash {{ cat }}">{{ msg }}</li>
         {% endfor %}
         </ul>
       {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer class="container">
-    <small>간단한 나무위키 스타일 위키 — 교육용 데모</small>
-  </footer>
+  <footer>Built with Flask · Simple Wiki</footer>
 </body>
 </html>

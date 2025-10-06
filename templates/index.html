@@ -1,31 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="home-grid">
-    <section class="recent">
-      <h2>최근 변경</h2>
-      {% if recent %}
-        <ul>
-        {% for r in recent %}
-          <li><a href="{{ url_for('view', title=r['title']) }}">{{ r['title'] }}</a> <span class="time">{{ r['updated_at'] }}</span></li>
-        {% endfor %}
-        </ul>
-      {% else %}
-        <p>아직 문서가 없습니다. <a href="{{ url_for('edit', title='새 문서') }}">문서 만들기</a></p>
-      {% endif %}
-    </section>
-    <section class="search-results">
-      {% if query %}
-        <h2>검색 결과: "{{ query }}"</h2>
-        {% if results %}
-          <ul>
-          {% for r in results %}
-            <li><a href="{{ url_for('view', title=r['title']) }}">{{ r['title'] }}</a></li>
-          {% endfor %}
-          </ul>
-        {% else %}
-          <p>검색 결과가 없습니다.</p>
-        {% endif %}
-      {% endif %}
-    </section>
-  </div>
+<h2>Top-level pages</h2>
+<p><a href="{{ url_for('edit_page', title='FrontPage') }}" class="btn">Create FrontPage</a></p>
+<ul class="page-list">
+{% for p in pages %}
+  <li><a href="{{ url_for('view_page', title=p) }}">{{ p }}</a></li>
+{% else %}
+  <li>No pages yet.</li>
+{% endfor %}
+</ul>
 {% endblock %}
