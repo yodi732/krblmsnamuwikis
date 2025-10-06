@@ -3,6 +3,25 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3, os
 
 app = Flask(__name__)
+
+import os, sqlite3
+
+# === Database initialization ===
+def init_db():
+    db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS sections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
 app.secret_key = 'secret'
 
 def get_db():
@@ -31,4 +50,4 @@ def page(page_id):
     return render_template('page.html', page=page)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
