@@ -5,7 +5,7 @@
 <form method="post">
   <p><input type="text" name="title" placeholder="제목"></p>
   <p>
-    <label>상위 문서(선택)</label>
+    <label>상위 문서(선택) — (목차만 상위로 선택 가능)</label>
     <select name="parent_id">
       <option value="">(없음)</option>
       {% for p in all_pages %}

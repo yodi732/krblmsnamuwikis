@@ -8,13 +8,15 @@
 </head>
 <body>
   <header>
-    <a href="{{ url_for('index') }}"><strong>School Wiki</strong></a>
+    <a href="{{ url_for('index') }}" class="btn">홈</a>
     <a href="{{ url_for('new_page') }}" class="btn">문서 만들기</a>
+    <a href="{{ url_for('logs_all') }}" class="btn">로그 보기</a>
   </header>
 
   <div class="wrapper">
     <aside class="sidebar">
-      {{ render_toc(tree, None) | safe }}
+      <div class="toc-title">목차</div>
+      {{ render_toc(tree, None, max_depth=1) | safe }}
     </aside>
     <main class="content">
       {% with messages = get_flashed_messages(with_categories=True) %}

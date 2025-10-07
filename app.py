@@ -28,6 +28,15 @@ def ensure_schema():
 ensure_schema()
 
 # ---- helpers ----
+def is_root(page_id):
+    if page_id is None:
+        return True
+    with get_conn() as con:
+        row = con.execute("SELECT parent_id FROM pages WHERE id=?", (page_id,)).fetchone()
+        if not row:
+            return True
+        return row["parent_id"] is None
+
 def all_pages():
     with get_conn() as con:
         return con.execute(
@@ -80,6 +89,14 @@ def new_page():
         title = (request.form.get("title") or "").strip()
         content = (request.form.get("content") or "").strip()
         parent_id = request.form.get("parent_id") or None
+        # depth limit: only root -> child allowed
+        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+            flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
+            return redirect(url_for("edit_page", page_id=page_id))
+        # depth limit: only root -> child allowed
+        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+            flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
+            return redirect(url_for("new_page"))
         author = (request.form.get("author") or "anonymous").strip()
         summary = (request.form.get("summary") or "").strip()
         if not title:
@@ -111,7 +128,7 @@ def view_page(page_id):
 def edit_page(page_id):
     with get_conn() as con:
         page = con.execute("SELECT * FROM pages WHERE id=?", (page_id,)).fetchone()
-        allp = con.execute("SELECT id, title FROM pages WHERE id != ? ORDER BY title COLLATE NOCASE", (page_id,)).fetchall()
+        allp = con.execute("SELECT id, title FROM pages WHERE parent_id IS NULL AND id != ? ORDER BY title COLLATE NOCASE", (page_id,)).fetchall()
     tree = tree_by_parent(all_pages())
     if not page:
         abort(404)
@@ -119,6 +136,14 @@ def edit_page(page_id):
         title = (request.form.get("title") or "").strip()
         content = (request.form.get("content") or "").strip()
         parent_id = request.form.get("parent_id") or None
+        # depth limit: only root -> child allowed
+        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+            flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
+            return redirect(url_for("edit_page", page_id=page_id))
+        # depth limit: only root -> child allowed
+        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+            flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
+            return redirect(url_for("new_page"))
         author = (request.form.get("author") or "anonymous").strip()
         summary = (request.form.get("summary") or "").strip()
         if not title:
@@ -182,3 +207,13 @@ def _helpers():
         html.append("</ul>")
         return "".join(html)
     return dict(render_toc=render_toc)
+
+@app.get("/logs")
+def logs_all():
+    with get_conn() as con:
+        rows = con.execute(
+            "SELECT l.id, l.page_id, p.title as page_title, l.author, l.action, l.summary, l.created_at "
+            "FROM page_logs l LEFT JOIN pages p ON p.id=l.page_id ORDER BY l.id DESC LIMIT 500"
+        ).fetchall()
+    tree = tree_by_parent(all_pages())
+    return render_template("logs_all.html", logs=rows, tree=tree)

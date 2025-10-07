@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}전체 로그 - School Wiki{% endblock %}
+{% block content %}
+<h2>전체 로그</h2>
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+  <tr><th>ID</th><th>문서</th><th>작성자</th><th>행동</th><th>요약</th><th>시간</th></tr>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l['id'] }}</td>
+      <td><a href="{{ url_for('view_page', page_id=l['page_id']) }}">{{ l['page_title'] or '(삭제됨)' }}</a></td>
+      <td>{{ l['author'] }}</td>
+      <td>{{ l['action'] }}</td>
+      <td>{{ l['summary'] }}</td>
+      <td>{{ l['created_at'] }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6">표시할 로그가 없습니다.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
