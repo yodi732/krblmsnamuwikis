@@ -1,26 +1,31 @@
-
 <!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}School Wiki{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}School Wiki{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <a href="{{ url_for('index') }}"><strong>School Wiki</strong></a>
-        <a href="{{ url_for('add_section') }}">새 글</a>
-    </header>
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, msg in messages %}
-                    <div class="flash {{ category }}">{{ msg }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-    </div>
+  <header>
+    <a href="{{ url_for('index') }}"><strong>School Wiki</strong></a>
+    <a href="{{ url_for('new_page') }}" class="btn">새 문서</a>
+  </header>
+
+  <div class="wrapper">
+    <aside class="sidebar">
+      {{ render_toc(tree, None) | safe }}
+    </aside>
+    <main class="content">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="flash {{ category }}">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
 </body>
 </html>

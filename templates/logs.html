@@ -1,17 +1,19 @@
 {% extends "base.html" %}
+{% block title %}수정 로그 - School Wiki{% endblock %}
 {% block content %}
-<h2>Logs</h2>
-<table border="0" cellpadding="6">
-  <thead><tr><th>When</th><th>Action</th><th>Object</th><th>Details</th></tr></thead>
-  <tbody>
+<h2>수정 로그 — {{ page['title'] }}</h2>
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr><th>시간</th><th>작성자</th><th>행동</th><th>요약</th></tr>
   {% for l in logs %}
     <tr>
-      <td class="muted">{{ l['timestamp'] }}</td>
+      <td>{{ l['created_at'] }}</td>
+      <td>{{ l['author'] }}</td>
       <td>{{ l['action'] }}</td>
-      <td>{{ l['object_type'] }}: {{ l['object_title'] }}</td>
-      <td>{{ l['details'] }}</td>
+      <td>{{ l['summary'] }}</td>
     </tr>
+  {% else %}
+    <tr><td colspan="4">로그가 없습니다.</td></tr>
   {% endfor %}
-  </tbody>
 </table>
+<p><a class="btn" href="{{ url_for('view_page', page_id=page['id']) }}">← 문서로</a></p>
 {% endblock %}

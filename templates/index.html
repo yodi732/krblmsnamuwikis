@@ -1,19 +1,14 @@
-
 {% extends "base.html" %}
-{% block title %}글 목록 - School Wiki{% endblock %}
+{% block title %}문서 목록 - School Wiki{% endblock %}
 {% block content %}
-<form method="get" action="{{ url_for('index') }}" style="margin-bottom:14px;">
-    <input type="text" name="q" placeholder="검색어" value="{{ q or '' }}">
-    <button class="btn">검색</button>
-</form>
-<ul class="list">
-    {% for s in sections %}
-        <li>
-            <a href="{{ url_for('view_section', section_id=s['id']) }}"><strong>{{ s['title'] }}</strong></a>
-            <div style="color:#888; font-size:12px;">{{ s['created_at'] }}</div>
-        </li>
-    {% else %}
-        <li>아직 글이 없습니다. <a href="{{ url_for('add_section') }}">첫 글 쓰기</a></li>
-    {% endfor %}
+<h2>문서 목록</h2>
+<ul>
+  {% for p in roots %}
+    <li><a href="{{ url_for('view_page', page_id=p['id']) }}"><strong>{{ p['title'] }}</strong></a>
+      {% if p['updated_at'] %}<span class="meta"> · 업데이트: {{ p['updated_at'] }}</span>{% endif %}
+    </li>
+  {% else %}
+    <li>아직 문서가 없습니다. <a href="{{ url_for('new_page') }}">첫 문서 만들기</a></li>
+  {% endfor %}
 </ul>
 {% endblock %}
