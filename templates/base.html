@@ -1,26 +1,37 @@
+
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>별내위키</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <div class="topbar">
-    <a href="{{ url_for('index') }}">홈</a>
-    <a href="{{ url_for('new_page') }}">문서 만들기</a>
-  </div>
-  <div class="content">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flash">
-        {% for msg in messages %}
-          <li>{{ msg }}</li>
-        {% endfor %}
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title or '별내위키' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="nav">
+      <div class="left">
+        <a class="btn" href="{{ url_for('home') }}">홈</a>
+        <a class="btn" href="{{ url_for('new_document') }}">문서 만들기</a>
+        <a class="btn" href="{{ url_for('view_logs') }}">로그 보기</a>
+      </div>
+      <div style="font-weight:700">별내위키</div>
+    </div>
+    <div class="container">
+      <div class="card">
+        <h3>목차</h3>
+        <ul>
+          {% for t in tocs %}
+            <li><a href="{{ url_for('view_document', doc_id=t.id) }}">{{ t.title }}</a></li>
+            {% for c in children_map.get(t.id, []) %}
+              <li style="margin-left:12px">• <a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+            {% endfor %}
+          {% endfor %}
         </ul>
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </div>
-</body>
+      </div>
+      <div class="card">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+    <div class="footer">피드백 → <a style="color:#ffcc00" href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+  </body>
 </html>

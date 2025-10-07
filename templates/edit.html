@@ -1,11 +1,29 @@
+
 {% extends "base.html" %}
 {% block content %}
-  <h1>문서 수정</h1>
+  <h2>{{ '새 문서' if mode=='new' else '문서 수정' }}</h2>
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
   <form method="post">
-    <label>제목:</label><br>
-    <input type="text" name="title" value="{{ page.title }}"><br>
-    <label>내용:</label><br>
-    <textarea name="content" rows="10" cols="50">{{ page.content }}</textarea><br>
-    <button type="submit">저장</button>
+    <label>제목</label>
+    <input type="text" name="title" value="{{ form.title or '' }}" required>
+    <label>상위 문서(선택) — (목차만 상위로 선택 가능)</label>
+    <select name="parent_id">
+      <option value="">(없음)</option>
+      {% for t in tocs %}
+        <option value="{{ t.id }}" {% if form.parent_id==t.id %}selected{% endif %}>{{ t.title }}</option>
+      {% endfor %}
+    </select>
+    <label>내용</label>
+    <textarea name="content" placeholder="이미지는 &lt;img src='https://...' alt='..' style='max-width:100%'&gt; 처럼 링크로 삽입하세요.">{{ form.content or '' }}</textarea>
+    <label>작성자</label>
+    <input type="text" name="author" placeholder="기록용" value="{{ form.author or '' }}">
+    {% if mode=='edit' %}
+      <label>변경 요약(선택)</label>
+      <input type="text" name="reason" placeholder="변경 사유">
+    {% endif %}
+    <div class="actions" style="margin-top:10px">
+      <button class="btn" type="submit">저장</button>
+      <a class="btn" href="{{ url_for('home') }}">취소</a>
+    </div>
   </form>
 {% endblock %}

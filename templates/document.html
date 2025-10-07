@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+{% block content %}
+  <h2>{{ doc.title }}</h2>
+  <div class="actions" style="margin-bottom:8px">
+    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
+    <a class="btn" href="{{ url_for('new_document', parent_id=doc.id) }}">하위 문서 만들기</a>
+  </div>
+  {% if warning %}<div class="alert">{{ warning }}</div>{% endif %}
+  <div class="muted">업데이트: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+  <hr>
+  <div>{{ doc.content | safe }}</div>
+  {% if children %}
+  <hr>
+  <h3>하위 문서</h3>
+  <ul>
+    {% for c in children %}
+      <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+{% endblock %}
