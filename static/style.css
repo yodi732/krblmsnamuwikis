@@ -25,3 +25,8 @@ form textarea { min-height: 220px; font-family: inherit; }
 .topbar { display:flex; align-items:center; justify-content:space-between; }
 .topbar .left .btn { margin-right:10px; }
 .topbar .brand { color:#fff; font-weight:800; font-size:18px; }
+
+/* Make header buttons readable on white background */
+.topbar .btn { color: #2a2a72 !important; background:#fff; }
+
+.topbar .btn { color:#000 !important; background:#fff; }

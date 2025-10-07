@@ -25,7 +25,7 @@
       {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
           {% for category, msg in messages %}
-            <div class="flash {{ category }}">{{ msg }}</div>
+            {% if category != "error" %}<div class="flash {{ category }}">{{ msg }}</div>{% endif %}
           {% endfor %}
         {% endif %}
       {% endwith %}

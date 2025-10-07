@@ -82,6 +82,10 @@ def index():
 @app.route("/pages/new", methods=["GET", "POST"])
 def new_page():
     default_parent = request.args.get("parent", "").strip()
+    # guard: prevent creating child-of-child via direct link
+    if default_parent not in ("", None, "None") and not is_root(default_parent):
+        # silently block opening form for grandchild creation
+        return redirect(url_for("index"))
     with get_conn() as con:
         allp = con.execute("SELECT id, title FROM pages ORDER BY title COLLATE NOCASE").fetchall()
     tree = tree_by_parent(all_pages())
@@ -95,7 +99,6 @@ def new_page():
         except Exception:
             blocked = False
         if blocked:
-            flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
             return redirect(url_for("edit_page", page_id=page_id))
         # depth limit: only root -> child allowed
         if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
@@ -146,7 +149,6 @@ def edit_page(page_id):
         except Exception:
             blocked = False
         if blocked:
-            flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
             return redirect(url_for("edit_page", page_id=page_id))
         # depth limit: only root -> child allowed
         if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
