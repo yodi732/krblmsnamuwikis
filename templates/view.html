@@ -1,29 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-  <article class="wiki-page">
-    <h1 class="page-title">{{ title }}</h1>
-    {% if content %}
-      <aside class="page-toc">
-        {% if toc %}
-          <nav>
-            <ul>
-            {% for item in toc %}
-              <li class="toc-level-{{ item.level }}"><a href="#{{ item.anchor }}">{{ item.text }}</a></li>
-            {% endfor %}
-            </ul>
-          </nav>
-        {% endif %}
-      </aside>
-      <div class="page-content">{{ content|safe }}</div>
-      <div class="page-actions">
-        <a class="btn" href="{{ url_for('edit', title=title) }}">편집</a>
-        <form method="post" action="{{ url_for('delete', title=title) }}" onsubmit="return confirm('문서를 삭제하시겠습니까?');" style="display:inline">
-          <button class="btn danger" type="submit">삭제</button>
-        </form>
-      </div>
-    {% else %}
-      <p>문서가 존재하지 않습니다. <a href="{{ url_for('edit', title=title) }}">새로 작성</a></p>
-    {% endif %}
-    <p><a href="{{ url_for('index') }}">홈으로</a></p>
-  </article>
+<h1>{{ page.title }}</h1>
+<div class="article">{{ page.body|safe }}</div>
+<p><a class="btn" href="{{ url_for('edit_page', page_id=page.id) }}">수정</a></p>
+<h3>최근 변경 로그</h3>
+<ul>
+  {% for l in logs %}
+    <li>{{ l.at.strftime('%Y-%m-%d %H:%M') }} · {{ l.action }} · {{ l.detail }}</li>
+  {% else %}
+    <li>로그 없음</li>
+  {% endfor %}
+</ul>
 {% endblock %}

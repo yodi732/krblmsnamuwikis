@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Edit: {{ title }}</h2>
+<h1>{{ '문서 수정' if page else '새 문서' }}</h1>
 <form method="post">
-  <textarea name="content" rows="20">{{ content }}</textarea><br>
-  <button type="submit" class="btn">Save</button>
-  <a href="{{ url_for('view_page', title=title) }}" class="btn">Cancel</a>
+  <label>제목</label><br>
+  <input name="title" value="{{ page.title if page else '' }}" style="width:100%;padding:8px"><br><br>
+  <label>내용</label><br>
+  <textarea name="body" rows="18" style="width:100%;padding:8px">{{ page.body if page else '' }}</textarea><br><br>
+  <button type="submit">저장</button>
+  <a class="btn" href="{{ url_for('home') }}">취소</a>
 </form>
-<section class="help">
-  <h3>Quick help</h3>
-  <p>Use <code>[[Page name]]</code> to link to other pages.</p>
-  <p>Markdown is supported (code fences, lists, tables).</p>
-</section>
 {% endblock %}

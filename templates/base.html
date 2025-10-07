@@ -1,37 +1,32 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}School Wiki{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="utf-8">
+<title>별내위키</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-  <header class="topbar">
+<header>
   <div class="left">
-    <a href="{{ url_for('index') }}" class="btn">홈</a>
-    <a href="{{ url_for('new_page') }}" class="btn">문서 만들기</a>
-    <a href="{{ url_for('logs_all') }}" class="btn">로그 보기</a>
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+    <a class="btn" href="{{ url_for('new_page') }}">문서 만들기</a>
   </div>
-  <div class="right brand">별내위키</div>
+  <div class="brand">별내위키</div>
 </header>
-
-  <div class="wrapper">
-    <aside class="sidebar">
-      <div class="toc-title">목차</div>
-      {{ render_toc(tree, None, max_depth=1) | safe }}
-    </aside>
-    <main class="content">
-      {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
-          {% for category, msg in messages %}
-            {% if category != "error" %}<div class="flash {{ category }}">{{ msg }}</div>{% endif %}
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
-    </main>
-  </div>
-<div class="feedback-badge">피드백 -> <a href="mailto:lyhjs1115@gmail.com" style="color:#FFD700; text-decoration:underline;">lyhjs1115@gmail.com</a></div>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <ul class="flash">
+    {% for cat, msg in messages %}
+      <li class="{{cat}}">{{ msg }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  <span style="color:#ffd32a;">피드백 → lyhjs1115@gmail.com</span>
+</footer>
 </body>
 </html>
