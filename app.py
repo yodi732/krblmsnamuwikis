@@ -1,4 +1,3 @@
-
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +6,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# ---- DATABASE URL FIX (psycopg3 + ssl) ----
 uri = os.environ.get("DATABASE_URL", "").strip()
 if uri.startswith("postgresql://"):
     uri = uri.replace("postgresql://", "postgresql+psycopg://", 1)
@@ -48,7 +46,6 @@ with app.app_context():
         app.logger.info("[DB] Connected OK")
     except Exception as e:
         app.logger.error(f"[DB] Connection FAILED: {e}")
-        # re-raise so Render shows deploy failure loudly
         raise
 
 @app.route("/")
