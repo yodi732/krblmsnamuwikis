@@ -5,6 +5,33 @@ import sqlite3, os
 app = Flask(__name__)
 
 
+
+
+
+from pathlib import Path
+import sqlite3, os
+
+HERE = Path(__file__).parent
+INSTANCE_DIR = HERE / "instance"
+INSTANCE_DIR.mkdir(exist_ok=True)
+DB_PATH = INSTANCE_DIR / "database.db"
+SCHEMA_PATH = HERE / "schema.sql"
+
+def get_conn():
+    # IMPORTANT: do NOT call get_conn() inside; use sqlite3.connect directly
+    return sqlite3.connect(str(DB_PATH))
+
+def ensure_schema():
+    # Safe to run every boot
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        if SCHEMA_PATH.exists():
+            with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+                conn.executescript(f.read())
+            conn.commit()
+
+# Run once at import
+ensure_schema()
+
 # --- DB path & automatic schema application ---
 from pathlib import Path
 
