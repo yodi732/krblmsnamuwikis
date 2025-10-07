@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: school-wiki-v2
+    name: school-wiki-v3
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt

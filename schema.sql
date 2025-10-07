@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS page_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
     author TEXT,
-    action TEXT,
+    action TEXT,          -- create/edit/delete
     summary TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

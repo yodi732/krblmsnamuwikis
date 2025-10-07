@@ -9,10 +9,10 @@ SCHEMA = HERE / "schema.sql"
 
 def main():
     if SCHEMA.exists():
-        with sqlite3.connect(str(DB_PATH)) as conn:
+        with sqlite3.connect(str(DB_PATH)) as con:
             with open(SCHEMA, "r", encoding="utf-8") as f:
-                conn.executescript(f.read())
-            conn.commit()
+                con.executescript(f.read())
+            con.commit()
         print("Initialized DB at", DB_PATH)
     else:
         print("No schema.sql found; skipped.")

@@ -9,7 +9,7 @@
     <select name="parent_id">
       <option value="">(없음)</option>
       {% for p in all_pages %}
-        <option value="{{ p['id'] }}">{{ p['title'] }}</option>
+        <option value="{{ p['id'] }}" {% if default_parent and (p['id']|string)==default_parent %}selected{% endif %}>{{ p['title'] }}</option>
       {% endfor %}
     </select>
   </p>
