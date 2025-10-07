@@ -1,32 +1,26 @@
 <!doctype html>
-<html lang="ko">
+<html>
 <head>
-<meta charset="utf-8">
-<title>별내위키</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <meta charset="utf-8">
+  <title>별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header>
-  <div class="left">
-    <a class="btn" href="{{ url_for('home') }}">홈</a>
-    <a class="btn" href="{{ url_for('new_page') }}">문서 만들기</a>
+  <div class="topbar">
+    <a href="{{ url_for('index') }}">홈</a>
+    <a href="{{ url_for('new_page') }}">문서 만들기</a>
   </div>
-  <div class="brand">별내위키</div>
-</header>
-<main>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-  <ul class="flash">
-    {% for cat, msg in messages %}
-      <li class="{{cat}}">{{ msg }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-  {% endwith %}
-  {% block content %}{% endblock %}
-</main>
-<footer>
-  <span style="color:#ffd32a;">피드백 → lyhjs1115@gmail.com</span>
-</footer>
+  <div class="content">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash">
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

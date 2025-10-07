@@ -1,12 +1,11 @@
-<!doctype html>
-<html>
-<head><title>새 문서</title></head>
-<body>
-<h1>문서 만들기</h1>
-<form method="post">
-  제목: <input type="text" name="title"><br>
-  내용: <textarea name="content"></textarea><br>
-  <button type="submit">저장</button>
-</form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <h1>문서 만들기</h1>
+  <form method="post">
+    <label>제목:</label><br>
+    <input type="text" name="title"><br>
+    <label>내용:</label><br>
+    <textarea name="content" rows="10" cols="50"></textarea><br>
+    <button type="submit">저장</button>
+  </form>
+{% endblock %}

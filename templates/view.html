@@ -1,16 +1,14 @@
-<!doctype html>
-<html>
-<head><title>{{ page.title }}</title></head>
-<body>
-<h1>{{ page.title }}</h1>
-<div>{{ page.content|safe }}</div>
-<a href="{{ url_for('edit_page', page_id=page.id) }}">수정</a>
-<h3>로그</h3>
-<ul>
-{% for log in logs %}
-  <li>{{ log.action }} at {{ log.created_at }}</li>
-{% endfor %}
-</ul>
-<a href="{{ url_for('index') }}">← 목록</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  <div class="page-content">{{ page.content | safe }}</div>
+
+  <h3>수정 기록</h3>
+  <ul>
+    {% for log in logs %}
+      <li>{{ log.action }} - {{ log.summary }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('edit_page', page_id=page.id) }}">편집</a>
+{% endblock %}

@@ -1,12 +1,11 @@
-<!doctype html>
-<html>
-<head><title>수정: {{ page.title }}</title></head>
-<body>
-<h1>문서 수정</h1>
-<form method="post">
-  제목: <input type="text" name="title" value="{{ page.title }}"><br>
-  내용: <textarea name="content">{{ page.content }}</textarea><br>
-  <button type="submit">저장</button>
-</form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <h1>문서 수정</h1>
+  <form method="post">
+    <label>제목:</label><br>
+    <input type="text" name="title" value="{{ page.title }}"><br>
+    <label>내용:</label><br>
+    <textarea name="content" rows="10" cols="50">{{ page.content }}</textarea><br>
+    <button type="submit">저장</button>
+  </form>
+{% endblock %}
