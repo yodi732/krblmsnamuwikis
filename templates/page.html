@@ -7,7 +7,7 @@
 
 <p>
   <a class="btn" href="{{ url_for('edit_page', page_id=page['id']) }}">수정</a>
-  <a class="btn" href="{{ url_for('page_logs', page_id=page['id']) }}">로그</a>
+  <a class="btn" href="{{ url_for('page_logs', page_id=page['id']) }}">로그 보기</a>
   <a class="btn" href="{{ url_for('new_page') }}?parent={{ page['id'] }}">하위 문서 만들기</a>
 </p>
 

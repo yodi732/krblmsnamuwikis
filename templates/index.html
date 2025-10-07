@@ -8,7 +8,7 @@
       {% if p['updated_at'] %}<span class="meta"> · 업데이트: {{ p['updated_at'] }}</span>{% endif %}
     </li>
   {% else %}
-    <li>아직 문서가 없습니다. <a href="{{ url_for('new_page') }}">첫 문서 만들기</a></li>
+    <li>아직 문서가 없습니다. <a href="{{ url_for('new_page') }}">문서 만들기</a></li>
   {% endfor %}
 </ul>
 {% endblock %}

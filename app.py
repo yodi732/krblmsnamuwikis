@@ -75,6 +75,7 @@ def new_page():
     default_parent = request.args.get("parent", "").strip()
     with get_conn() as con:
         allp = con.execute("SELECT id, title FROM pages ORDER BY title COLLATE NOCASE").fetchall()
+    tree = tree_by_parent(all_pages())
     if request.method == "POST":
         title = (request.form.get("title") or "").strip()
         content = (request.form.get("content") or "").strip()
@@ -94,7 +95,7 @@ def new_page():
             con.commit()
         flash("페이지가 생성되었습니다.", "success")
         return redirect(url_for("view_page", page_id=pid))
-    return render_template("new_page.html", all_pages=allp, default_parent=default_parent)
+    return render_template("new_page.html", all_pages=allp, default_parent=default_parent, tree=tree)
 
 @app.get("/p/<int:page_id>")
 def view_page(page_id):
@@ -111,6 +112,7 @@ def edit_page(page_id):
     with get_conn() as con:
         page = con.execute("SELECT * FROM pages WHERE id=?", (page_id,)).fetchone()
         allp = con.execute("SELECT id, title FROM pages WHERE id != ? ORDER BY title COLLATE NOCASE", (page_id,)).fetchall()
+    tree = tree_by_parent(all_pages())
     if not page:
         abort(404)
     if request.method == "POST":
@@ -131,7 +133,7 @@ def edit_page(page_id):
             con.commit()
         flash("수정되었습니다.", "success")
         return redirect(url_for("view_page", page_id=page_id))
-    return render_template("edit_page.html", page=page, all_pages=allp)
+    return render_template("edit_page.html", page=page, all_pages=allp, tree=tree)
 
 @app.post("/p/<int:page_id>/delete")
 def delete_page(page_id):
