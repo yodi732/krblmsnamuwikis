@@ -1,11 +1,13 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>문서 목록</h1>
+<!doctype html>
+<html>
+<head><title>Wiki</title></head>
+<body>
+<h1>위키 페이지</h1>
+<a href="{{ url_for('new_page') }}">문서 만들기</a>
 <ul>
-  {% for p in pages %}
-    <li><a href="{{ url_for('view_page', page_id=p.id) }}">{{ p.title }}</a> · {{ p.updated_at.strftime('%Y-%m-%d %H:%M') }}</li>
-  {% else %}
-    <li>아직 문서가 없습니다. 상단의 '문서 만들기' 버튼을 눌러 시작하세요.</li>
-  {% endfor %}
+{% for p in pages %}
+  <li><a href="{{ url_for('view_page', page_id=p.id) }}">{{ p.title }}</a></li>
+{% endfor %}
 </ul>
-{% endblock %}
+</body>
+</html>

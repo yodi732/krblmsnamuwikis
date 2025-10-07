@@ -1,12 +1,12 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>{{ '문서 수정' if page else '새 문서' }}</h1>
+<!doctype html>
+<html>
+<head><title>수정: {{ page.title }}</title></head>
+<body>
+<h1>문서 수정</h1>
 <form method="post">
-  <label>제목</label><br>
-  <input name="title" value="{{ page.title if page else '' }}" style="width:100%;padding:8px"><br><br>
-  <label>내용</label><br>
-  <textarea name="body" rows="18" style="width:100%;padding:8px">{{ page.body if page else '' }}</textarea><br><br>
+  제목: <input type="text" name="title" value="{{ page.title }}"><br>
+  내용: <textarea name="content">{{ page.content }}</textarea><br>
   <button type="submit">저장</button>
-  <a class="btn" href="{{ url_for('home') }}">취소</a>
 </form>
-{% endblock %}
+</body>
+</html>

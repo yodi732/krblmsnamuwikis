@@ -1,14 +1,16 @@
-{% extends "base.html" %}
-{% block content %}
+<!doctype html>
+<html>
+<head><title>{{ page.title }}</title></head>
+<body>
 <h1>{{ page.title }}</h1>
-<div class="article">{{ page.body|safe }}</div>
-<p><a class="btn" href="{{ url_for('edit_page', page_id=page.id) }}">수정</a></p>
-<h3>최근 변경 로그</h3>
+<div>{{ page.content|safe }}</div>
+<a href="{{ url_for('edit_page', page_id=page.id) }}">수정</a>
+<h3>로그</h3>
 <ul>
-  {% for l in logs %}
-    <li>{{ l.at.strftime('%Y-%m-%d %H:%M') }} · {{ l.action }} · {{ l.detail }}</li>
-  {% else %}
-    <li>로그 없음</li>
-  {% endfor %}
+{% for log in logs %}
+  <li>{{ log.action }} at {{ log.created_at }}</li>
+{% endfor %}
 </ul>
-{% endblock %}
+<a href="{{ url_for('index') }}">← 목록</a>
+</body>
+</html>
