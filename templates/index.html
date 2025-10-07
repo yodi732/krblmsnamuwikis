@@ -1,10 +1,13 @@
+
 <!doctype html>
 <html><body>
-<h1>위키 문서 목록</h1>
+<h1>문서 목록</h1>
 <a href="{{ url_for('new_page') }}">문서 만들기</a>
 <ul>
 {% for p in pages %}
-  <li><a href="{{ url_for('view_page', pid=p.id) }}">{{p.title}}</a></li>
+  <li><a href="{{ url_for('view_page', pid=p.id) }}">{{ p.title }}</a></li>
+{% else %}
+  <li>아직 문서가 없습니다.</li>
 {% endfor %}
 </ul>
 </body></html>

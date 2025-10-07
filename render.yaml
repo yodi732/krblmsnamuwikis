@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wiki-supabase
+    name: wiki-supabase-psycopg3
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt

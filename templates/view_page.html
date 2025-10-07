@@ -1,11 +1,14 @@
+
 <!doctype html>
 <html><body>
-<h1>{{page.title}}</h1>
-<div>{{page.content}}</div>
+<h1>{{ page.title }}</h1>
+<div style="white-space:pre-wrap">{{ page.content }}</div>
 <h3>로그</h3>
 <ul>
 {% for log in logs %}
-  <li>{{log.action}} by {{log.author}} at {{log.created_at}}</li>
+  <li>{{ log.action }} by {{ log.author }} at {{ log.created_at }}</li>
+{% else %}
+  <li>로그 없음</li>
 {% endfor %}
 </ul>
 <a href="{{ url_for('index') }}">목록</a>
