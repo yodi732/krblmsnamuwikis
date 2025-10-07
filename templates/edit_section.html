@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+{% block title %}글 수정 - School Wiki{% endblock %}
+{% block content %}
+<h2>글 수정</h2>
+<form method="post">
+    <p><input type="text" name="title" value="{{ section['title'] }}" placeholder="제목"></p>
+    <p><textarea name="content" placeholder="내용">{{ section['content'] }}</textarea></p>
+    <p>
+        <button class="btn primary" type="submit">저장</button>
+        <a class="btn" href="{{ url_for('view_section', section_id=section['id']) }}">취소</a>
+    </p>
+</form>
+{% endblock %}

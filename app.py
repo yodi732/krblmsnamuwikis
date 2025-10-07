@@ -1,16 +1,12 @@
 
-from flask import Flask, render_template, request, redirect, url_for, flash
-import sqlite3, os
-
-app = Flask(__name__)
-
-
-
-
-
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from pathlib import Path
 import sqlite3, os
 
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
+# --- DB hardening / auto-init ---
 HERE = Path(__file__).parent
 INSTANCE_DIR = HERE / "instance"
 INSTANCE_DIR.mkdir(exist_ok=True)
@@ -18,103 +14,96 @@ DB_PATH = INSTANCE_DIR / "database.db"
 SCHEMA_PATH = HERE / "schema.sql"
 
 def get_conn():
-    # IMPORTANT: direct sqlite connect; DO NOT call get_conn() recursively
-    return sqlite3.connect(str(DB_PATH))
+    # Single responsibility: return a new connection. No recursion.
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def ensure_schema():
-    # Apply schema if present (idempotent)
     if SCHEMA_PATH.exists():
         with sqlite3.connect(str(DB_PATH)) as conn:
             with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
                 conn.executescript(f.read())
             conn.commit()
 
-# Run once at import
+# Apply schema once on import (safe if repeated)
 ensure_schema()
 
-# --- DB path & automatic schema application ---
-except Exception as e:
-    print("Schema ensure failed:", e)
-# --- end schema block ---
-
-import os, sqlite3
-
-# === Database initialization ===
-def init_db():
-    db_path = os.path.join(os.path.dirname(__file__), 'database.db')
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS sections (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-app.secret_key = 'secret'
-
-def get_db():
-    conn = get_conn()
-    conn.row_factory = sqlite3.Row
-    return conn
-
-@app.route('/')
-def index():
-    conn = get_db()
-    sections = conn.execute("SELECT * FROM sections").fetchall()
-    pages = conn.execute("SELECT * FROM pages").fetchall()
-    return render_template('index.html', sections=sections, pages=pages)
-
-@app.route('/section/<int:section_id>')
-def section(section_id):
-    conn = get_db()
-    section = conn.execute("SELECT * FROM sections WHERE id=?", (section_id,)).fetchone()
-    pages = conn.execute("SELECT * FROM pages WHERE section_id=?", (section_id,)).fetchall()
-    return render_template('section.html', section=section, pages=pages)
-
-@app.route('/page/<int:page_id>')
-def page(page_id):
-    conn = get_db()
-    page = conn.execute("SELECT * FROM pages WHERE id=?", (page_id,)).fetchone()
-    return render_template('page.html', page=page)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
-
-# --- Automatic database initialization (added automatically) ---
-import sqlite3, logging
-from pathlib import Path
-
-def ensure_database():
+# --- Routes ---
+@app.get("/health")
+def health():
     try:
-        here = Path(__file__).parent
-        instance_dir = here / 'instance'
-        instance_dir.mkdir(exist_ok=True)
-        db_path = instance_dir / 'database.db'
-        if not db_path.exists():
-            schema_path = here / 'schema.sql'
-            if schema_path.exists():
-                con = get_conn()
-                with open(schema_path, 'r', encoding='utf-8') as f:
-                    con.executescript(f.read())
-                con.commit()
-                con.close()
-                logging.info(f"Database initialized automatically at {db_path}")
-            else:
-                logging.error("schema.sql not found; cannot initialize database automatically.")
-        else:
-            logging.info("Database already exists; skipping initialization.")
+        with get_conn() as con:
+            con.execute("SELECT 1")
+        return {"ok": True}, 200
     except Exception as e:
-        logging.exception(f"Error ensuring database: {e}")
+        return {"ok": False, "error": str(e)}, 500
 
-# Automatically ensure DB when app starts
-try:
-    ensure_database()
-except Exception as e:
-    print("Automatic DB init failed:", e)
-# --- End automatic initialization block ---
+@app.get("/")
+def index():
+    q = request.args.get("q", "").strip()
+    with get_conn() as con:
+        if q:
+            rows = con.execute(
+                "SELECT id, title, created_at FROM sections WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC",
+                (f"%{q}%", f"%{q}%"),
+            ).fetchall()
+        else:
+            rows = con.execute("SELECT id, title, created_at FROM sections ORDER BY created_at DESC").fetchall()
+    return render_template("index.html", sections=rows, q=q)
+
+@app.route("/sections/add", methods=["GET", "POST"])
+def add_section():
+    if request.method == "POST":
+        title = (request.form.get("title") or "").strip()
+        content = (request.form.get("content") or "").strip()
+        if not title:
+            flash("제목은 비워둘 수 없습니다.", "error")
+            return redirect(url_for("add_section"))
+        with get_conn() as con:
+            con.execute("INSERT INTO sections (title, content) VALUES (?, ?)", (title, content))
+            con.commit()
+        flash("새 글이 생성되었습니다.", "success")
+        return redirect(url_for("index"))
+    return render_template("add_section.html")
+
+@app.get("/sections/<int:section_id>")
+def view_section(section_id):
+    with get_conn() as con:
+        row = con.execute("SELECT * FROM sections WHERE id = ?", (section_id,)).fetchone()
+    if not row:
+        abort(404)
+    return render_template("section.html", section=row)
+
+@app.route("/sections/<int:section_id>/edit", methods=["GET", "POST"])
+def edit_section(section_id):
+    with get_conn() as con:
+        row = con.execute("SELECT * FROM sections WHERE id = ?", (section_id,)).fetchone()
+    if not row:
+        abort(404)
+
+    if request.method == "POST":
+        title = (request.form.get("title") or "").strip()
+        content = (request.form.get("content") or "").strip()
+        if not title:
+            flash("제목은 비워둘 수 없습니다.", "error")
+            return redirect(url_for("edit_section", section_id=section_id))
+        with get_conn() as con:
+            con.execute("UPDATE sections SET title = ?, content = ? WHERE id = ?", (title, content, section_id))
+            con.commit()
+        flash("수정되었습니다.", "success")
+        return redirect(url_for("view_section", section_id=section_id))
+
+    return render_template("edit_section.html", section=row)
+
+@app.post("/sections/<int:section_id>/delete")
+def delete_section(section_id):
+    with get_conn() as con:
+        con.execute("DELETE FROM sections WHERE id = ?", (section_id,))
+        con.commit()
+    flash("삭제했습니다.", "success")
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
+    # For local dev only. Render will use gunicorn.
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

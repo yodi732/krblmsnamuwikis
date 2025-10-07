@@ -1,37 +1,26 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>KRBLMS 위키</title>
-    <style>
-        body { display: flex; font-family: sans-serif; }
-        nav { width: 250px; background: #f5f5f5; padding: 10px; }
-        nav ul { list-style-type: none; padding-left: 10px; }
-        nav li { margin: 4px 0; }
-        nav li ul { padding-left: 15px; list-style-type: disc; }
-        main { flex: 1; padding: 20px; }
-        a { text-decoration: none; color: #0074d9; }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}School Wiki{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <nav>
-        <h3>Sections</h3>
-        <ul>
-            {% for sec in sections %}
-            <li>
-                <a href="{{ url_for('section', section_id=sec['id']) }}">{{ sec['name'] }}</a>
-                <ul>
-                {% for p in pages if p['section_id'] == sec['id'] %}
-                    <li>• <a href="{{ url_for('page', page_id=p['id']) }}">{{ p['title'] }}</a></li>
+    <header>
+        <a href="{{ url_for('index') }}"><strong>School Wiki</strong></a>
+        <a href="{{ url_for('add_section') }}">새 글</a>
+    </header>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
                 {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
-    </nav>
-    <main>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
-    </main>
+    </div>
 </body>
 </html>

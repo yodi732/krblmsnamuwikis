@@ -8,7 +8,7 @@ INSTANCE.mkdir(exist_ok=True)
 DB_PATH = INSTANCE / "database.db"
 SCHEMA = HERE / "schema.sql"
 
-def init_db():
+def main():
     if SCHEMA.exists():
         with sqlite3.connect(str(DB_PATH)) as conn:
             with open(SCHEMA, "r", encoding="utf-8") as f:
@@ -16,7 +16,7 @@ def init_db():
             conn.commit()
         print("Initialized DB at", DB_PATH)
     else:
-        print("No schema.sql found; skipping.")
+        print("No schema.sql found; skipped.")
 
 if __name__ == "__main__":
-    init_db()
+    main()

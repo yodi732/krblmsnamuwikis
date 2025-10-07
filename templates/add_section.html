@@ -1,8 +1,14 @@
+
 {% extends "base.html" %}
+{% block title %}새 글 - School Wiki{% endblock %}
 {% block content %}
-<h2>Create new section</h2>
+<h2>새 글</h2>
 <form method="post">
-  <input name="title" placeholder="Section title">
-  <button type="submit">Create</button>
+    <p><input type="text" name="title" placeholder="제목"></p>
+    <p><textarea name="content" placeholder="내용"></textarea></p>
+    <p>
+        <button class="btn primary" type="submit">저장</button>
+        <a class="btn" href="{{ url_for('index') }}">취소</a>
+    </p>
 </form>
 {% endblock %}
