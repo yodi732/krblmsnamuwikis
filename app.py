@@ -4,12 +4,42 @@ import sqlite3, os
 
 app = Flask(__name__)
 
+
+# --- DB path & automatic schema application ---
+from pathlib import Path
+
+HERE = Path(__file__).parent
+INSTANCE_DIR = HERE / "instance"
+INSTANCE_DIR.mkdir(exist_ok=True)
+DB_PATH = INSTANCE_DIR / "database.db"
+SCHEMA_PATH = HERE / "schema.sql"
+
+def ensure_schema():
+    import sqlite3
+    # idempotent: safe to run on every boot
+    with get_conn() as conn:
+        if SCHEMA_PATH.exists():
+            with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+                conn.executescript(f.read())
+            conn.commit()
+
+def get_conn():
+    import sqlite3
+    return get_conn()
+
+# Run once at import
+try:
+    ensure_schema()
+except Exception as e:
+    print("Schema ensure failed:", e)
+# --- end schema block ---
+
 import os, sqlite3
 
 # === Database initialization ===
 def init_db():
     db_path = os.path.join(os.path.dirname(__file__), 'database.db')
-    conn = sqlite3.connect(db_path)
+    conn = get_conn()
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS sections (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +55,7 @@ init_db()
 app.secret_key = 'secret'
 
 def get_db():
-    conn = sqlite3.connect('wiki.db')
+    conn = get_conn()
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -66,7 +96,7 @@ def ensure_database():
         if not db_path.exists():
             schema_path = here / 'schema.sql'
             if schema_path.exists():
-                con = sqlite3.connect(str(db_path))
+                con = get_conn())
                 with open(schema_path, 'r', encoding='utf-8') as f:
                     con.executescript(f.read())
                 con.commit()
