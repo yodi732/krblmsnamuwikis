@@ -20,3 +20,8 @@ form textarea { min-height: 220px; font-family: inherit; }
 .toc-title { font-weight:700; margin-bottom:8px; color:#333; }
 .toc.depth-0 > li > a { font-weight:700; }
 .toc.depth-1 { padding-left:16px; }
+
+
+.topbar { display:flex; align-items:center; justify-content:space-between; }
+.topbar .left .btn { margin-right:10px; }
+.topbar .brand { color:#fff; font-weight:800; font-size:18px; }

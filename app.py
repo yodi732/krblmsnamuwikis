@@ -90,7 +90,11 @@ def new_page():
         content = (request.form.get("content") or "").strip()
         parent_id = request.form.get("parent_id") or None
         # depth limit: only root -> child allowed
-        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+        try:
+            blocked = parent_id not in (None, "", "None") and (not is_root(parent_id))
+        except Exception:
+            blocked = False
+        if blocked:
             flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
             return redirect(url_for("edit_page", page_id=page_id))
         # depth limit: only root -> child allowed
@@ -137,7 +141,11 @@ def edit_page(page_id):
         content = (request.form.get("content") or "").strip()
         parent_id = request.form.get("parent_id") or None
         # depth limit: only root -> child allowed
-        if parent_id not in (None, "", "None") and not is_root(int(parent_id)):
+        try:
+            blocked = parent_id not in (None, "", "None") and (not is_root(parent_id))
+        except Exception:
+            blocked = False
+        if blocked:
             flash("하위 문서의 하위로 이동할 수 없습니다.", "error")
             return redirect(url_for("edit_page", page_id=page_id))
         # depth limit: only root -> child allowed
