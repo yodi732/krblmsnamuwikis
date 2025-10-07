@@ -96,7 +96,7 @@ def ensure_database():
         if not db_path.exists():
             schema_path = here / 'schema.sql'
             if schema_path.exists():
-                con = get_conn())
+                con = get_conn()
                 with open(schema_path, 'r', encoding='utf-8') as f:
                     con.executescript(f.read())
                 con.commit()

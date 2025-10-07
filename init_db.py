@@ -1,18 +1,18 @@
+import sqlite3, os
 
-from pathlib import Path
-import sqlite3
+BASE_DIR = os.path.dirname(__file__)
+DB_PATH = os.path.join(BASE_DIR, "instance", "database.db")
+SCHEMA_PATH = os.path.join(BASE_DIR, "schema.sql")
 
-HERE = Path(__file__).parent
-INSTANCE_DIR = HERE / "instance"
-INSTANCE_DIR.mkdir(exist_ok=True)
-DB_PATH = INSTANCE_DIR / "database.db"
-SCHEMA_PATH = HERE / "schema.sql"
+os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
 
-if SCHEMA_PATH.exists():
-    with sqlite3.connect(DB_PATH) as conn:
-        with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-            conn.executescript(f.read())
-        conn.commit()
-    print(f"Initialized DB at {DB_PATH}")
-else:
-    print("schema.sql not found, skipping")
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        conn.executescript(f.read())
+    conn.commit()
+    conn.close()
+    print("Database initialized at", DB_PATH)
+
+if __name__ == "__main__":
+    init_db()
