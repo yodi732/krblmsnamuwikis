@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from pathlib import Path
 import sqlite3, os
+import markdown2
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "change-this")
@@ -58,6 +59,40 @@ def log_action(con, page_id, author, action, summary):
         "INSERT INTO page_logs(page_id, author, action, summary) VALUES (?,?,?,?)",
         (page_id, author or "anonymous", action, summary or ""),
     )
+
+
+# ---- uploads ----
+from uuid import uuid4
+from werkzeug.utils import secure_filename
+from flask import send_from_directory
+
+UPLOAD_DIR = INSTANCE / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+ALLOWED_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
+def allowed_image(filename):
+    import os
+    _, ext = os.path.splitext(filename.lower())
+    return ext in ALLOWED_EXTS
+
+@app.post("/upload")
+def upload_image():
+    f = request.files.get("image")
+    if not f or f.filename == "":
+        return {"ok": False, "error": "no file"}, 400
+    if not allowed_image(f.filename):
+        return {"ok": False, "error": "invalid extension"}, 400
+    ext = Path(f.filename).suffix.lower()
+    fname = secure_filename(f"{uuid4().hex}{ext}")
+    save_path = UPLOAD_DIR / fname
+    f.save(save_path)
+    url = url_for("serve_upload", filename=fname)
+    return {"ok": True, "url": url}, 200
+
+@app.get("/u/<path:filename>")
+def serve_upload(filename):
+    return send_from_directory(UPLOAD_DIR, filename, as_attachment=False)
 
 # ---- routes ----
 @app.get("/health")
@@ -129,7 +164,8 @@ def view_page(page_id):
             abort(404)
         kids = con.execute("SELECT id, title FROM pages WHERE parent_id=? ORDER BY title COLLATE NOCASE", (page_id,)).fetchall()
     tree = tree_by_parent(all_pages())
-    return render_template("page.html", page=page, children=kids, tree=tree)
+    html = markdown2.markdown(page["content"] or "", extras=["fenced-code-blocks","tables","break-on-newline"]) 
+    return render_template("page.html", page=page, children=kids, tree=tree, html=html)
 
 @app.route("/p/<int:page_id>/edit", methods=["GET", "POST"])
 def edit_page(page_id):

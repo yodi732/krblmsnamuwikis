@@ -30,3 +30,24 @@ form textarea { min-height: 220px; font-family: inherit; }
 .topbar .btn { color: #2a2a72 !important; background:#fff; }
 
 .topbar .btn { color:#000 !important; background:#fff; }
+
+.uploader{ margin:6px 0 12px; display:flex; gap:8px; align-items:center; }
+
+
+/* Rendered article content */
+.content-body img { max-width: 80%; height: auto; display: inline-block; margin: 10px; }
+/* optional helpers the user can apply manually */
+.content-body img.float-left { float: left; margin: 10px 14px 10px 0; }
+.content-body img.float-right { float: right; margin: 10px 0 10px 14px; }
+.content-body img.center { display:block; margin: 10px auto; }
+
+/* Feedback badge bottom-left */
+.feedback-badge {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  color: #FFD700;
+  font-weight: 700;
+  z-index: 999;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
