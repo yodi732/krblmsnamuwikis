@@ -1,4 +1,4 @@
 Flask==3.0.3
-gunicorn
 Flask-SQLAlchemy
-psycopg2-binary
+psycopg[binary]
+gunicorn

@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head><title>Wiki</title></head>
-<body>
+<!doctype html>
+<html><body>
 <h1>위키 문서 목록</h1>
 <a href="{{ url_for('new_page') }}">문서 만들기</a>
 <ul>
-{% for page in pages %}
-  <li><a href="{{ url_for('view_page', pid=page.id) }}">{{ page.title }}</a></li>
+{% for p in pages %}
+  <li><a href="{{ url_for('view_page', pid=p.id) }}">{{p.title}}</a></li>
 {% endfor %}
 </ul>
-</body>
-</html>
+</body></html>
