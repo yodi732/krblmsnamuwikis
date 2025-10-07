@@ -18,13 +18,13 @@ DB_PATH = INSTANCE_DIR / "database.db"
 SCHEMA_PATH = HERE / "schema.sql"
 
 def get_conn():
-    # IMPORTANT: do NOT call get_conn() inside; use sqlite3.connect directly
+    # IMPORTANT: direct sqlite connect; DO NOT call get_conn() recursively
     return sqlite3.connect(str(DB_PATH))
 
 def ensure_schema():
-    # Safe to run every boot
-    with sqlite3.connect(str(DB_PATH)) as conn:
-        if SCHEMA_PATH.exists():
+    # Apply schema if present (idempotent)
+    if SCHEMA_PATH.exists():
+        with sqlite3.connect(str(DB_PATH)) as conn:
             with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
                 conn.executescript(f.read())
             conn.commit()
@@ -33,30 +33,6 @@ def ensure_schema():
 ensure_schema()
 
 # --- DB path & automatic schema application ---
-from pathlib import Path
-
-HERE = Path(__file__).parent
-INSTANCE_DIR = HERE / "instance"
-INSTANCE_DIR.mkdir(exist_ok=True)
-DB_PATH = INSTANCE_DIR / "database.db"
-SCHEMA_PATH = HERE / "schema.sql"
-
-def ensure_schema():
-    import sqlite3
-    # idempotent: safe to run on every boot
-    with get_conn() as conn:
-        if SCHEMA_PATH.exists():
-            with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-                conn.executescript(f.read())
-            conn.commit()
-
-def get_conn():
-    import sqlite3
-    return get_conn()
-
-# Run once at import
-try:
-    ensure_schema()
 except Exception as e:
     print("Schema ensure failed:", e)
 # --- end schema block ---
