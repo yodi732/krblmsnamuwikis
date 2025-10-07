@@ -1,27 +1,12 @@
-{% extends "base.html" %}
-{% block title %}새 문서 - School Wiki{% endblock %}
-{% block content %}
-<h2>새 문서</h2>
+<!DOCTYPE html>
+<html>
+<head><title>새 문서</title></head>
+<body>
+<h1>문서 만들기</h1>
 <form method="post">
-  <p><input type="text" name="title" placeholder="제목"></p>
-  <p>
-    <label>상위 문서(선택) — (목차만 상위로 선택 가능)</label>
-    <select name="parent_id">
-      <option value="">(없음)</option>
-      {% for p in all_pages %}
-        <option value="{{ p['id'] }}" {% if default_parent and (p['id']|string)==default_parent %}selected{% endif %}>{{ p['title'] }}</option>
-      {% endfor %}
-    </select>
-  </p>
-  <p><textarea name="content" placeholder="내용" id="content"></textarea>
-  </p>
-  
-    <input type="text" name="author" placeholder="작성자">
-    <input type="text" name="summary" placeholder="변경 요약(선택)">
-  </p>
-  <p>
-    <button class="btn primary" type="submit">저장</button>
-    <a class="btn" href="{{ url_for('index') }}">취소</a>
-  </p>
+  <p>제목: <input type="text" name="title"></p>
+  <p>내용:<br><textarea name="content" rows="10" cols="60"></textarea></p>
+  <p><button type="submit">저장</button></p>
 </form>
-{% endblock %}
+</body>
+</html>

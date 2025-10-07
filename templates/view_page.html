@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ page.title }}</title></head>
+<body>
+<h1>{{ page.title }}</h1>
+<div>{{ page.content }}</div>
+<p><a href="{{ url_for('edit_page', pid=page.id) }}">수정하기</a></p>
+<p><a href="{{ url_for('index') }}">목록</a></p>
+</body>
+</html>

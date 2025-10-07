@@ -1,27 +1,12 @@
-{% extends "base.html" %}
-{% block title %}문서 수정 - School Wiki{% endblock %}
-{% block content %}
-<h2>문서 수정</h2>
+<!DOCTYPE html>
+<html>
+<head><title>문서 수정</title></head>
+<body>
+<h1>문서 수정</h1>
 <form method="post">
-  <p><input type="text" name="title" value="{{ page['title'] }}" placeholder="제목"></p>
-  <p>
-    <label>상위 문서(선택)</label>
-    <select name="parent_id">
-      <option value="">(없음)</option>
-      {% for p in all_pages %}
-        <option value="{{ p['id'] }}" {% if page['parent_id']==p['id'] %}selected{% endif %}>{{ p['title'] }}</option>
-      {% endfor %}
-    </select>
-  </p>
-  <p><textarea name="content" placeholder="내용" id="content">{{ page['content'] }}</textarea>
-  </p>
-  
-    <input type="text" name="author" placeholder="작성자">
-    <input type="text" name="summary" placeholder="변경 요약(선택)">
-  </p>
-  <p>
-    <button class="btn primary" type="submit">저장</button>
-    <a class="btn" href="{{ url_for('view_page', page_id=page['id']) }}">취소</a>
-  </p>
+  <p>제목: <input type="text" name="title" value="{{ page.title }}"></p>
+  <p>내용:<br><textarea name="content" rows="10" cols="60">{{ page.content }}</textarea></p>
+  <p><button type="submit">저장</button></p>
 </form>
-{% endblock %}
+</body>
+</html>
