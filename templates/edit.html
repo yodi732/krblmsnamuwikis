@@ -1,12 +1,11 @@
-
 {% extends "base.html" %}
-{% block title %}{{ '편집' if page else '새 문서' }} · krblmswiki{% endblock %}
 {% block content %}
+  <h2>편집: {{ page.title }}</h2>
   <form method="post" class="form">
     <label>제목</label>
-    <input name="title" value="{{ page.title if page else '' }}" required>
+    <input name="title" value="{{ page.title }}" required>
     <label>내용</label>
-    <textarea name="content" rows="16">{{ page.content if page else '' }}</textarea>
-    <button type="submit" class="btn">저장</button>
+    <textarea name="content" rows="12">{{ page.content }}</textarea>
+    <button class="btn" type="submit">저장</button>
   </form>
 {% endblock %}

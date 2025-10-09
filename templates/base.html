@@ -1,28 +1,38 @@
-
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}krblmswiki{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>나무 위키 클론 (Render + Supabase)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <header>
-    <h1><a href="{{ url_for('index') }}">krblmswiki</a></h1>
-    <nav><a class="btn" href="{{ url_for('new_page') }}">새 페이지</a></nav>
+  <header class="container">
+    <h1><a href="{{ url_for('index') }}">나무 위키 클론</a></h1>
   </header>
-  {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-      <div class="flash-wrap">
-      {% for cat, msg in messages %}
-        <div class="flash {{cat}}">{{ msg }}</div>
-      {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-  <main>
+
+  {% if not DB_READY %}
+  <div class="banner banner-warn">
+    ⚠️ 데이터베이스 연결이 끊겼습니다. 환경변수 <code>DATABASE_URL</code>을 확인하세요.
+  </div>
+  {% endif %}
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+          <li class="flash {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="container">
+    <small>© 2025 Demo · Health: <a href="{{ url_for('healthz') }}">/healthz</a></small>
+  </footer>
 </body>
 </html>

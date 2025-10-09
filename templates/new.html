@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="post">
-  <input type="text" name="title" placeholder="제목"><br>
-  <textarea name="content" placeholder="내용"></textarea><br>
-  <button type="submit">저장</button>
-</form>
+  <h2>새 문서</h2>
+  <form method="post" class="form">
+    <label>제목</label>
+    <input name="title" placeholder="문서 제목" required>
+    <label>내용</label>
+    <textarea name="content" rows="12" placeholder="여기에 내용을 입력하세요."></textarea>
+    <button class="btn" type="submit">저장</button>
+  </form>
 {% endblock %}
