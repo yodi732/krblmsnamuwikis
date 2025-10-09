@@ -1,11 +1,28 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <title>Wiki</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}krblmswiki{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1><a href="{{ url_for('index') }}">Wiki</a></h1>
-  {% block content %}{% endblock %}
+  <header>
+    <h1><a href="{{ url_for('index') }}">krblmswiki</a></h1>
+    <nav><a class="btn" href="{{ url_for('new_page') }}">새 페이지</a></nav>
+  </header>
+  {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+      <div class="flash-wrap">
+      {% for cat, msg in messages %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

@@ -1,9 +1,16 @@
+
 {% extends "base.html" %}
+{% block title %}문서 목록 · krblmswiki{% endblock %}
 {% block content %}
-  <a href="{{ url_for('new_page') }}">새 문서</a>
-  <ul>
-  {% for p in pages %}
-    <li><a href="{{ url_for('view_page', page_id=p.id) }}">{{ p.title }}</a></li>
-  {% endfor %}
-  </ul>
+  {% if pages %}
+    <ul class="list">
+    {% for p in pages %}
+      <li><a href="{{ url_for('view_page', page_id=p.id) }}">{{ p.title }}</a>
+          <small>업데이트: {{ p.updated_at.strftime('%Y-%m-%d %H:%M') if p.updated_at else '' }}</small>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>문서가 없습니다. 우측 상단의 “새 페이지”로 추가하세요.</p>
+  {% endif %}
 {% endblock %}
