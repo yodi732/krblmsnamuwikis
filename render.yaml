@@ -1,12 +1,6 @@
 services:
-  - type: web
-    name: byeollae-wiki
-    env: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash -c "gunicorn app:app --bind 0.0.0.0:$PORT"
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: WEB_CONCURRENCY
-        value: 1
+- type: web
+  name: wiki-supabase
+  env: python
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT

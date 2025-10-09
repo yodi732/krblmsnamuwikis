@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>문서 목록</h2>
+  <a href="{{ url_for('new_page') }}">새 문서</a>
   <ul>
-    {% for d in docs %}
-      <li><a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>{% if d.parent_id %}<span class="badge">하위 문서</span>{% endif %}</li>
-    {% else %}
-      <li>아직 문서가 없습니다. <a href="{{ url_for('new_document') }}">문서 만들기</a></li>
-    {% endfor %}
+  {% for p in pages %}
+    <li><a href="{{ url_for('view_page', page_id=p.id) }}">{{ p.title }}</a></li>
+  {% endfor %}
   </ul>
 {% endblock %}
