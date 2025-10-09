@@ -1,13 +1,18 @@
-# 별내위키 (Supabase Ready)
+# 별내위키 (Flask + Supabase + Render)
 
-Render + Supabase에서 초기화 없이 실행되도록 만든 최소 스켈레톤.
+## 빠른 배포
+1) Supabase → Database → **Connection strings** → **Pooling (Transaction)** URI 복사
+2) Render → Environment → `DATABASE_URL` 입력
+```
+postgresql+psycopg://postgres:<비밀번호>@db.<프로젝트ref>.supabase.co:6543/postgres?sslmode=require&connect_timeout=10
+```
+3) Render → Settings → Advanced → **Clear build cache** → **Manual Deploy**
+4) `/healthz` 확인 → `{"ok": true}`
+5) (최초 1회) **POST** `/init-db` → 테이블 생성
 
-## 배포
-1) GitHub에 올림
-2) Render에서
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT`
-3) Environment에 `DATABASE_URL` 추가  
-   예시:
-   `postgresql+psycopg://postgres:<비번>@db.<ref>.supabase.co:6543/postgres?sslmode=require&connect_timeout=10`
-4) Save → Clear build cache → Manual Deploy
+## 로컬 실행
+```
+pip install -r requirements.txt
+export DATABASE_URL="sqlite:///local.db"
+python app.py
+```

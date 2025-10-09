@@ -1,23 +1,17 @@
-
-:root {
-  --purple:#27266b;
-  --bg:#f6f6fb;
-}
-body{font-family:ui-sans-serif,system-ui,Segoe UI,Apple SD Gothic Neo,Malgun Gothic,Helvetica,Arial;
-  background:var(--bg); margin:0; color:#111;}
-a{color:#2d1bd1; text-decoration:none}
-a:hover{text-decoration:underline}
-.nav{background:var(--purple); color:#fff; padding:10px 14px; display:flex; gap:8px; align-items:center; justify-content:space-between}
-.nav .left{display:flex; gap:8px; align-items:center}
-.btn{background:#fff; color:#000; border-radius:6px; padding:6px 10px; border:none; cursor:pointer}
-.container{max-width:1200px; margin:24px auto; padding:0 16px; display:grid; grid-template-columns:280px 1fr; gap:16px}
-.card{background:#fff; border-radius:12px; padding:16px; box-shadow:0 10px 24px rgba(0,0,0,.05)}
-ul{margin:0; padding-left:20px}
-.alert{background:#fde7e7; border:1px solid #f7c6c6; padding:10px 12px; border-radius:8px; margin-bottom:10px}
-.footer{position:fixed; left:8px; bottom:8px; color:#ffcc00; font-weight:700}
-.badge{background:#eee; padding:2px 6px; border-radius:6px; font-size:12px; margin-left:6px}
-.muted{color:#666; font-size:12px}
-input[type=text], textarea, select{width:100%; padding:10px; border-radius:8px; border:1px solid #e3e3ef; background:#fff}
+:root { --purple:#27266b; --bg:#f6f6fb; }
+body{font-family:ui-sans-serif,system-ui,Segoe UI,Apple SD Gothic Neo,Malgun Gothic,Helvetica,Arial;background:var(--bg);margin:0;color:#111;}
+a{color:#2d1bd1;text-decoration:none} a:hover{text-decoration:underline}
+.nav{background:var(--purple);color:#fff;padding:10px 14px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.nav .left{display:flex;gap:8px;align-items:center}
+.btn{background:#fff;color:#000;border-radius:6px;padding:6px 10px;border:none;cursor:pointer}
+.container{max-width:1200px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:280px 1fr;gap:16px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.05)}
+ul{margin:0;padding-left:20px}
+.alert{background:#fde7e7;border:1px solid #f7c6c6;padding:10px 12px;border-radius:8px;margin-bottom:10px}
+.footer{position:fixed;left:8px;bottom:8px;color:#ffcc00;font-weight:700}
+.badge{background:#eee;padding:2px 6px;border-radius:6px;font-size:12px;margin-left:6px}
+.muted{color:#666;font-size:12px}
+input[type=text], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e3e3ef;background:#fff}
 textarea{min-height:220px}
-.actions{display:flex; gap:8px}
-hr{border:none; border-top:1px solid #eee; margin:14px 0}
+.actions{display:flex;gap:8px}
+hr{border:none;border-top:1px solid #eee;margin:14px 0}
