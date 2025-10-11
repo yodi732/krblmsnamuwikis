@@ -1,42 +1,12 @@
 
-:root{
-  --bg:#0e1624;
-  --panel:#ffffff;
-  --text:#111;
-  --nav:#20295a;
-  --btn:#2e3aa8;
-  --btn-text:#fff;
-  --danger:#c0392b;
-  --muted:#6b7280;
-  --feedback:#b4f000; /* 연두색 */
-}
-
-*{box-sizing:border-box;}
-body{margin:0;background:#f4f6fb;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;}
-
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--nav);color:#fff;position:sticky;top:0;z-index:10;}
-.brand{color:#7ec8ff;text-decoration:none;font-weight:700}
-.actions .btn{margin-left:8px}
-
-.container{max-width:1100px;margin:24px auto;padding:0 16px}
-.panel{background:var(--panel);border-radius:12px;padding:16px 20px;box-shadow:0 6px 16px rgba(0,0,0,.08);margin-bottom:20px}
-
-.btn{display:inline-block;background:var(--btn);color:var(--btn-text);text-decoration:none;padding:8px 12px;border-radius:10px}
-.btn:hover{opacity:.9}
-.btn.primary{background:#2563eb}
-.btn.danger{background:var(--danger)}
-
-.form .row{margin:10px 0}
-.form input[type=text], .form textarea, .form select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px}
-
-.table{width:100%;border-collapse:collapse}
-.table th, .table td{border-bottom:1px solid #eee;padding:8px;text-align:left}
-
-.page-header{display:flex;justify-content:space-between;align-items:center}
-.muted{color:var(--muted)}
-
-.footer{max-width:1100px;margin:16px auto 40px;padding:0 16px}
-.feedback{color:var(--feedback)}
-.feedback a{color:var(--feedback)}
-
-.children{margin:6px 0 0 18px}
+body{background:#f4f7fb;}
+.navbar-brand{font-weight:700}
+.card{border:none;border-radius:1rem;box-shadow:0 6px 24px rgba(0,0,0,.08);}
+.btn-pill{border-radius:.75rem;padding:.4rem 1rem;font-weight:600}
+.footer-left{position:fixed;left:24px;bottom:18px;color:#bfff00;}
+.footer-left a{color:#bfff00;text-decoration:none}
+.footer-left a:hover{text-decoration:underline}
+.hstack{display:flex;gap:.5rem;align-items:center}
+.parent-card .card-header{font-weight:700;font-size:1.1rem;background:#fff;border-bottom:none}
+.child-list{margin:0;padding-left:1rem}
+.child-list li{margin:.25rem 0}

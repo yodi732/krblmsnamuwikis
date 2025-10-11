@@ -1,0 +1,16 @@
+
+{% extends "_layout.html" %}
+{% block content %}
+<div class="card p-4">
+  <div class="d-flex justify-content-between">
+    <h4 class="mb-3">{{ doc.title }}</h4>
+    <div class="hstack">
+      <a class="btn btn-primary btn-pill" href="{{ url_for('edit', doc_id=doc.id) }}">수정</a>
+      <form id="del-{{ doc.id }}" method="post" action="{{ url_for('delete', doc_id=doc.id) }}">
+        <button type="button" class="btn btn-danger btn-pill" onclick="confirmDelete('del-{{ doc.id }}')">삭제</button>
+      </form>
+    </div>
+  </div>
+  <div>{{ doc.content|safe }}</div>
+</div>
+{% endblock %}

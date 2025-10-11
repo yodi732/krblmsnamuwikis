@@ -1,22 +1,27 @@
 
-{% extends "base.html" %}
+{% extends "_layout.html" %}
 {% block content %}
-  <section class="panel">
-    <h2>작업 로그</h2>
-    <table class="table">
+<div class="card p-4">
+  <h5 class="mb-3">작업 로그</h5>
+  <div class="table-responsive">
+    <table class="table table-hover">
       <thead>
-        <tr><th>시간</th><th>동작</th><th>문서</th><th>IP</th></tr>
+        <tr>
+          <th>시간</th><th>동작</th><th>문서</th><th>IP{% if ip_private %} (익명화){% endif %}</th>
+        </tr>
       </thead>
       <tbody>
-      {% for it in items %}
-        <tr>
-          <td>{{ it.at|fmt }}</td>
-          <td>{{ it.action }}</td>
-          <td>{{ it.page_title }}</td>
-          <td>{{ it.client_ip }}</td>
-        </tr>
-      {% endfor %}
+        {% for i in items %}
+          <tr>
+            <td>{{ i.ts.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+            <td>{{ i.action }}</td>
+            <td>{{ i.doc_title }}</td>
+            <td>{{ i.ip }}</td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
-  </section>
+  </div>
+  <div class="text-muted small">* 기본값으로 IP는 마지막 부분이 마스킹되어 저장됩니다 (설정 LOG_ANONYMIZE_IP=true).</div>
+</div>
 {% endblock %}

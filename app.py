@@ -1,160 +1,148 @@
 
 import os
 from datetime import datetime
+from urllib.parse import urlparse
+
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, event, ForeignKey
-from sqlalchemy.orm import relationship
+
+def _coerce_sqlalchemy_url(url: str) -> str:
+    '''Convert postgres:// to postgresql+psycopg:// for SQLAlchemy 2.x'''
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    if url.startswith("postgresql://"):
+        # explicitly use psycopg driver if not specified
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return url
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-change-me")
-
-db_url = os.getenv("DATABASE_URL")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+# DB
+db_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI")
 if not db_url:
-    raise RuntimeError("DATABASE_URL env var is missing.")
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    raise RuntimeError("DATABASE_URL (or DATABASE_URI) env var is required")
+app.config["SQLALCHEMY_DATABASE_URI"] = _coerce_sqlalchemy_url(db_url)
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Logging privacy (mask IPs by default)
+app.config["LOG_ANONYMIZE_IP"] = os.environ.get("LOG_ANONYMIZE_IP", "true").lower() not in ("0","false","no")
 
 db = SQLAlchemy(app)
 
-class Page(db.Model):
-    __tablename__ = "pages"
+class Document(db.Model):
+    __tablename__ = "documents"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False, unique=True)
-    content = db.Column(db.Text, default="", nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey("pages.id", ondelete="CASCADE"), nullable=True)
-    parent = relationship("Page", remote_side=[id], backref="children", passive_deletes=True)
-    is_root = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False, default="")
+    parent_id = db.Column(db.Integer, db.ForeignKey("documents.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class AuditLog(db.Model):
-    __tablename__ = "audit_logs"
+    parent = db.relationship("Document", remote_side=[id], backref=db.backref("children", cascade="all, delete-orphan"))
+
+class ActionLog(db.Model):
+    __tablename__ = "action_logs"
     id = db.Column(db.Integer, primary_key=True)
-    action = db.Column(db.String(20), nullable=False)  # CREATE / UPDATE / DELETE
-    page_title = db.Column(db.String(200), nullable=False)
-    client_ip = db.Column(db.String(64), nullable=True)
-    at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    ts = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    action = db.Column(db.String(32), nullable=False)  # CREATE/UPDATE/DELETE
+    doc_title = db.Column(db.String(255), nullable=False)
+    ip = db.Column(db.String(80), nullable=True)  # anonymized/masked
 
-def client_ip():
-    # X-Forwarded-For 고려
-    xff = request.headers.get("X-Forwarded-For", "")
-    if xff:
-        return xff.split(",")[0].strip()
-    return request.remote_addr
-
-@app.route("/healthz")
-def healthz():
+def mask_ip(ip: str) -> str:
     try:
-        db.session.execute(db.select(func.count(Page.id))).scalar_one()
-        db_ok = True
+        import ipaddress
+        ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.version == 4:
+            parts = ip.split(".")
+            parts[-1] = "0"
+            return ".".join(parts)
+        else:
+            hextets = ip.split(":")
+            return ":".join(hextets[:4]) + "::"
     except Exception:
-        db_ok = False
-    return {"app":"ok", "db":"up" if db_ok else "down"}
+        return ip
+
+@app.before_first_request
+def init_db():
+    db.create_all()
+
+def log_action(action: str, title: str):
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr) or "-"
+    if app.config["LOG_ANONYMIZE_IP"]:
+        ip = mask_ip(ip)
+    db.session.add(ActionLog(action=action, doc_title=title, ip=ip))
+    db.session.commit()
 
 @app.route("/")
 def index():
-    pages = Page.query.order_by(Page.title.asc()).all()
-    roots = [p for p in pages if p.parent_id is None]
-    latest = Page.query.order_by(Page.updated_at.desc()).first()
-    return render_template("index.html", roots=roots, latest=latest)
+    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.asc()).all()
+    return render_template("index.html", tops=tops)
 
-@app.route("/logs")
-def logs():
-    items = AuditLog.query.order_by(AuditLog.at.desc()).limit(500).all()
-    return render_template("logs.html", items=items)
-
-@app.route("/page/<int:pid>")
-def view_page(pid):
-    page = Page.query.get_or_404(pid)
-    return render_template("view.html", page=page)
-
-@app.route("/page/<int:pid>/edit", methods=["GET","POST"])
-def edit_page(pid):
-    page = Page.query.get_or_404(pid)
-    if request.method == "POST":
-        title = request.form.get("title","").strip()
-        content = request.form.get("content","")
-        if not title:
-            flash("제목은 비어 있을 수 없습니다.", "error")
-            return render_template("edit.html", page=page)
-        # title unique
-        existing = Page.query.filter(Page.title==title, Page.id!=page.id).first()
-        if existing:
-            flash("동일한 제목의 문서가 이미 있습니다.", "error")
-            return render_template("edit.html", page=page)
-        page.title = title
-        page.content = content
-        db.session.commit()
-        db.session.add(AuditLog(action="UPDATE", page_title=page.title, client_ip=client_ip()))
-        db.session.commit()
-        return redirect(url_for("view_page", pid=page.id))
-    return render_template("edit.html", page=page)
+@app.route("/doc/<int:doc_id>")
+def view_doc(doc_id):
+    doc = Document.query.get_or_404(doc_id)
+    return render_template("doc.html", doc=doc)
 
 @app.route("/create", methods=["GET","POST"])
 def create():
-    parents = Page.query.order_by(Page.title.asc()).all()
+    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.asc()).all()
     if request.method == "POST":
-        mode = request.form.get("mode")  # root or child
-        title = request.form.get("title","").strip()
-        content = request.form.get("content","")
-        parent_id = request.form.get("parent_id") or None
-
+        title = (request.form.get("title") or "").strip()
+        content = request.form.get("content") or ""
+        kind = request.form.get("kind")  # 'top' or 'child'
+        parent_choice = request.form.get("parent_id")  # may be ""
         if not title:
-            flash("제목을 입력해주세요.", "error")
-            return render_template("create.html", parents=parents)
-
-        if Page.query.filter_by(title=title).first():
-            flash("동일한 제목의 문서가 이미 있습니다.", "error")
-            return render_template("create.html", parents=parents)
-
-        if mode == "root":
-            page = Page(title=title, content=content, parent_id=None, is_root=True)
-        elif mode == "child":
-            if not parent_id:
-                flash("하위 문서를 만들 때는 상위 문서를 반드시 선택해야 합니다.", "error")
-                return render_template("create.html", parents=parents)
-            parent = Page.query.get(int(parent_id))
-            if not parent:
-                flash("선택한 상위 문서를 찾을 수 없습니다.", "error")
-                return render_template("create.html", parents=parents)
-            # 하위의 하위 금지
-            if parent.parent_id is not None:
-                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
-                return render_template("create.html", parents=parents)
-            page = Page(title=title, content=content, parent_id=parent.id, is_root=False)
-        else:
-            flash("모드를 선택해주세요.", "error")
-            return render_template("create.html", parents=parents)
-
-        db.session.add(page)
+            flash("제목을 입력하세요.", "danger")
+            return render_template("create.html", tops=tops)
+        parent_id = None
+        if kind == "child":
+            if not parent_choice:
+                flash("상위 문서를 선택하세요.", "danger")
+                return render_template("create.html", tops=tops)
+            parent_id = int(parent_choice)
+            parent = Document.query.get(parent_id)
+            if parent is None or parent.parent_id is not None:
+                flash("하위 문서는 오직 상위 문서의 바로 아래만 가능합니다.", "danger")
+                return render_template("create.html", tops=tops)
+        doc = Document(title=title, content=content, parent_id=parent_id)
+        db.session.add(doc)
         db.session.commit()
-        db.session.add(AuditLog(action="CREATE", page_title=page.title, client_ip=client_ip()))
-        db.session.commit()
-        return redirect(url_for("view_page", pid=page.id))
+        log_action("CREATE", title)
+        return redirect(url_for("view_doc", doc_id=doc.id))
+    return render_template("create.html", tops=tops)
 
-    return render_template("create.html", parents=parents)
-
-@app.route("/page/<int:pid>/delete", methods=["GET","POST"])
-def delete_page(pid):
-    page = Page.query.get_or_404(pid)
+@app.route("/edit/<int:doc_id>", methods=["GET","POST"])
+def edit(doc_id):
+    doc = Document.query.get_or_404(doc_id)
     if request.method == "POST":
-        title = page.title
-        db.session.delete(page)  # 하위는 ON DELETE CASCADE
+        doc.title = (request.form.get("title") or doc.title).strip()
+        doc.content = request.form.get("content") or ""
         db.session.commit()
-        db.session.add(AuditLog(action="DELETE", page_title=title, client_ip=client_ip()))
-        db.session.commit()
-        flash("삭제되었습니다.", "success")
-        return redirect(url_for("index"))
-    return render_template("delete_confirm.html", page=page)
+        log_action("UPDATE", doc.title)
+        flash("수정 완료!", "success")
+        return redirect(url_for("view_doc", doc_id=doc.id))
+    return render_template("edit.html", doc=doc)
 
-@app.template_filter("fmt")
-def fmt(dt):
-    return dt.strftime("%Y-%m-%d %H:%M:%S")
+@app.route("/delete/<int:doc_id>", methods=["POST"])
+def delete(doc_id):
+    doc = Document.query.get_or_404(doc_id)
+    title = doc.title
+    db.session.delete(doc)
+    db.session.commit()
+    log_action("DELETE", title)
+    flash("삭제되었습니다.", "success")
+    return redirect(url_for("index"))
 
-# Init DB table if not exists
-with app.app_context():
-    db.create_all()
+@app.route("/logs")
+def logs():
+    items = ActionLog.query.order_by(ActionLog.ts.desc()).limit(500).all()
+    return render_template("logs.html", items=items, ip_private=app.config["LOG_ANONYMIZE_IP"])
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
+@app.route("/healthz")
+def health():
+    ok = True
+    try:
+        db.session.execute(db.text("SELECT 1"))
+    except Exception:
+        ok = False
+    return {"app":"ok", "db":"up" if ok else "down"}
