@@ -1,39 +1,45 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <title>{% block title %}School Wiki{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
+  <meta charset="utf-8">
+  <title>나무 위키 클론</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <header class="topbar">
-    <div class="container topbar-inner">
-      <div class="brand"><a href="{{ url_for('home') }}">문서 목록 - School Wiki</a></div>
-      <nav class="actions">
-        <a class="btn" href="{{ url_for('home') }}">홈</a>
-        <a class="btn" href="{{ url_for('create_doc') }}">문서 만들기</a>
-        <a class="btn" href="{{ url_for('list_logs') }}">로그 보기</a>
-      </nav>
+    <div class="left">
+      <a class="brand" href="{{ url_for('index') }}">나무 위키 클론</a>
     </div>
+    <nav class="actions">
+      <a class="btn" href="{{ url_for('index') }}">홈</a>
+      <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
+      <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+    </nav>
   </header>
-
   <main class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash-wrap">
-          {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
+        <div class="flash">
+          {% for cat, msg in messages %}
+            <div class="flash-item {{cat}}">{{ msg }}</div>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
-
     {% block content %}{% endblock %}
   </main>
-
-  <footer class="feedback">
-    피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a>
+  <footer class="footer">
+    <span class="feedback">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
   </footer>
+  <script>
+  // delete 버튼에서 confirm 한 번 더
+  function confirmDelete(formId){
+    if(confirm("정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")){
+      document.getElementById(formId).submit();
+    }
+  }
+  </script>
 </body>
 </html>

@@ -1,158 +1,160 @@
 
 import os
-from datetime import datetime, timezone
-from flask import Flask, render_template, request, redirect, url_for, flash
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, text
+from sqlalchemy import func, event, ForeignKey
+from sqlalchemy.orm import relationship
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "").replace("postgres://", "postgresql://")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True, "pool_recycle": 300}
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-change-me")
+
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL env var is missing.")
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 
 db = SQLAlchemy(app)
 
-class Document(db.Model):
-    __tablename__ = "documents"
+class Page(db.Model):
+    __tablename__ = "pages"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False, unique=True)
-    content = db.Column(db.Text, nullable=False, default="")
-    parent_id = db.Column(db.Integer, db.ForeignKey("documents.id"), nullable=True, index=True)
-    parent = db.relationship("Document", remote_side=[id], backref="children")
-    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    content = db.Column(db.Text, default="", nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey("pages.id", ondelete="CASCADE"), nullable=True)
+    parent = relationship("Page", remote_side=[id], backref="children", passive_deletes=True)
+    is_root = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    def is_top(self) -> bool:
-        return self.parent_id is None
-
-class Log(db.Model):
-    __tablename__ = "logs"
+class AuditLog(db.Model):
+    __tablename__ = "audit_logs"
     id = db.Column(db.Integer, primary_key=True)
-    action = db.Column(db.String(120), nullable=False)
-    doc_id = db.Column(db.Integer, nullable=True)
-    doc_title = db.Column(db.String(200), nullable=True)
-    actor_ip = db.Column(db.String(64), nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
-
-with app.app_context():
-    db.create_all()
+    action = db.Column(db.String(20), nullable=False)  # CREATE / UPDATE / DELETE
+    page_title = db.Column(db.String(200), nullable=False)
+    client_ip = db.Column(db.String(64), nullable=True)
+    at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 def client_ip():
-    return (request.headers.get("X-Forwarded-For") or request.remote_addr or "unknown").split(",")[0].strip()
-
-def add_log(action, doc):
-    db.session.add(Log(action=action, doc_id=(doc.id if doc else None), doc_title=(doc.title if doc else None), actor_ip=client_ip()))
-    db.session.commit()
-
-@app.route("/")
-def home():
-    tops = Document.query.filter(Document.parent_id.is_(None)).order_by(func.lower(Document.title)).all()
-    recents = Document.query.order_by(Document.updated_at.desc()).limit(20).all()
-    return render_template("index.html", tops=tops, recents=recents)
-
-@app.route("/doc/<int:doc_id>")
-def view_doc(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    return render_template("view.html", doc=doc)
-
-@app.route("/new", methods=["GET", "POST"])
-def create_doc():
-    top_candidates = Document.query.filter(Document.parent_id.is_(None)).order_by(func.lower(Document.title)).all()
-    if request.method == "POST":
-        mode = request.form.get("mode")
-        title = (request.form.get("title") or "").strip()
-        content = request.form.get("content") or ""
-        parent_id = request.form.get("parent_id") or ""
-
-        if not title:
-            flash("제목을 입력해 주세요.", "error")
-            return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-
-        if Document.query.filter(func.lower(Document.title) == func.lower(title)).first():
-            flash("동일한 제목의 문서가 이미 있습니다.", "error")
-            return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-
-        parent = None
-        if mode == "top":
-            parent_id = None
-        elif mode == "child":
-            if not parent_id:
-                flash("하위 문서를 만들 상위 문서를 선택해 주세요.", "error")
-                return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-            parent = Document.query.get(int(parent_id))
-            if not parent:
-                flash("선택한 상위 문서를 찾을 수 없습니다.", "error")
-                return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-            if not parent.is_top():
-                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
-                return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-        else:
-            flash("문서 종류를 선택해 주세요.", "error")
-            return render_template("create.html", mode=mode, top_candidates=top_candidates, title=title, content=content, parent_id=parent_id)
-
-        new_doc = Document(title=title, content=content, parent=parent)
-        db.session.add(new_doc)
-        db.session.commit()
-        add_log("CREATE", new_doc)
-        flash("문서를 만들었습니다.", "success")
-        return redirect(url_for("view_doc", doc_id=new_doc.id))
-
-    return render_template("create.html", top_candidates=top_candidates, mode="top")
-
-@app.route("/edit/<int:doc_id>", methods=["GET", "POST"])
-def edit_doc(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    if request.method == "POST":
-        title = (request.form.get("title") or "").strip()
-        content = request.form.get("content") or ""
-        if not title:
-            flash("제목을 입력해 주세요.", "error")
-            return render_template("edit.html", doc=doc)
-        exists = Document.query.filter(Document.id != doc.id, func.lower(Document.title) == func.lower(title)).first()
-        if exists:
-            flash("동일한 제목의 문서가 이미 있습니다.", "error")
-            return render_template("edit.html", doc=doc)
-
-        doc.title = title
-        doc.content = content
-        db.session.commit()
-        add_log("UPDATE", doc)
-        flash("수정했습니다.", "success")
-        return redirect(url_for("view_doc", doc_id=doc.id))
-    return render_template("edit.html", doc=doc)
-
-@app.route("/delete/<int:doc_id>", methods=["GET", "POST"])
-def delete_doc(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    if request.method == "POST":
-        if request.form.get("confirm") != "yes":
-            flash("삭제가 취소되었습니다.", "error")
-            return redirect(url_for("view_doc", doc_id=doc.id))
-
-        for child in list(doc.children):
-            add_log("DELETE", child)
-            db.session.delete(child)
-        add_log("DELETE", doc)
-        db.session.delete(doc)
-        db.session.commit()
-        flash("문서를 삭제했습니다.", "success")
-        return redirect(url_for("home"))
-    return render_template("delete_confirm.html", doc=doc, child_count=len(doc.children))
-
-@app.route("/logs")
-def list_logs():
-    q = Log.query.order_by(Log.created_at.desc()).limit(500).all()
-    return render_template("logs.html", logs=q)
+    # X-Forwarded-For 고려
+    xff = request.headers.get("X-Forwarded-For", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.remote_addr
 
 @app.route("/healthz")
 def healthz():
     try:
-        db.session.execute(text("SELECT 1"))
-        db_ok = "ok"
+        db.session.execute(db.select(func.count(Page.id))).scalar_one()
+        db_ok = True
     except Exception:
-        db_ok = "down"
-    return {"app": "ok", "db": db_ok}
+        db_ok = False
+    return {"app":"ok", "db":"up" if db_ok else "down"}
+
+@app.route("/")
+def index():
+    pages = Page.query.order_by(Page.title.asc()).all()
+    roots = [p for p in pages if p.parent_id is None]
+    latest = Page.query.order_by(Page.updated_at.desc()).first()
+    return render_template("index.html", roots=roots, latest=latest)
+
+@app.route("/logs")
+def logs():
+    items = AuditLog.query.order_by(AuditLog.at.desc()).limit(500).all()
+    return render_template("logs.html", items=items)
+
+@app.route("/page/<int:pid>")
+def view_page(pid):
+    page = Page.query.get_or_404(pid)
+    return render_template("view.html", page=page)
+
+@app.route("/page/<int:pid>/edit", methods=["GET","POST"])
+def edit_page(pid):
+    page = Page.query.get_or_404(pid)
+    if request.method == "POST":
+        title = request.form.get("title","").strip()
+        content = request.form.get("content","")
+        if not title:
+            flash("제목은 비어 있을 수 없습니다.", "error")
+            return render_template("edit.html", page=page)
+        # title unique
+        existing = Page.query.filter(Page.title==title, Page.id!=page.id).first()
+        if existing:
+            flash("동일한 제목의 문서가 이미 있습니다.", "error")
+            return render_template("edit.html", page=page)
+        page.title = title
+        page.content = content
+        db.session.commit()
+        db.session.add(AuditLog(action="UPDATE", page_title=page.title, client_ip=client_ip()))
+        db.session.commit()
+        return redirect(url_for("view_page", pid=page.id))
+    return render_template("edit.html", page=page)
+
+@app.route("/create", methods=["GET","POST"])
+def create():
+    parents = Page.query.order_by(Page.title.asc()).all()
+    if request.method == "POST":
+        mode = request.form.get("mode")  # root or child
+        title = request.form.get("title","").strip()
+        content = request.form.get("content","")
+        parent_id = request.form.get("parent_id") or None
+
+        if not title:
+            flash("제목을 입력해주세요.", "error")
+            return render_template("create.html", parents=parents)
+
+        if Page.query.filter_by(title=title).first():
+            flash("동일한 제목의 문서가 이미 있습니다.", "error")
+            return render_template("create.html", parents=parents)
+
+        if mode == "root":
+            page = Page(title=title, content=content, parent_id=None, is_root=True)
+        elif mode == "child":
+            if not parent_id:
+                flash("하위 문서를 만들 때는 상위 문서를 반드시 선택해야 합니다.", "error")
+                return render_template("create.html", parents=parents)
+            parent = Page.query.get(int(parent_id))
+            if not parent:
+                flash("선택한 상위 문서를 찾을 수 없습니다.", "error")
+                return render_template("create.html", parents=parents)
+            # 하위의 하위 금지
+            if parent.parent_id is not None:
+                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
+                return render_template("create.html", parents=parents)
+            page = Page(title=title, content=content, parent_id=parent.id, is_root=False)
+        else:
+            flash("모드를 선택해주세요.", "error")
+            return render_template("create.html", parents=parents)
+
+        db.session.add(page)
+        db.session.commit()
+        db.session.add(AuditLog(action="CREATE", page_title=page.title, client_ip=client_ip()))
+        db.session.commit()
+        return redirect(url_for("view_page", pid=page.id))
+
+    return render_template("create.html", parents=parents)
+
+@app.route("/page/<int:pid>/delete", methods=["GET","POST"])
+def delete_page(pid):
+    page = Page.query.get_or_404(pid)
+    if request.method == "POST":
+        title = page.title
+        db.session.delete(page)  # 하위는 ON DELETE CASCADE
+        db.session.commit()
+        db.session.add(AuditLog(action="DELETE", page_title=title, client_ip=client_ip()))
+        db.session.commit()
+        flash("삭제되었습니다.", "success")
+        return redirect(url_for("index"))
+    return render_template("delete_confirm.html", page=page)
+
+@app.template_filter("fmt")
+def fmt(dt):
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+# Init DB table if not exists
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)

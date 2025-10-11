@@ -1,54 +1,33 @@
+
 {% extends "base.html" %}
-{% block title %}문서 만들기 - School Wiki{% endblock %}
 {% block content %}
-<section class="card">
-  <h3>새 문서 만들기</h3>
+  <section class="panel">
+    <h2>문서 만들기</h2>
+    <form method="post" class="form">
+      <label><input type="radio" name="mode" value="root" required> 상위 문서 만들기</label>
+      <label><input type="radio" name="mode" value="child" required> 하위 문서 만들기</label>
 
-  <form method="post" class="form">
-    <div class="row">
-      <label class="radio">
-        <input type="radio" name="mode" value="top" {% if mode == 'top' %}checked{% endif %}>
-        상위 문서
-      </label>
-      <label class="radio">
-        <input type="radio" name="mode" value="child" {% if mode == 'child' %}checked{% endif %}>
-        하위 문서
-      </label>
-    </div>
+      <div class="row">
+        <label>제목</label>
+        <input type="text" name="title" required>
+      </div>
 
-    <div class="row" id="parent-row" style="display: {% if mode == 'child' %}block{% else %}none{% endif %};">
-      <label>상위 문서 선택</label>
-      <select name="parent_id">
-        <option value="">-- 상위 문서 선택 --</option>
-        {% for p in top_candidates %}
-          <option value="{{ p.id }}" {% if parent_id|default('')|string == p.id|string %}selected{% endif %}>{{ p.title }}</option>
-        {% endfor %}
-      </select>
-      <small class="help">※ 하위 문서의 하위 문서는 만들 수 없습니다.</small>
-    </div>
+      <div class="row">
+        <label>내용</label>
+        <textarea name="content" rows="10"></textarea>
+      </div>
 
-    <div class="row">
-      <label>제목</label>
-      <input name="title" type="text" required value="{{ title|default('') }}">
-    </div>
+      <div class="row">
+        <label>상위 문서 (하위 문서를 만들 때만 선택)</label>
+        <select name="parent_id">
+          <option value="">-- 선택 --</option>
+          {% for p in parents if p.parent_id is none %}
+            <option value="{{ p.id }}">{{ p.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <div class="row">
-      <label>내용</label>
-      <textarea name="content" rows="12">{{ content|default('') }}</textarea>
-    </div>
-
-    <div class="row">
-      <button class="btn primary" type="submit">만들기</button>
-      <a class="btn ghost" href="{{ url_for('home') }}">취소</a>
-    </div>
-  </form>
-</section>
-
-<script>
-  const topRadio = document.querySelector('input[name="mode"][value="top"]');
-  const childRadio = document.querySelector('input[name="mode"][value="child"]');
-  const parentRow = document.getElementById('parent-row');
-  function sync() { parentRow.style.display = childRadio.checked ? 'block' : 'none'; }
-  [topRadio, childRadio].forEach(r => r.addEventListener('change', sync));
-</script>
+      <button class="btn primary" type="submit">생성</button>
+    </form>
+  </section>
 {% endblock %}

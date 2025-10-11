@@ -1,39 +1,40 @@
+
 {% extends "base.html" %}
-{% block title %}문서 목록 - School Wiki{% endblock %}
 {% block content %}
-<div class="grid">
-  <section class="card">
-    <h3>목차</h3>
-    {% if tops %}
-      <ul class="toc">
-        {% for t in tops %}
-          <li>
-            <a href="{{ url_for('view_doc', doc_id=t.id) }}">{{ t.title }}</a>
-            {% if t.children %}
-              <ul class="toc-children">
-                {% for c in t.children|sort(attribute='title') %}
-                  <li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
+  <section class="panel">
+    <h2>목차</h2>
+    <div class="toc">
+      {% if roots %}
+        {% for r in roots %}
+          <div class="toc-item">
+            <a href="{{ url_for('view_page', pid=r.id) }}">{{ r.title }}</a>
+            {% if r.children %}
+              <ul class="children">
+                {% for c in r.children %}
+                  <li><a href="{{ url_for('view_page', pid=c.id) }}">{{ c.title }}</a></li>
                 {% endfor %}
               </ul>
             {% endif %}
-          </li>
+          </div>
         {% endfor %}
-      </ul>
-    {% else %}
-      <p>아직 문서가 없습니다.</p>
-    {% endif %}
+      {% else %}
+        <p>아직 문서가 없습니다. 우측 상단의 “문서 만들기”로 추가하세요.</p>
+      {% endif %}
+    </div>
   </section>
 
-  <section class="card">
-    <h3>문서 목록</h3>
-    <ul class="recent">
-      {% for d in recents %}
-        <li>
-          <a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a>
-          <small>· 업데이트: {{ d.updated_at.strftime("%Y-%m-%d %H:%M:%S") }}</small>
+  <section class="panel">
+    <h2>문서 목록</h2>
+    <ul>
+      {% for r in roots %}
+        <li><a href="{{ url_for('view_page', pid=r.id) }}">{{ r.title }}</a>
+          {% if r.children %} &middot;
+            {% for c in r.children %}
+              <a href="{{ url_for('view_page', pid=c.id) }}">{{ c.title }}</a>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
   </section>
-</div>
 {% endblock %}

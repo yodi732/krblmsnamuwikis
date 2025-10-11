@@ -1,37 +1,22 @@
+
 {% extends "base.html" %}
-{% block title %}로그 보기 - School Wiki{% endblock %}
 {% block content %}
-<section class="card">
-  <h3>작업 로그</h3>
-  {% if logs %}
-  <table class="tbl">
-    <thead>
-      <tr>
-        <th>시간(UTC)</th>
-        <th>동작</th>
-        <th>문서</th>
-        <th>IP</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for l in logs %}
-      <tr>
-        <td>{{ l.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
-        <td>{{ l.action }}</td>
-        <td>
-          {% if l.doc_id %}
-            <a href="{{ url_for('view_doc', doc_id=l.doc_id) }}">{{ l.doc_title }}</a>
-          {% else %}
-            -
-          {% endif %}
-        </td>
-        <td>{{ l.actor_ip or "-" }}</td>
-      </tr>
+  <section class="panel">
+    <h2>작업 로그</h2>
+    <table class="table">
+      <thead>
+        <tr><th>시간</th><th>동작</th><th>문서</th><th>IP</th></tr>
+      </thead>
+      <tbody>
+      {% for it in items %}
+        <tr>
+          <td>{{ it.at|fmt }}</td>
+          <td>{{ it.action }}</td>
+          <td>{{ it.page_title }}</td>
+          <td>{{ it.client_ip }}</td>
+        </tr>
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    <p>아직 로그가 없습니다.</p>
-  {% endif %}
-</section>
+      </tbody>
+    </table>
+  </section>
 {% endblock %}
