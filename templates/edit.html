@@ -1,11 +1,21 @@
 {% extends "base.html" %}
+{% block title %}문서 수정 - School Wiki{% endblock %}
 {% block content %}
-  <h2>편집: {{ page.title }}</h2>
+<section class="card">
+  <h3>문서 수정</h3>
   <form method="post" class="form">
-    <label>제목</label>
-    <input name="title" value="{{ page.title }}" required>
-    <label>내용</label>
-    <textarea name="content" rows="12">{{ page.content }}</textarea>
-    <button class="btn" type="submit">저장</button>
+    <div class="row">
+      <label>제목</label>
+      <input name="title" type="text" required value="{{ doc.title }}">
+    </div>
+    <div class="row">
+      <label>내용</label>
+      <textarea name="content" rows="12">{{ doc.content }}</textarea>
+    </div>
+    <div class="row">
+      <button class="btn primary" type="submit">저장</button>
+      <a class="btn ghost" href="{{ url_for('view_doc', doc_id=doc.id) }}">취소</a>
+    </div>
   </form>
+</section>
 {% endblock %}

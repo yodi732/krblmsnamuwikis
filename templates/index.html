@@ -1,22 +1,39 @@
+{% extends "base.html" %}
+{% block title %}문서 목록 - School Wiki{% endblock %}
+{% block content %}
+<div class="grid">
+  <section class="card">
+    <h3>목차</h3>
+    {% if tops %}
+      <ul class="toc">
+        {% for t in tops %}
+          <li>
+            <a href="{{ url_for('view_doc', doc_id=t.id) }}">{{ t.title }}</a>
+            {% if t.children %}
+              <ul class="toc-children">
+                {% for c in t.children|sort(attribute='title') %}
+                  <li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>아직 문서가 없습니다.</p>
+    {% endif %}
+  </section>
 
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Wiki Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
-  <body>
-    <h1>Wiki 문서 목록</h1>
-    <form method="POST" action="{{ url_for('add_doc') }}">
-      <input name="title" placeholder="제목" required>
-      <textarea name="content" placeholder="내용" required></textarea>
-      <button type="submit">추가</button>
-    </form>
-    <ul>
-      {% for doc in docs %}
-        <li><b>{{ doc.title }}</b><p>{{ doc.content }}</p></li>
+  <section class="card">
+    <h3>문서 목록</h3>
+    <ul class="recent">
+      {% for d in recents %}
+        <li>
+          <a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a>
+          <small>· 업데이트: {{ d.updated_at.strftime("%Y-%m-%d %H:%M:%S") }}</small>
+        </li>
       {% endfor %}
     </ul>
-  </body>
-</html>
+  </section>
+</div>
+{% endblock %}

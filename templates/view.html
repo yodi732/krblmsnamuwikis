@@ -1,10 +1,29 @@
-
 {% extends "base.html" %}
-{% block title %}{{ page.title }} · krblmswiki{% endblock %}
+{% block title %}{{ doc.title }} - School Wiki{% endblock %}
 {% block content %}
-  <article class="doc">
-    <h2>{{ page.title }}</h2>
-    <pre>{{ page.content }}</pre>
-    <a class="btn" href="{{ url_for('edit_page', page_id=page.id) }}">편집</a>
+<section class="card">
+  <div class="doc-head">
+    <h2>{{ doc.title }}</h2>
+    <div class="doc-meta">
+      <small>업데이트: {{ doc.updated_at.strftime("%Y-%m-%d %H:%M:%S") }}</small>
+      {% if doc.parent %}
+        <small> · 상위: <a href="{{ url_for('view_doc', doc_id=doc.parent.id) }}">{{ doc.parent.title }}</a></small>
+      {% endif %}
+    </div>
+  </div>
+
+  <article class="doc-body">
+    {% if doc.content.strip() %}
+      <pre class="content">{{ doc.content }}</pre>
+    {% else %}
+      <p class="muted">내용이 없습니다.</p>
+    {% endif %}
   </article>
+
+  <div class="row">
+    <a class="btn" href="{{ url_for('edit_doc', doc_id=doc.id) }}">수정</a>
+    <a class="btn danger" href="{{ url_for('delete_doc', doc_id=doc.id) }}">삭제</a>
+    <a class="btn ghost" href="{{ url_for('home') }}">목록</a>
+  </div>
+</section>
 {% endblock %}
