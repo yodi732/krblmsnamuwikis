@@ -2,29 +2,25 @@
 import os
 from datetime import datetime
 from urllib.parse import urlparse
-
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from sqlalchemy import text
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 
 def _coerce_sqlalchemy_url(url: str) -> str:
-    '''Convert postgres:// to postgresql+psycopg:// for SQLAlchemy 2.x'''
     if url.startswith("postgres://"):
         return url.replace("postgres://", "postgresql+psycopg://", 1)
     if url.startswith("postgresql://"):
-        # explicitly use psycopg driver if not specified
         return url.replace("postgresql://", "postgresql+psycopg://", 1)
     return url
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
-# DB
 db_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI")
 if not db_url:
     raise RuntimeError("DATABASE_URL (or DATABASE_URI) env var is required")
 app.config["SQLALCHEMY_DATABASE_URI"] = _coerce_sqlalchemy_url(db_url)
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# Logging privacy (mask IPs by default)
 app.config["LOG_ANONYMIZE_IP"] = os.environ.get("LOG_ANONYMIZE_IP", "true").lower() not in ("0","false","no")
 
 db = SQLAlchemy(app)
@@ -37,16 +33,15 @@ class Document(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey("documents.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     parent = db.relationship("Document", remote_side=[id], backref=db.backref("children", cascade="all, delete-orphan"))
 
 class ActionLog(db.Model):
     __tablename__ = "action_logs"
     id = db.Column(db.Integer, primary_key=True)
     ts = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    action = db.Column(db.String(32), nullable=False)  # CREATE/UPDATE/DELETE
+    action = db.Column(db.String(32), nullable=False)
     doc_title = db.Column(db.String(255), nullable=False)
-    ip = db.Column(db.String(80), nullable=True)  # anonymized/masked
+    ip = db.Column(db.String(80), nullable=True)
 
 def mask_ip(ip: str) -> str:
     try:
@@ -61,10 +56,6 @@ def mask_ip(ip: str) -> str:
             return ":".join(hextets[:4]) + "::"
     except Exception:
         return ip
-
-@app.before_first_request
-def init_db():
-    db.create_all()
 
 def log_action(action: str, title: str):
     ip = request.headers.get("X-Forwarded-For", request.remote_addr) or "-"
@@ -89,8 +80,8 @@ def create():
     if request.method == "POST":
         title = (request.form.get("title") or "").strip()
         content = request.form.get("content") or ""
-        kind = request.form.get("kind")  # 'top' or 'child'
-        parent_choice = request.form.get("parent_id")  # may be ""
+        kind = request.form.get("kind")
+        parent_choice = request.form.get("parent_id")
         if not title:
             flash("제목을 입력하세요.", "danger")
             return render_template("create.html", tops=tops)
@@ -102,7 +93,7 @@ def create():
             parent_id = int(parent_choice)
             parent = Document.query.get(parent_id)
             if parent is None or parent.parent_id is not None:
-                flash("하위 문서는 오직 상위 문서의 바로 아래만 가능합니다.", "danger")
+                flash("하위 문서는 상위 문서의 바로 아래만 가능합니다.", "danger")
                 return render_template("create.html", tops=tops)
         doc = Document(title=title, content=content, parent_id=parent_id)
         db.session.add(doc)
@@ -142,7 +133,16 @@ def logs():
 def health():
     ok = True
     try:
-        db.session.execute(db.text("SELECT 1"))
+        db.session.execute(text("SELECT 1"))
     except Exception:
         ok = False
     return {"app":"ok", "db":"up" if ok else "down"}
+
+# --- Initialize DB on startup (method A) ---
+with app.app_context():
+    try:
+        db.session.execute(text("SELECT 1"))
+        db.create_all()
+        app.logger.info("DB initialized successfully")
+    except Exception as e:
+        app.logger.warning(f"DB init skipped: {e}")

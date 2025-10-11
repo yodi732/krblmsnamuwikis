@@ -1,12 +1,1 @@
-
-body{background:#f4f7fb;}
-.navbar-brand{font-weight:700}
-.card{border:none;border-radius:1rem;box-shadow:0 6px 24px rgba(0,0,0,.08);}
-.btn-pill{border-radius:.75rem;padding:.4rem 1rem;font-weight:600}
-.footer-left{position:fixed;left:24px;bottom:18px;color:#bfff00;}
-.footer-left a{color:#bfff00;text-decoration:none}
-.footer-left a:hover{text-decoration:underline}
-.hstack{display:flex;gap:.5rem;align-items:center}
-.parent-card .card-header{font-weight:700;font-size:1.1rem;background:#fff;border-bottom:none}
-.child-list{margin:0;padding-left:1rem}
-.child-list li{margin:.25rem 0}
+body{background:#f4f7fb;}.footer-left{position:fixed;left:20px;bottom:15px;color:#bfff00;}.navbar-brand{font-weight:700;color:#fff;}
