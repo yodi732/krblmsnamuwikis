@@ -1,26 +1,22 @@
-{% extends "base.html" %}
-{% block content %}
-  <div class="toolbar">
-    <a class="btn" href="{{ url_for('new_page') }}">+ 새 문서</a>
-  </div>
 
-  {% if pages and pages|length > 0 %}
-    <ul class="cardlist">
-    {% for p in pages %}
-      <li class="card">
-        <div class="card-title">{{ p.title }}</div>
-        <div class="card-meta">{{ p.updated_at.strftime("%Y-%m-%d %H:%M") }}</div>
-        <div class="card-actions">
-          <a href="{{ url_for('edit_page', pid=p.id) }}">편집</a>
-          <form method="post" action="{{ url_for('delete_page', pid=p.id) }}" onsubmit="return confirm('삭제할까요?');">
-            <button type="submit" class="linklike">삭제</button>
-          </form>
-        </div>
-        <pre class="card-content">{{ p.content }}</pre>
-      </li>
-    {% endfor %}
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Wiki Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <h1>Wiki 문서 목록</h1>
+    <form method="POST" action="{{ url_for('add_doc') }}">
+      <input name="title" placeholder="제목" required>
+      <textarea name="content" placeholder="내용" required></textarea>
+      <button type="submit">추가</button>
+    </form>
+    <ul>
+      {% for doc in docs %}
+        <li><b>{{ doc.title }}</b><p>{{ doc.content }}</p></li>
+      {% endfor %}
     </ul>
-  {% else %}
-    <p>아직 문서가 없습니다. 상단의 <strong>새 문서</strong> 버튼으로 하나 만들어 보세요.</p>
-  {% endif %}
-{% endblock %}
+  </body>
+</html>
