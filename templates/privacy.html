@@ -1,14 +1,57 @@
 {% extends "base.html" %}
+{% block title %}개인정보처리방침{% endblock %}
 {% block content %}
-<h3>개인정보처리방침</h3>
-<p class="text-muted">최종 수정일: {{ today }}</p>
-<ol>
-  <li><b>수집 항목 및 수집 방법</b><br>필수: 이메일(@bl-m.kr), 비밀번호(해시), 동의 일시 / 자동: 접속 로그(이메일)</li>
-  <li><b>이용 목적</b><br>회원 식별, 인증메일·비번재설정 발송, 보안 및 서비스 개선</li>
-  <li><b>보유 및 이용 기간</b><br>회원 탈퇴 시 즉시 삭제. 로그는 최대 1년 보관 후 익명화.</li>
-  <li><b>제3자 제공</b><br>없음. 호스팅(Render), 메일(SMTP) 위탁 운영.</li>
-  <li><b>파기 절차 및 방법</b><br>DB 데이터는 복구 불가능한 방법으로 삭제.</li>
-  <li><b>이용자 권리</b><br>열람/정정/삭제/탈퇴 가능. 문의: <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></li>
-  <li><b>안전성 확보 조치</b><br>비밀번호 해시, TLS 전송, 세션 보안.</li>
-</ol>
+<h1>개인정보처리방침</h1>
+<div class="card">
+  <p><strong>최종 수정일:</strong> {{ today }}</p>
+  <ol>
+    <li><strong>수집 항목 및 수집 방법</strong>
+      <ul>
+        <li>필수: 이메일(@bl-m.kr), 비밀번호(해시), 이메일 인증 여부</li>
+        <li>자동: 접속/로그 기록(이메일, 시각) — 보안 및 감사 목적</li>
+      </ul>
+    </li>
+    <li><strong>이용 목적</strong>
+      <ul>
+        <li>회원 식별, 로그인, 문서 편집 권한 부여</li>
+        <li>인증 메일 발송, 비밀번호 재설정</li>
+        <li>보안/서비스 개선 및 이상 행위 방지</li>
+      </ul>
+    </li>
+    <li><strong>보유 및 이용 기간</strong>
+      <ul>
+        <li>회원 탈퇴 시 즉시 개인정보 삭제</li>
+        <li>운영 로그는 최대 1년 보관 후 익명화/파기</li>
+      </ul>
+    </li>
+    <li><strong>제3자 제공/처리위탁</strong>
+      <ul>
+        <li>원칙적으로 제3자 제공 없음</li>
+        <li>호스팅(Render), 메일(SMTP) 위탁 운영 가능</li>
+      </ul>
+    </li>
+    <li><strong>파기 절차 및 방법</strong>
+      <ul>
+        <li>목적 달성 즉시 지체 없이 삭제</li>
+        <li>DB 데이터는 복구 불가능한 방식으로 파기</li>
+      </ul>
+    </li>
+    <li><strong>이용자 권리</strong>
+      <ul>
+        <li>열람/정정/삭제/탈퇴 및 이메일 인증 재발송/비밀번호 재설정</li>
+        <li>문의: <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></li>
+      </ul>
+    </li>
+    <li><strong>안전성 확보조치</strong>
+      <ul>
+        <li>비밀번호 해시 저장, TLS 전송, 세션 보호, 로그인 실패 제한(일 10회)</li>
+      </ul>
+    </li>
+    <li><strong>변경 고지</strong>
+      <ul>
+        <li>본 방침 변경 시 사이트 공지와 @bl-m.kr 이메일로 최소 7일 전에 고지합니다.</li>
+      </ul>
+    </li>
+  </ol>
+</div>
 {% endblock %}

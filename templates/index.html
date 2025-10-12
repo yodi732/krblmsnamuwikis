@@ -1,31 +1,57 @@
 {% extends "base.html" %}
+{% block title %}문서{% endblock %}
 {% block content %}
-<h2 class="mb-3">문서</h2>
-{% for d in top_docs %}
-  <div class="card">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="h5 mb-0">{{ d.title }}</div>
-      {% if can_modify %}
-      <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" onsubmit="return confirm('삭제할까요?');">
-        <button class="btn btn-sm btn-del">삭제</button>
-      </form>
-      {% endif %}
-    </div>
-    <div class="small">생성일: {{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-    {% if d.children %}
-      {% for c in d.children %}
-        <div class="indent mt-2 d-flex justify-content-between">
-          <div>{{ c.title }}</div>
-          {% if can_modify %}
-          <form method="post" action="{{ url_for('delete_document', doc_id=c.id) }}" onsubmit="return confirm('삭제할까요?');">
-            <button class="btn btn-sm btn-outline-danger">삭제</button>
-          </form>
+<h1>문서</h1>
+<div class="card">
+  {% if documents %}
+    {% for doc in documents %}
+      <div class="card">
+        <div class="doc-header">
+          <div>
+            <div><strong>{{ doc.title }}</strong></div>
+            <div class="small">생성일: {{ doc.created_at.strftime("%Y-%m-%d %H:%M") }}{% if doc.author %} · 작성자: {{ doc.author.email }}{% endif %}</div>
+          </div>
+          {% if current_user.is_authenticated and doc.can_delete(current_user) %}
+            <form method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" onsubmit="return confirm('삭제하시겠습니까?');">
+              <button class="btn btn-danger" type="submit">삭제</button>
+            </form>
           {% endif %}
         </div>
-      {% endfor %}
-    {% endif %}
-  </div>
+        {% if doc.children %}
+          <ul class="small">
+            {% for c in doc.children %}
+              <li>{{ c.title }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    아직 문서가 없습니다.
+  {% endif %}
+</div>
+{% if current_user.is_authenticated %}
+<div class="card">
+  <h3>문서 만들기</h3>
+  <form method="post" action="{{ url_for('create_document') }}">
+    <div class="row">
+      <div class="col">
+        <label>제목</label>
+        <input class="input" name="title" required>
+      </div>
+      <div class="col">
+        <label>상위 문서 ID(선택)</label>
+        <input class="input" name="parent_id" type="number" min="0" placeholder="없으면 비워두세요">
+      </div>
+    </div>
+    <label>내용</label>
+    <textarea class="input" name="content" rows="6" required></textarea>
+    <div style="margin-top:10px">
+      <button class="btn btn-primary" type="submit">저장</button>
+    </div>
+  </form>
+</div>
 {% else %}
-  <div class="text-muted">문서가 없습니다.</div>
-{% endfor %}
+<div class="card">문서 작성/수정/삭제는 우리 학교 구성원 전용입니다. 로그인 후 이용하세요.</div>
+{% endif %}
 {% endblock %}

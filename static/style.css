@@ -1,14 +1,28 @@
-body { background:#eef2f7; }
-.container-narrow { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
-.card { background:#fff; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); padding:1rem 1.25rem; margin-bottom:1rem;}
-.footer { color:#6b7280; font-size:0.9rem; margin-top:2rem; text-align:left;}
-.navbar { background:#1f2a44; }
-.navbar .brand { color:#fff; font-weight:700; }
-.navbar .nav-right { margin-left:auto; }
-.badge { font-size:.8rem; }
-.btn-del { background:#ef4444; color:#fff; }
-.btn-del:hover { background:#dc2626; color:#fff; }
-a { text-decoration:none; }
-pre { white-space: pre-wrap; }
-.small { font-size:.9rem; color:#6b7280;}
-.indent { margin-left: 22px; border-left:3px dotted #cbd5e1; padding-left:.6rem;}
+/* Basic layout */
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#eef3f8;color:#1f2937}
+header{background:#1f2a44;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+header .title{font-weight:700}
+nav a{display:inline-block;margin-left:8px;padding:6px 10px;border:1px solid #d1d5db;border-radius:8px;background:#0b1b3a12;color:#fff;text-decoration:none}
+.container{max-width:1200px;margin:28px auto;padding:0 24px}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:18px;margin-bottom:16px}
+.btn{border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
+.btn-primary{background:#1f2a44;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-ghost{background:transparent;border:1px solid #cbd5e1;color:#1f2937}
+.input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.col{flex:1 1 300px}
+label{font-weight:600;display:block;margin:8px 0 4px}
+ul{margin:0;padding-left:16px}
+.flash{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:8px;margin:10px 0}
+.footer{position:fixed;left:16px;bottom:12px;color:#6b7280;font-size:14px}
+.footer a{color:#374151;text-decoration:underline}
+
+/* right aligned nav group on header */
+.nav-right{margin-left:auto}
+
+/* delete button on document card goes to far right */
+.doc-header{display:flex;align-items:center;justify-content:space-between}
+.small{font-size:12px;color:#64748b}
+hr{border:none;border-top:1px solid #e5e7eb;margin:16px 0}
