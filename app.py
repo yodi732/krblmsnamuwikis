@@ -11,10 +11,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:/
 uri = app.config["SQLALCHEMY_DATABASE_URI"]
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-if uri.startswith("postgresql://") and "+psycopg2" not in uri:
-    uri = uri.replace("postgresql://", "postgresql+psycopg2://", 1)
-if uri.startswith("postgresql+psycopg://"):
-    uri = uri.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+if uri.startswith("postgresql://") and "+psycopg" not in uri:
+    uri = uri.replace("postgresql://", "postgresql+psycopg://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = uri
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
