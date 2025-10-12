@@ -8,8 +8,14 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///local.db")
 # Render의 DATABASE_URL이 postgres:// 로 시작할 수 있으므로 sqlalchemy가 인식하도록 조정
-if app.config["SQLALCHEMY_DATABASE_URI"].startswith("postgres://"):
-    app.config["SQLALCHEMY_DATABASE_URI"] = app.config["SQLALCHEMY_DATABASE_URI"].replace("postgres://", "postgresql://", 1)
+uri = app.config["SQLALCHEMY_DATABASE_URI"]
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+if uri.startswith("postgresql://") and "+psycopg2" not in uri:
+    uri = uri.replace("postgresql://", "postgresql+psycopg2://", 1)
+if uri.startswith("postgresql+psycopg://"):
+    uri = uri.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
@@ -42,7 +48,6 @@ class Log(db.Model):
 def mask_ip(ip):
     if not ip:
         return ""
-    # 여러 개라면 콤마 기준으로 각각 마스킹
     parts = [p.strip() for p in ip.split(",")]
     masked = []
     for p in parts:
@@ -60,8 +65,8 @@ def mask_ip(ip):
             masked.append(p)
     return ", ".join(masked)
 
-@app.before_first_request
-def init_db():
+# Flask 3에서는 before_first_request가 제거됨 → 앱 로드 시 컨텍스트에서 테이블 생성
+with app.app_context():
     db.create_all()
 
 # --- Routes ---
@@ -128,17 +133,6 @@ def delete_document(doc_id):
 def view_logs():
     logs = Log.query.order_by(Log.time.desc()).limit(500).all()
     return render_template("logs.html", logs=logs)
-
-# --- CLI seed (optional) ---
-@app.cli.command("seed")
-def seed():
-    if Document.query.count() == 0:
-        a = Document(title="1", content="")
-        b = Document(title="2", content="")
-        c = Document(title="1", content="", parent=a)
-        db.session.add_all([a,b,c])
-        db.session.commit()
-        print("Seeded.")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
