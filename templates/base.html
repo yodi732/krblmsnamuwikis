@@ -14,7 +14,6 @@
     .container{max-width:1180px;margin:18px auto;padding:0 16px}
     .footer{position:fixed;left:12px;bottom:10px;color:#9ca3af;font-size:.85rem}
     .flash{margin:10px auto;max-width:860px;padding:10px 12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c}
-    /* Cards & buttons */
     .doc-card{background:#fff;border-radius:10px;padding:14px 16px;margin:14px 0;border:1px solid #e5e7eb}
     .doc-head{display:flex;align-items:center;justify-content:space-between}
     .doc-title{margin:0;font-size:1.1rem}
@@ -40,6 +39,7 @@
     form.inline{display:inline}
     .auth-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e5e7eb;max-width:480px}
     .muted{color:#6b7280}
+    .foot-links a{color:#6b7280;text-decoration:none;margin-right:8px}
   </style>
 </head>
 <body>
@@ -49,6 +49,9 @@
       <a href="{{ url_for('index') }}">홈</a>
       {% if current_user %}
         <a href="{{ url_for('create_document') }}">문서 만들기</a>
+        {% if not current_user.email_verified %}
+          <a href="{{ url_for('resend_verification') }}">인증 메일 재전송</a>
+        {% endif %}
         <form method="post" action="{{ url_for('logout') }}" class="inline"><button>로그아웃</button></form>
       {% else %}
         <a href="{{ url_for('login') }}">로그인</a>
@@ -67,6 +70,12 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </div>
-  <div class="footer">피드백 → <strong>lyhjs1115@gmail.com</strong></div>
+  <div class="footer">
+    <span class="foot-links">
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a> ·
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </span>
+    &nbsp; | &nbsp; 피드백 → <strong>lyhjs1115@gmail.com</strong>
+  </div>
 </body>
 </html>

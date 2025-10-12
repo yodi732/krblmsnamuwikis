@@ -9,3 +9,15 @@ services:
         sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_USE_TLS
+        value: "true"
+      - key: SENDER_EMAIL
+        sync: false

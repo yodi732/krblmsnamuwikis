@@ -8,6 +8,14 @@
     <input name="email" class="input" placeholder="abcd{{ allow_domain }}" required>
     <label class="mt">비밀번호</label>
     <input type="password" name="password" class="input" placeholder="6자 이상" required>
+
+    <label class="mt">
+      <input type="checkbox" name="agree" required>
+      <span>개인정보처리방침과 이용약관에 동의합니다.
+        (<a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침</a> ·
+         <a href="{{ url_for('terms') }}" target="_blank">이용약관</a>)</span>
+    </label>
+
     <button class="btn btn-primary mt">가입하기</button>
     <p class="muted mt">이미 계정이 있나요? <a href="{{ url_for('login') }}">로그인</a></p>
   </form>
