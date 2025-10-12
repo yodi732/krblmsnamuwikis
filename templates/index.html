@@ -1,34 +1,6 @@
 
-{% extends "_layout.html" %}
+{% extends "base.html" %}
 {% block content %}
-  {% if not tops %}
-    <div class="card p-4 text-center">
-      아직 문서가 없습니다. 상단의 <b>문서 만들기</b> 버튼으로 하나 만들어 보세요.
-    </div>
-  {% else %}
-    <div class="row g-4">
-      {% for p in tops %}
-        <div class="col-12">
-          <div class="card parent-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <div><a href="{{ url_for('view_doc', doc_id=p.id) }}" class="link-dark text-decoration-none">{{ p.title }}</a></div>
-              <div class="small text-muted">생성일: {{ p.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
-            </div>
-            <div class="card-body">
-              <div class="mb-2">{{ p.content|safe }}</div>
-              {% if p.children %}
-                <ul class="child-list">
-                  {% for c in p.children %}
-                    <li>↳ <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
-                  {% endfor %}
-                </ul>
-              {% else %}
-                <div class="text-muted">하위 문서 없음</div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
+<h2>문서</h2>
+{% include "_doc_list.html" %}
 {% endblock %}

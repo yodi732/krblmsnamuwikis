@@ -1,0 +1,29 @@
+
+{% for p in parents %}
+<div class="doc-card parent">
+  <div class="doc-head">
+    <span class="badge badge-parent">상위</span>
+    <h3 class="doc-title">{{ p.title }}</h3>
+    <form action="{{ url_for('delete_document', doc_id=p.id) }}" method="post" class="inline" onsubmit="return confirm('삭제할까요? 하위 문서도 함께 삭제됩니다.');">
+      <button class="btn btn-danger btn-xs">삭제</button>
+    </form>
+  </div>
+  <div class="doc-meta">생성일: {{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+
+  {% if p.children %}
+  <ul class="children">
+    {% for c in p.children %}
+    <li class="child-row">
+      <span class="badge badge-child">하위</span>
+      <strong>{{ c.title }}</strong>
+      <form action="{{ url_for('delete_document', doc_id=c.id) }}" method="post" class="inline" onsubmit="return confirm('하위 문서를 삭제할까요?');">
+        <button class="btn btn-outline-danger btn-xxs">삭제</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">하위 문서 없음</div>
+  {% endif %}
+</div>
+{% endfor %}

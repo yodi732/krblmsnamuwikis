@@ -1,13 +1,13 @@
-
 services:
   - type: web
-    name: krblmsnamuwikis
+    name: byeollae-wiki
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT"
-    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
       - key: DATABASE_URL
         sync: false
       - key: SECRET_KEY
-        sync: false
+        generateValue: true
+      - key: LOG_ANONYMIZE_IP
+        value: "true"

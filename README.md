@@ -1,20 +1,22 @@
-# NamuWiki-lite (Render + Supabase final)
+# 별내위키 (Flask)
 
-## 환경변수 (Render → Environment)
+Render 외부 Postgres + Flask 배포용 최종본.
 
-- `DATABASE_URL` (예시)
-  `postgresql+psycopg://postgres:<비밀번호>@db.<프로젝트-ref>.supabase.co:6543/postgres?sslmode=require&connect_timeout=10`
-- `SECRET_KEY` : 임의의 긴 랜덤 문자열
+## 환경 변수
+- `DATABASE_URL` : Render 외부 PostgreSQL 주소 (필수)
+- `SECRET_KEY` : Flask 시크릿 키 (필수)
+- `LOG_ANONYMIZE_IP` : IP 익명화 적용 여부 (기본 true)
 
-> 참고: URL이 `postgresql://`로 시작한다면 앱이 자동으로 `postgresql+psycopg://`로 변환합니다.
-
-## Start Command (Render)
+## 실행
+```bash
+pip install -r requirements.txt
+export DATABASE_URL="postgresql://..."
+export SECRET_KEY="something-secret"
+gunicorn app:app
 ```
-gunicorn app:app --bind 0.0.0.0:$PORT
-```
 
-## 안정화 포인트
-- Flask 3 호환 (before_first_request 미사용)
-- DB 초기화/핑 실패 시에도 앱은 구동 (읽기/쓰기 버튼은 안내 메시지)
-- 풀 pre_ping, 빠른 connect_timeout
-- `/healthz` 헬스엔드포인트 제공
+## 기능
+- 상위/하위 문서 생성 (하위의 하위 금지)
+- 홈 및 생성 페이지에서 동일한 목록 뷰 사용 (동기화)
+- 문서 삭제(홈/생성 화면 모두에서), 부모 삭제 시 자식도 함께 삭제
+- 작업 로그 확인(시간/동작/문서/익명화 IP)

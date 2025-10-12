@@ -1,148 +1,144 @@
 
 import os
 from datetime import datetime
-from urllib.parse import urlparse
-from sqlalchemy import text
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 
-def _coerce_sqlalchemy_url(url: str) -> str:
-    if url.startswith("postgres://"):
-        return url.replace("postgres://", "postgresql+psycopg://", 1)
-    if url.startswith("postgresql://"):
-        return url.replace("postgresql://", "postgresql+psycopg://", 1)
-    return url
-
+# --- App & Config ---
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
-db_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URI")
-if not db_url:
-    raise RuntimeError("DATABASE_URL (or DATABASE_URI) env var is required")
-app.config["SQLALCHEMY_DATABASE_URI"] = _coerce_sqlalchemy_url(db_url)
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+# Render의 DATABASE_URL이 postgres:// 로 시작할 수 있으므로 sqlalchemy가 인식하도록 조정
+if app.config["SQLALCHEMY_DATABASE_URI"].startswith("postgres://"):
+    app.config["SQLALCHEMY_DATABASE_URI"] = app.config["SQLALCHEMY_DATABASE_URI"].replace("postgres://", "postgresql://", 1)
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["LOG_ANONYMIZE_IP"] = os.environ.get("LOG_ANONYMIZE_IP", "true").lower() not in ("0","false","no")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
+LOG_ANONYMIZE_IP = os.environ.get("LOG_ANONYMIZE_IP", "true").lower() == "true"
 
 db = SQLAlchemy(app)
 
+# --- Models ---
 class Document(db.Model):
-    __tablename__ = "documents"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    content = db.Column(db.Text, nullable=False, default="")
-    parent_id = db.Column(db.Integer, db.ForeignKey("documents.id"), nullable=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, default="")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    parent = db.relationship("Document", remote_side=[id], backref=db.backref("children", cascade="all, delete-orphan"))
 
-class ActionLog(db.Model):
-    __tablename__ = "action_logs"
+    parent_id = db.Column(db.Integer, db.ForeignKey('document.id', ondelete='CASCADE'), nullable=True)
+    children = db.relationship(
+        'Document',
+        cascade='all, delete-orphan',
+        backref=db.backref('parent', remote_side='Document.id'),
+        lazy='select'
+    )
+
+class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    ts = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    action = db.Column(db.String(32), nullable=False)
-    doc_title = db.Column(db.String(255), nullable=False)
-    ip = db.Column(db.String(80), nullable=True)
+    time = db.Column(db.DateTime, default=datetime.utcnow)
+    action = db.Column(db.String(20), nullable=False)  # CREATE / DELETE
+    doc_id = db.Column(db.Integer, nullable=False)
+    ip = db.Column(db.String(255), nullable=True)
 
-def mask_ip(ip: str) -> str:
-    try:
-        import ipaddress
-        ip_obj = ipaddress.ip_address(ip)
-        if ip_obj.version == 4:
-            parts = ip.split(".")
-            parts[-1] = "0"
-            return ".".join(parts)
+def mask_ip(ip):
+    if not ip:
+        return ""
+    # 여러 개라면 콤마 기준으로 각각 마스킹
+    parts = [p.strip() for p in ip.split(",")]
+    masked = []
+    for p in parts:
+        if ":" in p:  # IPv6
+            segs = p.split(":")
+            if len(segs) > 2:
+                segs[-1] = "****"
+            masked.append(":".join(segs))
+        elif "." in p:  # IPv4
+            segs = p.split(".")
+            if len(segs) == 4:
+                segs[-1] = "***"
+            masked.append(".".join(segs))
         else:
-            hextets = ip.split(":")
-            return ":".join(hextets[:4]) + "::"
-    except Exception:
-        return ip
+            masked.append(p)
+    return ", ".join(masked)
 
-def log_action(action: str, title: str):
-    ip = request.headers.get("X-Forwarded-For", request.remote_addr) or "-"
-    if app.config["LOG_ANONYMIZE_IP"]:
-        ip = mask_ip(ip)
-    db.session.add(ActionLog(action=action, doc_title=title, ip=ip))
-    db.session.commit()
+@app.before_first_request
+def init_db():
+    db.create_all()
 
+# --- Routes ---
 @app.route("/")
 def index():
-    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.asc()).all()
-    return render_template("index.html", tops=tops)
+    parents = (Document.query
+               .filter_by(parent_id=None)
+               .order_by(Document.created_at.desc())
+               .all())
+    return render_template("index.html", parents=parents)
 
-@app.route("/doc/<int:doc_id>")
-def view_doc(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    return render_template("doc.html", doc=doc)
-
-@app.route("/create", methods=["GET","POST"])
-def create():
-    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.asc()).all()
+@app.route("/create", methods=["GET", "POST"])
+def create_document():
     if request.method == "POST":
         title = (request.form.get("title") or "").strip()
         content = request.form.get("content") or ""
-        kind = request.form.get("kind")
-        parent_choice = request.form.get("parent_id")
+        doc_type = request.form.get("doc_type", "parent")
+        parent_id = request.form.get("parent_id")
+
         if not title:
-            flash("제목을 입력하세요.", "danger")
-            return render_template("create.html", tops=tops)
-        parent_id = None
-        if kind == "child":
-            if not parent_choice:
-                flash("상위 문서를 선택하세요.", "danger")
-                return render_template("create.html", tops=tops)
-            parent_id = int(parent_choice)
-            parent = Document.query.get(parent_id)
-            if parent is None or parent.parent_id is not None:
-                flash("하위 문서는 상위 문서의 바로 아래만 가능합니다.", "danger")
-                return render_template("create.html", tops=tops)
-        doc = Document(title=title, content=content, parent_id=parent_id)
+            flash("제목을 입력하세요.", "warning")
+            return redirect(url_for("create_document"))
+
+        parent = None
+        if doc_type == "child":
+            if not parent_id:
+                flash("하위 문서의 상위 문서를 선택하세요.", "warning")
+                return redirect(url_for("create_document"))
+            parent = Document.query.get_or_404(int(parent_id))
+            if parent.parent_id is not None:
+                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "danger")
+                return redirect(url_for("create_document"))
+
+        doc = Document(title=title, content=content, parent=parent)
         db.session.add(doc)
         db.session.commit()
-        log_action("CREATE", title)
-        return redirect(url_for("view_doc", doc_id=doc.id))
-    return render_template("create.html", tops=tops)
 
-@app.route("/edit/<int:doc_id>", methods=["GET","POST"])
-def edit(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    if request.method == "POST":
-        doc.title = (request.form.get("title") or doc.title).strip()
-        doc.content = request.form.get("content") or ""
+        # 로그
+        ip_chain = request.headers.get("X-Forwarded-For", request.remote_addr)
+        db.session.add(Log(action="CREATE", doc_id=doc.id, ip=mask_ip(ip_chain) if LOG_ANONYMIZE_IP else ip_chain))
         db.session.commit()
-        log_action("UPDATE", doc.title)
-        flash("수정 완료!", "success")
-        return redirect(url_for("view_doc", doc_id=doc.id))
-    return render_template("edit.html", doc=doc)
 
-@app.route("/delete/<int:doc_id>", methods=["POST"])
-def delete(doc_id):
+        return redirect(url_for("create_document"))
+
+    parents = (Document.query
+               .filter_by(parent_id=None)
+               .order_by(Document.created_at.desc())
+               .all())
+    return render_template("create.html", parents=parents)
+
+@app.post("/delete/<int:doc_id>")
+def delete_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
-    title = doc.title
     db.session.delete(doc)
     db.session.commit()
-    log_action("DELETE", title)
-    flash("삭제되었습니다.", "success")
-    return redirect(url_for("index"))
+
+    ip_chain = request.headers.get("X-Forwarded-For", request.remote_addr)
+    db.session.add(Log(action="DELETE", doc_id=doc_id, ip=mask_ip(ip_chain) if LOG_ANONYMIZE_IP else ip_chain))
+    db.session.commit()
+
+    return redirect(request.referrer or url_for("index"))
 
 @app.route("/logs")
-def logs():
-    items = ActionLog.query.order_by(ActionLog.ts.desc()).limit(500).all()
-    return render_template("logs.html", items=items, ip_private=app.config["LOG_ANONYMIZE_IP"])
+def view_logs():
+    logs = Log.query.order_by(Log.time.desc()).limit(500).all()
+    return render_template("logs.html", logs=logs)
 
-@app.route("/healthz")
-def health():
-    ok = True
-    try:
-        db.session.execute(text("SELECT 1"))
-    except Exception:
-        ok = False
-    return {"app":"ok", "db":"up" if ok else "down"}
+# --- CLI seed (optional) ---
+@app.cli.command("seed")
+def seed():
+    if Document.query.count() == 0:
+        a = Document(title="1", content="")
+        b = Document(title="2", content="")
+        c = Document(title="1", content="", parent=a)
+        db.session.add_all([a,b,c])
+        db.session.commit()
+        print("Seeded.")
 
-# --- Initialize DB on startup (method A) ---
-with app.app_context():
-    try:
-        db.session.execute(text("SELECT 1"))
-        db.create_all()
-        app.logger.info("DB initialized successfully")
-    except Exception as e:
-        app.logger.warning(f"DB init skipped: {e}")
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

@@ -3,43 +3,63 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <title>나무 위키 클론</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <title>별내위키</title>
+  <style>
+    body{margin:0;background:#eef2f7;font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    .navbar{background:#1e2a52;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+    .brand{font-weight:800;letter-spacing:.5px}
+    .nav a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 10px;border-radius:8px;margin-left:8px}
+    .container{max-width:1180px;margin:18px auto;padding:0 16px}
+    .footer{position:fixed;left:12px;bottom:10px;color:#9ca3af;font-size:.85rem}
+    .flash{margin:10px auto;max-width:860px;padding:10px 12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c}
+    /* Cards & buttons */
+    .doc-card{background:#fff;border-radius:10px;padding:14px 16px;margin:14px 0;border:1px solid #e5e7eb}
+    .doc-head{display:flex;align-items:center;gap:8px}
+    .doc-title{margin:0;font-size:1.1rem}
+    .badge{font-size:.72rem;padding:.16rem .5rem;border-radius:9999px;color:#fff}
+    .badge-parent{background:#1e3a8a}
+    .badge-child{background:#64748b}
+    .doc-meta{font-size:.85rem;color:#6b7280;margin-top:4px}
+    .children{margin:10px 0 0 14px;padding-left:14px;border-left:3px dotted #cbd5e1}
+    .child-row{display:flex;align-items:center;gap:8px;margin:6px 0}
+    .empty{color:#94a3b8;font-style:italic;margin-top:8px}
+    .inline{display:inline}
+    .btn{border:1px solid #cbd5e1;border-radius:8px;padding:.35rem .6rem;cursor:pointer;background:#f8fafc}
+    .btn-primary{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+    .btn-danger{background:#ef4444;color:#fff;border-color:#ef4444}
+    .btn-outline-danger{background:#fff;color:#ef4444;border-color:#ef4444}
+    .btn-xs{font-size:.8rem;padding:.25rem .45rem}
+    .btn-xxs{font-size:.7rem;padding:.12rem .35rem}
+    .input,.textarea,.select{width:100%;max-width:860px}
+    .textarea{min-height:160px}
+    .mt{margin-top:.75rem}
+    .ml-2{margin-left:.5rem}.ml-3{margin-left:.75rem}
+    .my-6{margin:1.5rem 0}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
+    th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left}
+    th{background:#f1f5f9}
+  </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="left">
-      <a class="brand" href="{{ url_for('index') }}">나무 위키 클론</a>
+  <div class="navbar">
+    <div class="brand">별내위키</div>
+    <div class="nav">
+      <a href="{{ url_for('index') }}">홈</a>
+      <a href="{{ url_for('create_document') }}">문서 만들기</a>
+      <a href="{{ url_for('view_logs') }}">로그 보기</a>
     </div>
-    <nav class="actions">
-      <a class="btn" href="{{ url_for('index') }}">홈</a>
-      <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
-      <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-    </nav>
-  </header>
-  <main class="container">
+  </div>
+  <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash">
-          {% for cat, msg in messages %}
-            <div class="flash-item {{cat}}">{{ msg }}</div>
-          {% endfor %}
-        </div>
+        {% for cat,msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
       {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
-  </main>
-  <footer class="footer">
-    <span class="feedback">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
-  </footer>
-  <script>
-  // delete 버튼에서 confirm 한 번 더
-  function confirmDelete(formId){
-    if(confirm("정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")){
-      document.getElementById(formId).submit();
-    }
-  }
-  </script>
+  </div>
+  <div class="footer">피드백 문의 → <strong>lyhjs1115@gmail.com</strong></div>
 </body>
 </html>
