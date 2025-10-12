@@ -1,0 +1,15 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h2>로그인</h2>
+<div class="auth-card">
+  <form method="post">
+    <label>이메일</label>
+    <input name="email" class="input" placeholder="abcd@bl-m.kr" required>
+    <label class="mt">비밀번호</label>
+    <input type="password" name="password" class="input" placeholder="비밀번호" required>
+    <button class="btn btn-primary mt">로그인</button>
+    <p class="muted mt">계정이 없나요? <a href="{{ url_for('signup') }}">회원가입</a></p>
+  </form>
+</div>
+{% endblock %}

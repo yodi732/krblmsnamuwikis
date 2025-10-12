@@ -10,7 +10,7 @@
     .navbar{background:#1e2a52;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
     .brand{font-weight:800;letter-spacing:.5px}
     .nav{margin-left:auto}
-    .nav a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 10px;border-radius:8px;margin-left:8px}
+    .nav a,.nav form button{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 10px;border-radius:8px;margin-left:8px;background:transparent;cursor:pointer}
     .container{max-width:1180px;margin:18px auto;padding:0 16px}
     .footer{position:fixed;left:12px;bottom:10px;color:#9ca3af;font-size:.85rem}
     .flash{margin:10px auto;max-width:860px;padding:10px 12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c}
@@ -37,6 +37,9 @@
     table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
     th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left}
     th{background:#f1f5f9}
+    form.inline{display:inline}
+    .auth-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e5e7eb;max-width:480px}
+    .muted{color:#6b7280}
   </style>
 </head>
 <body>
@@ -44,7 +47,13 @@
     <div class="brand">별내위키</div>
     <div class="nav">
       <a href="{{ url_for('index') }}">홈</a>
-      <a href="{{ url_for('create_document') }}">문서 만들기</a>
+      {% if current_user %}
+        <a href="{{ url_for('create_document') }}">문서 만들기</a>
+        <form method="post" action="{{ url_for('logout') }}" class="inline"><button>로그아웃</button></form>
+      {% else %}
+        <a href="{{ url_for('login') }}">로그인</a>
+        <a href="{{ url_for('signup') }}">회원가입</a>
+      {% endif %}
       <a href="{{ url_for('view_logs') }}">로그 보기</a>
     </div>
   </div>
@@ -58,6 +67,6 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </div>
-  <div class="footer">피드백 문의 → <strong>lyhjs1115@gmail.com</strong></div>
+  <div class="footer">피드백 → <strong>lyhjs1115@gmail.com</strong></div>
 </body>
 </html>

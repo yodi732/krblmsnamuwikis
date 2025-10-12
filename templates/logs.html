@@ -4,7 +4,7 @@
 <h2>작업 로그</h2>
 <table>
   <thead>
-    <tr><th>시간</th><th>동작</th><th>문서</th><th>IP (익명화)</th></tr>
+    <tr><th>시간</th><th>동작</th><th>문서</th><th>이메일</th></tr>
   </thead>
   <tbody>
     {% for l in logs %}
@@ -12,7 +12,7 @@
       <td>{{ l.time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
       <td>{{ l.action }}</td>
       <td>{{ l.doc_id }}</td>
-      <td>{{ l.ip }}</td>
+      <td>{{ l.user_email or '—' }}</td>
     </tr>
     {% endfor %}
   </tbody>
