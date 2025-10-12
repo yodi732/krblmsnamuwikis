@@ -1,18 +1,8 @@
 {% extends "base.html" %}
-{% block title %}계정 설정{% endblock %}
 {% block content %}
-<h1>계정 설정</h1>
-<div class="card">
-  <div>이메일: <strong>{{ current_user.email }}</strong></div>
-  <div>이메일 인증: {{ '완료' if current_user.email_verified else '미인증' }}</div>
-  <div class="small">가입일: {{ current_user.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
-</div>
-
-<div class="card">
-  <h3>회원탈퇴</h3>
-  <p>탈퇴 시 계정 및 연결된 개인정보는 즉시 삭제됩니다. (문서/로그는 내부 규정에 따라 익명화/보존될 수 있습니다)</p>
-  <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-    <button class="btn btn-danger" type="submit">회원탈퇴</button>
-  </form>
-</div>
+<h2>계정 관리</h2>
+<p>이메일: <strong>{{ current_user.email }}</strong>{% if not current_user.email_verified %} <span class="badge">미인증</span>{% endif %}</p>
+<form action="{{ url_for('account_delete') }}" method="post" onsubmit="return confirm('정말로 탈퇴하시겠습니까? 모든 개인 데이터가 삭제됩니다.');">
+  <button class="danger">회원탈퇴</button>
+</form>
 {% endblock %}

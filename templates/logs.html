@@ -1,27 +1,17 @@
 {% extends "base.html" %}
-{% block title %}작업 로그{% endblock %}
 {% block content %}
-<h1>작업 로그</h1>
-<div class="card">
-  <table style="width:100%;border-collapse:collapse">
-    <thead>
-      <tr style="text-align:left;border-bottom:1px solid #e5e7eb">
-        <th style="padding:8px">시간</th>
-        <th style="padding:8px">동작</th>
-        <th style="padding:8px">문서</th>
-        <th style="padding:8px">이메일</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
-      <tr style="border-top:1px solid #f1f5f9">
-        <td style="padding:8px">{{ row.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
-        <td style="padding:8px">{{ row.action }}</td>
-        <td style="padding:8px">{{ row.document_id or '' }}</td>
-        <td style="padding:8px">{{ row.email or '-' }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+<h2>작업 로그</h2>
+<table class="table">
+  <thead><tr><th>시간</th><th>동작</th><th>문서</th><th>이메일</th></tr></thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td>{{ l.action }}</td>
+      <td>{{ l.document_id or '' }}</td>
+      <td>{{ l.actor_email or '' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

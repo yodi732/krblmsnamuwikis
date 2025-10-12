@@ -1,28 +1,23 @@
-/* Basic layout */
-*{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#eef3f8;color:#1f2937}
-header{background:#1f2a44;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
-header .title{font-weight:700}
-nav a{display:inline-block;margin-left:8px;padding:6px 10px;border:1px solid #d1d5db;border-radius:8px;background:#0b1b3a12;color:#fff;text-decoration:none}
-.container{max-width:1200px;margin:28px auto;padding:0 24px}
-.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:18px;margin-bottom:16px}
-.btn{border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
-.btn-primary{background:#1f2a44;color:#fff}
-.btn-danger{background:#ef4444;color:#fff}
-.btn-ghost{background:transparent;border:1px solid #cbd5e1;color:#1f2937}
-.input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.col{flex:1 1 300px}
-label{font-weight:600;display:block;margin:8px 0 4px}
-ul{margin:0;padding-left:16px}
-.flash{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:8px;margin:10px 0}
-.footer{position:fixed;left:16px;bottom:12px;color:#6b7280;font-size:14px}
-.footer a{color:#374151;text-decoration:underline}
-
-/* right aligned nav group on header */
-.nav-right{margin-left:auto}
-
-/* delete button on document card goes to far right */
-.doc-header{display:flex;align-items:center;justify-content:space-between}
-.small{font-size:12px;color:#64748b}
-hr{border:none;border-top:1px solid #e5e7eb;margin:16px 0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple Color Emoji,Noto Color Emoji,sans-serif;margin:0;background:#eef2f6;color:#111}
+a{color:#0b63d1;text-decoration:none}
+.topbar{background:#1e2a4a;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 16px}
+.topbar .nav a{color:#fff;margin-left:10px;border:1px solid #fff2;border-radius:8px;padding:6px 10px}
+.brand a{color:#fff;font-weight:700}
+.container{max-width:1000px;margin:28px auto;padding:0 16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 1px 10px rgba(0,0,0,.06);padding:16px;margin:12px 0}
+.card.narrow{max-width:420px}
+label{display:block;margin:8px 0 4px}
+input,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #c8d2e0;box-sizing:border-box}
+button{cursor:pointer}
+button.danger{background:#ef4444;color:white;border-color:#ef4444}
+.doc-head{display:flex;justify-content:space-between;align-items:center}
+.muted{color:#667085;font-size:12px}
+.flashwrap{max-width:1000px;margin:10px auto;padding:0 16px}
+.flash{padding:10px;border-radius:10px;margin:6px 0}
+.flash.ok{background:#e6f9ee;border:1px solid #3fb97f;color:#145f3d}
+.flash.error{background:#ffefef;border:1px solid #f87171;color:#7f1d1d}
+.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
+.table th,.table td{border-bottom:1px solid #e5e7eb;padding:8px 10px;text-align:left}
+.foot-left{position:fixed;left:12px;bottom:10px;color:#6b7280;font-size:14px}
+.check{margin-top:8px}
+.badge{background:#fde68a;color:#7c2d12;padding:2px 6px;border-radius:6px;font-size:12px;margin-left:6px}

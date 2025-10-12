@@ -1,17 +1,14 @@
 {% extends "base.html" %}
-{% block title %}로그인{% endblock %}
 {% block content %}
-<h1>로그인</h1>
-<div class="card">
-  <form method="post">
-    <label>이메일(@bl-m.kr)</label>
-    <input class="input" name="email" type="email" required>
-    <label>비밀번호</label>
-    <input class="input" name="password" type="password" required>
-    <div style="margin-top:10px">
-      <button class="btn btn-primary" type="submit">로그인</button>
-      <a class="btn btn-ghost" href="{{ url_for('forgot') }}">비밀번호 재설정</a>
-    </div>
-  </form>
-</div>
+<h2>로그인</h2>
+<form method="post" class="card narrow">
+  <label>이메일</label>
+  <input name="email" type="email" placeholder="id@bl-m.kr" required>
+  <label>비밀번호</label>
+  <input name="password" type="password" required>
+  <button>로그인</button>
+  <div class="row">
+    <a href="{{ url_for('forgot') }}">비밀번호 재설정</a>
+  </div>
+</form>
 {% endblock %}

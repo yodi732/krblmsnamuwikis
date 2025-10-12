@@ -1,17 +1,12 @@
 {% extends "base.html" %}
-{% block title %}회원가입{% endblock %}
 {% block content %}
-<h1>회원가입</h1>
-<div class="card">
-  <form method="post">
-    <label>이메일(@bl-m.kr)</label>
-    <input class="input" name="email" type="email" required>
-    <label>비밀번호</label>
-    <input class="input" name="password" type="password" minlength="8" required>
-    <label><input type="checkbox" name="agree" required> 개인정보 처리방침과 이용약관에 동의합니다.</label>
-    <div style="margin-top:10px">
-      <button class="btn btn-primary" type="submit">가입</button>
-    </div>
-  </form>
-</div>
+<h2>회원가입</h2>
+<form method="post" class="card narrow">
+  <label>학교 이메일(@bl-m.kr)</label>
+  <input name="email" type="email" placeholder="abcd@bl-m.kr" required>
+  <label>비밀번호</label>
+  <input name="password" type="password" required>
+  <label class="check"><input type="checkbox" name="agree"> 약관 및 개인정보처리방침에 동의합니다.</label>
+  <button>가입</button>
+</form>
 {% endblock %}
