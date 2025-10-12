@@ -1,15 +1,11 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h2>새 비밀번호 설정</h2>
-<div class="auth-card">
-  <form method="post">
-    <p class="muted">이메일: <strong>{{ email }}</strong></p>
-    <label>새 비밀번호</label>
-    <input type="password" name="password" class="input" placeholder="6자 이상" required>
-    <label class="mt">새 비밀번호 확인</label>
-    <input type="password" name="password2" class="input" placeholder="다시 입력" required>
-    <button class="btn btn-primary mt">비밀번호 변경</button>
-  </form>
-</div>
+<h2 class="mb-3">새 비밀번호 설정</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">새 비밀번호</label>
+    <input type="password" name="password" class="form-control" required>
+  </div>
+  <button class="btn btn-primary">변경</button>
+</form>
 {% endblock %}

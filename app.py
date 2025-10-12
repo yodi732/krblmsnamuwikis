@@ -1,395 +1,340 @@
-
 import os
-from datetime import datetime
-from functools import wraps
-from email.message import EmailMessage
+from datetime import datetime, timedelta
 import smtplib
+from email.mime.text import MIMEText
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text, inspect
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from werkzeug.security import generate_password_hash, check_password_hash
 
-ALLOW_DOMAIN = "@bl-m.kr"
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///local.db")
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///local.db")
-uri = app.config["SQLALCHEMY_DATABASE_URI"]
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-if uri.startswith("postgresql://") and "+psycopg" not in uri:
-    uri = uri.replace("postgresql://", "postgresql+psycopg://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = uri
-
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
 
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
 
-# -------------------- Models --------------------
-class User(db.Model):
+# ------------- Models -------------
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)  # hashed
     email_verified = db.Column(db.Boolean, default=False)
-    agreed_at = db.Column(db.DateTime, nullable=True)  # 개인정보/약관 동의 일시
+    agreed_at = db.Column(db.DateTime)
+    is_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, default="")
+    parent_id = db.Column(db.Integer, db.ForeignKey('document.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    parent_id = db.Column(db.Integer, db.ForeignKey('document.id', ondelete='CASCADE'), nullable=True)
-    children = db.relationship(
-        'Document',
-        cascade='all, delete-orphan',
-        backref=db.backref('parent', remote_side='Document.id'),
-        lazy='select'
-    )
+    children = db.relationship("Document", cascade="all, delete-orphan")
 
-class Log(db.Model):
+class ActionLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
-    action = db.Column(db.String(20), nullable=False)
-    doc_id = db.Column(db.Integer, nullable=False)
-    user_email = db.Column(db.String(255), nullable=True)  # 로그인 사용자 이메일 기록
+    action = db.Column(db.String(20))
+    doc_id = db.Column(db.Integer)
+    user_email = db.Column(db.String(120))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# -------------------- Helpers --------------------
-def current_user():
-    uid = session.get("user_id")
-    if not uid:
-        return None
-    return User.query.get(uid)
+class MailLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    email = db.Column(db.String(120))
+    mail_type = db.Column(db.String(50))  # 'verification' | 'reset'
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-def login_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not current_user():
-            flash("로그인이 필요합니다.", "warning")
-            return redirect(url_for("login", next=request.path))
-        return view(*args, **kwargs)
-    return wrapped
-
-def verified_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        cu = current_user()
-        if not (cu and cu.email_verified):
-            flash("이메일 인증 후 이용할 수 있습니다.", "warning")
-            return redirect(url_for("resend_verification"))
-        return view(*args, **kwargs)
-    return wrapped
-
-def ensure_schema():
-    """Create tables and add missing columns for older DBs."""
-    db.create_all()
-    insp = inspect(db.engine)
-    # Log.user_email
-    if insp.has_table("log"):
-        cols = {c["name"] for c in insp.get_columns("log")}
-        if "user_email" not in cols:
-            with db.engine.begin() as conn:
-                conn.execute(text("ALTER TABLE log ADD COLUMN user_email VARCHAR(255)"))
-    # Document columns
-    if insp.has_table("document"):
-        cols = {c["name"] for c in insp.get_columns("document")}
-        with db.engine.begin() as conn:
-            if "created_at" not in cols:
-                conn.execute(text("ALTER TABLE document ADD COLUMN created_at TIMESTAMPTZ DEFAULT now() NOT NULL"))
-            if "parent_id" not in cols:
-                conn.execute(text("ALTER TABLE document ADD COLUMN parent_id INTEGER NULL"))
-    # User.email_verified, User.agreed_at
-    if insp.has_table("user"):
-        cols = {c["name"] for c in insp.get_columns("user")}
-        with db.engine.begin() as conn:
-            if "email_verified" not in cols:
-                conn.execute(text('ALTER TABLE "user" ADD COLUMN email_verified BOOLEAN DEFAULT FALSE'))
-            if "agreed_at" not in cols:
-                conn.execute(text('ALTER TABLE "user" ADD COLUMN agreed_at TIMESTAMPTZ NULL'))
+class LoginAttempt(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120))
+    attempted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 with app.app_context():
-    ensure_schema()
+    db.create_all()
 
-# token utils
-def _serializer():
+# ------------- Utils -------------
+def serializer():
     return URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
-def generate_token(email: str, purpose: str) -> str:
-    return _serializer().dumps(email, salt=f"purpose:{purpose}")
+def send_mail(to_email, subject, html_body, mail_type=None, user=None):
+    host = os.environ.get("SMTP_HOST")
+    user_name = os.environ.get("SMTP_USER")
+    password = os.environ.get("SMTP_PASS")
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    use_tls = os.environ.get("SMTP_USE_TLS", "true").lower() == "true"
+    sender = os.environ.get("SENDER_EMAIL", user_name)
 
-def confirm_token(token: str, purpose: str, max_age=60*60*24):
-    return _serializer().loads(token, salt=f"purpose:{purpose}", max_age=max_age)
+    if not host or not user_name or not password or not sender:
+        print("[WARN] SMTP env not set. Skipping actual send.")
+        return
 
-# email util
-def send_email(to_email: str, subject: str, body: str):
-    host = os.getenv("SMTP_HOST")
-    port = int(os.getenv("SMTP_PORT", "587"))
-    user = os.getenv("SMTP_USER")
-    pw   = os.getenv("SMTP_PASS")
-    use_tls = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
-    sender = os.getenv("SENDER_EMAIL", user)
-
-    if not (host and port and user and pw and sender):
-        app.logger.error("SMTP env vars missing; cannot send email.")
-        return False
-
-    msg = EmailMessage()
+    msg = MIMEText(html_body, "html", "utf-8")
+    msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = to_email
-    msg["Subject"] = subject
-    msg.set_content(body)
 
-    if port == 465:
-        with smtplib.SMTP_SSL(host, port) as s:
-            s.login(user, pw)
-            s.send_message(msg)
-    else:
-        with smtplib.SMTP(host, port) as s:
-            if use_tls:
-                s.starttls()
-            s.login(user, pw)
-            s.send_message(msg)
-    return True
+    s = smtplib.SMTP(host, port)
+    if use_tls:
+        s.starttls()
+    s.login(user_name, password)
+    s.sendmail(sender, [to_email], msg.as_string())
+    s.quit()
 
-# -------------------- Routes --------------------
-@app.context_processor
-def inject_user():
-    return {"current_user": current_user()}
+    # log
+    if mail_type and user:
+        m = MailLog(user_id=user.id, email=to_email, mail_type=mail_type)
+        db.session.add(m)
+        db.session.commit()
 
+def verified_required(func):
+    from functools import wraps
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return login_manager.unauthorized()
+        if not current_user.email_verified:
+            flash("이메일 인증 후 이용하세요.", "warning")
+            return redirect(url_for("verify_sent"))
+        return func(*args, **kwargs)
+    return wrapper
+
+# ------------- Login manager -------------
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# ------------- Routes -------------
 @app.route("/")
 def index():
-    parents = (Document.query
-               .filter_by(parent_id=None)
-               .order_by(Document.created_at.desc())
-               .all())
-    return render_template("index.html", parents=parents)
+    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.desc()).all()
+    # eager load children
+    for t in tops:
+        t.children = Document.query.filter_by(parent_id=t.id).all()
+    return render_template("index.html", top_docs=tops, can_modify=current_user.is_authenticated and current_user.email_verified)
 
-# ---- Static policy pages
-@app.get("/privacy")
-def privacy():
-    return render_template("privacy.html")
-
-@app.get("/terms")
-def terms():
-    return render_template("terms.html")
-
-# ---- Auth
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        password = request.form.get("password") or ""
-        agree = request.form.get("agree")  # "on" if checked
-
-        if not email.endswith(ALLOW_DOMAIN):
-            flash(f"학교 이메일만 가입할 수 있습니다. 예: abcd{ALLOW_DOMAIN}", "danger")
-            return redirect(url_for("signup"))
-        if len(password) < 6:
-            flash("비밀번호는 최소 6자 이상이어야 합니다.", "danger")
-            return redirect(url_for("signup"))
-        if not agree:
-            flash("개인정보처리방침 및 이용약관에 동의해야 가입할 수 있습니다.", "danger")
-            return redirect(url_for("signup"))
-        if User.query.filter_by(email=email).first():
-            flash("이미 가입된 이메일입니다. 로그인 해주세요.", "warning")
-            return redirect(url_for("login"))
-
-        user = User(email=email, password_hash=generate_password_hash(password), agreed_at=datetime.utcnow())
-        db.session.add(user)
-        db.session.commit()
-
-        # send verification mail
-        token = generate_token(email, "verify")
-        link  = url_for("verify_email", token=token, _external=True)
-        ok = send_email(
-            to_email=email,
-            subject="[별내위키] 이메일 인증을 완료해주세요",
-            body=f"안녕하세요!\n\n아래 링크를 눌러 이메일 인증을 완료해주세요:\n{link}\n\n(24시간 이내 유효)"
-        )
-        if ok:
-            flash("가입 완료! 이메일 인증 링크를 확인해주세요.", "success")
-        else:
-            flash("가입은 완료되었지만 메일 전송에 실패했습니다. 관리자에게 알려주세요.", "warning")
-        return redirect(url_for("login"))
-    return render_template("signup.html", allow_domain=ALLOW_DOMAIN)
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        password = request.form.get("password") or ""
-        user = User.query.filter_by(email=email).first()
-        if not user or not check_password_hash(user.password_hash, password):
-            flash("이메일 또는 비밀번호가 올바르지 않습니다.", "danger")
-            return redirect(url_for("login"))
-        if not user.email_verified:
-            flash("이메일 인증이 필요합니다. 인증 메일을 재전송할 수 있어요.", "warning")
-            return redirect(url_for("resend_verification"))
-        session["user_id"] = user.id
-        flash("로그인되었습니다.", "success")
-        next_url = request.args.get("next")
-        return redirect(next_url or url_for("index"))
-    return render_template("login.html")
-
-@app.post("/logout")
-def logout():
-    session.pop("user_id", None)
-    flash("로그아웃되었습니다.", "success")
-    return redirect(url_for("index"))
-
-@app.get("/verify/<token>")
-def verify_email(token):
-    try:
-        email = confirm_token(token, "verify")
-    except SignatureExpired:
-        flash("인증 링크가 만료되었습니다. 다시 요청해주세요.", "danger")
-        return redirect(url_for("resend_verification"))
-    except BadSignature:
-        flash("잘못된 인증 링크입니다.", "danger")
-        return redirect(url_for("login"))
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash("계정을 찾을 수 없습니다.", "danger")
-        return redirect(url_for("signup"))
-    if not user.email_verified:
-        user.email_verified = True
-        db.session.commit()
-    flash("이메일 인증이 완료되었습니다. 로그인해주세요.", "success")
-    return redirect(url_for("login"))
-
-@app.route("/resend-verification", methods=["GET", "POST"])
-def resend_verification():
-    if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            flash("해당 이메일의 계정을 찾을 수 없습니다.", "danger")
-            return redirect(url_for("resend_verification"))
-        if user.email_verified:
-            flash("이미 인증된 계정입니다. 로그인해주세요.", "info")
-            return redirect(url_for("login"))
-        token = generate_token(email, "verify")
-        link  = url_for("verify_email", token=token, _external=True)
-        ok = send_email(
-            to_email=email,
-            subject="[별내위키] 이메일 인증 링크 재전송",
-            body=f"다시 인증을 진행해주세요:\n{link}\n(24시간 이내 유효)"
-        )
-        flash("인증 메일을 다시 보냈습니다." if ok else "메일 전송에 실패했습니다.", "success" if ok else "warning")
-        return redirect(url_for("login"))
-    return render_template("resend_verification.html")
-
-# ---- Password reset
-@app.route("/forgot", methods=["GET", "POST"])
-def forgot_password():
-    if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            flash("해당 이메일의 계정을 찾을 수 없습니다.", "danger")
-            return redirect(url_for("forgot_password"))
-        token = generate_token(email, "reset")
-        link  = url_for("reset_password", token=token, _external=True)
-        ok = send_email(
-            to_email=email,
-            subject="[별내위키] 비밀번호 재설정 링크",
-            body=f"아래 링크에서 새 비밀번호를 설정해주세요:\n{link}\n(24시간 이내 유효)"
-        )
-        flash("재설정 메일을 보냈습니다." if ok else "메일 전송 실패. 관리자에게 문의하세요.", "success" if ok else "warning")
-        return redirect(url_for("login"))
-    return render_template("forgot.html")
-
-@app.route("/reset/<token>", methods=["GET", "POST"])
-def reset_password(token):
-    try:
-        email = confirm_token(token, "reset")
-    except SignatureExpired:
-        flash("재설정 링크가 만료되었습니다. 다시 요청해주세요.", "danger")
-        return redirect(url_for("forgot_password"))
-    except BadSignature:
-        flash("잘못된 재설정 링크입니다.", "danger")
-        return redirect(url_for("login"))
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        flash("계정을 찾을 수 없습니다.", "danger")
-        return redirect(url_for("signup"))
-
-    if request.method == "POST":
-        pw = request.form.get("password") or ""
-        pw2 = request.form.get("password2") or ""
-        if len(pw) < 6:
-            flash("비밀번호는 최소 6자 이상이어야 합니다.", "danger")
-            return redirect(request.url)
-        if pw != pw2:
-            flash("비밀번호가 일치하지 않습니다.", "danger")
-            return redirect(request.url)
-        user.password_hash = generate_password_hash(pw)
-        db.session.commit()
-        flash("비밀번호가 변경되었습니다. 로그인해주세요.", "success")
-        return redirect(url_for("login"))
-    return render_template("reset.html", email=email)
-
-# ---- Document CRUD
 @app.route("/create", methods=["GET", "POST"])
 @login_required
 @verified_required
 def create_document():
     if request.method == "POST":
-        title = (request.form.get("title") or "").strip()
-        content = request.form.get("content") or ""
-        doc_type = request.form.get("doc_type", "parent")
+        title = request.form.get("title","").strip()
+        content = request.form.get("content","")
+        doc_type = request.form.get("doc_type")
         parent_id = request.form.get("parent_id")
 
         if not title:
-            flash("제목을 입력하세요.", "warning")
+            flash("제목을 입력하세요.", "error")
             return redirect(url_for("create_document"))
 
-        parent = None
         if doc_type == "child":
             if not parent_id:
-                flash("하위 문서의 상위 문서를 선택하세요.", "warning")
+                flash("상위 문서를 선택하세요.", "error")
                 return redirect(url_for("create_document"))
-            parent = Document.query.get_or_404(int(parent_id))
+            # disallow subchild
+            parent = Document.query.get(int(parent_id))
             if parent.parent_id is not None:
-                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "danger")
+                flash("하위 문서의 하위 문서는 만들 수 없습니다.", "error")
                 return redirect(url_for("create_document"))
+            newdoc = Document(title=title, content=content, parent_id=parent.id)
+        else:
+            newdoc = Document(title=title, content=content, parent_id=None)
 
-        doc = Document(title=title, content=content, parent=parent)
-        db.session.add(doc)
+        db.session.add(newdoc)
         db.session.commit()
 
-        cu = current_user()
-        db.session.add(Log(action="CREATE", doc_id=doc.id, user_email=(cu.email if cu else None)))
+        db.session.add(ActionLog(action="CREATE", doc_id=newdoc.id, user_email=current_user.email))
         db.session.commit()
 
-        return redirect(url_for("create_document"))
+        flash("문서를 만들었습니다.", "success")
+        return redirect(url_for("index"))
 
-    parents = (Document.query
-               .filter_by(parent_id=None)
-               .order_by(Document.created_at.desc())
-               .all())
-    return render_template("create.html", parents=parents)
+    tops = Document.query.filter_by(parent_id=None).order_by(Document.created_at.desc()).all()
+    return render_template("create.html", top_docs=tops)
 
 @app.post("/delete/<int:doc_id>")
 @login_required
 @verified_required
 def delete_document(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    db.session.delete(doc)
+    d = Document.query.get_or_404(doc_id)
+    db.session.delete(d)
     db.session.commit()
-    cu = current_user()
-    db.session.add(Log(action="DELETE", doc_id=doc_id, user_email=(cu.email if cu else None)))
+    db.session.add(ActionLog(action="DELETE", doc_id=doc_id, user_email=current_user.email))
     db.session.commit()
-    return redirect(request.referrer or url_for("index"))
+    flash("삭제했습니다.", "info")
+    return redirect(url_for("index"))
 
 @app.route("/logs")
-def view_logs():
-    logs = Log.query.order_by(Log.time.desc()).limit(500).all()
+def action_logs():
+    logs = ActionLog.query.order_by(ActionLog.created_at.desc()).limit(100).all()
     return render_template("logs.html", logs=logs)
 
+# ------- Auth -------
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        email = request.form["email"].strip().lower()
+        password = request.form["password"]
+        agree = request.form.get("agree") == "on"
+
+        if not email.endswith("@bl-m.kr"):
+            flash("@bl-m.kr 이메일만 가입할 수 있습니다.", "error")
+            return redirect(url_for("register"))
+        if not agree:
+            flash("약관 및 개인정보처리방침에 동의해야 합니다.", "error")
+            return redirect(url_for("register"))
+        if User.query.filter_by(email=email).first():
+            flash("이미 가입된 이메일입니다.", "error")
+            return redirect(url_for("register"))
+
+        u = User(email=email, password=generate_password_hash(password), agreed_at=datetime.utcnow())
+        db.session.add(u)
+        db.session.commit()
+
+        # send verification
+        token = serializer().dumps(email)
+        link = url_for("verify_email", token=token, _external=True)
+        html = f"<p>별내위키 이메일 인증 링크: <a href='{link}'>{link}</a></p>"
+        send_mail(email, "[별내위키] 이메일 인증", html, mail_type="verification", user=u)
+
+        login_user(u)
+        flash("인증 메일을 보냈습니다. 메일함을 확인하세요.", "info")
+        return redirect(url_for("verify_sent"))
+    return render_template("register.html")
+
+@app.route("/verify-sent")
+@login_required
+def verify_sent():
+    if current_user.email_verified:
+        return redirect(url_for("index"))
+    return render_template("verify_sent.html")
+
+@app.post("/resend-verification")
+@login_required
+def resend_verification():
+    token = serializer().dumps(current_user.email)
+    link = url_for("verify_email", token=token, _external=True)
+    html = f"<p>별내위키 이메일 인증 링크: <a href='{link}'>{link}</a></p>"
+    send_mail(current_user.email, "[별내위키] 이메일 인증", html, mail_type="verification", user=current_user)
+    flash("인증 메일을 다시 보냈습니다.", "info")
+    return redirect(url_for("verify_sent"))
+
+@app.get("/verify/<token>")
+def verify_email(token):
+    try:
+        email = serializer().loads(token, max_age=60*60*24)  # 24h
+    except SignatureExpired:
+        flash("인증 링크가 만료되었습니다.", "error")
+        return redirect(url_for("login"))
+    except BadSignature:
+        flash("유효하지 않은 링크입니다.", "error")
+        return redirect(url_for("login"))
+
+    u = User.query.filter_by(email=email).first_or_404()
+    u.email_verified = True
+    db.session.commit()
+    flash("이메일 인증이 완료되었습니다.", "success")
+    return redirect(url_for("index"))
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"].strip().lower()
+        password = request.form["password"]
+
+        # rate limit: 10 attempts in last 24 hours per email
+        since = datetime.utcnow() - timedelta(days=1)
+        attempts = LoginAttempt.query.filter(LoginAttempt.email==email, LoginAttempt.attempted_at>=since).count()
+        if attempts >= 10:
+            flash("로그인 시도 한도를 초과했습니다. 24시간 후 다시 시도하세요.", "error")
+            return redirect(url_for("login"))
+
+        user = User.query.filter_by(email=email).first()
+        ok = user and check_password_hash(user.password, password)
+        if not ok:
+            db.session.add(LoginAttempt(email=email))
+            db.session.commit()
+            flash("이메일 또는 비밀번호가 올바르지 않습니다.", "error")
+            return redirect(url_for("login"))
+
+        # success: clear attempts for this email in last day (optional)
+        LoginAttempt.query.filter(LoginAttempt.email==email, LoginAttempt.attempted_at>=since).delete()
+        db.session.commit()
+
+        login_user(user)
+        flash("로그인되었습니다.", "success")
+        return redirect(url_for("index"))
+    return render_template("login.html")
+
+@app.get("/logout")
+def logout():
+    if current_user.is_authenticated:
+        logout_user()
+    return redirect(url_for("index"))
+
+@app.route("/forgot", methods=["GET","POST"])
+def forgot():
+    if request.method == "POST":
+        email = request.form["email"].strip().lower()
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = serializer().dumps(email)
+            link = url_for("reset_password", token=token, _external=True)
+            html = f"<p>비밀번호 재설정 링크: <a href='{link}'>{link}</a></p>"
+            send_mail(email, "[별내위키] 비밀번호 재설정", html, mail_type="reset", user=user)
+        flash("해당 이메일이 존재할 경우 재설정 메일을 보냈습니다.", "info")
+        return redirect(url_for("login"))
+    return render_template("forgot.html")
+
+@app.route("/reset/<token>", methods=["GET","POST"])
+def reset_password(token):
+    try:
+        email = serializer().loads(token, max_age=60*60*24)
+    except SignatureExpired:
+        flash("링크가 만료되었습니다.", "error")
+        return redirect(url_for("login"))
+    except BadSignature:
+        flash("유효하지 않은 링크입니다.", "error")
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(email=email).first_or_404()
+    if request.method == "POST":
+        newpw = request.form["password"]
+        user.password = generate_password_hash(newpw)
+        db.session.commit()
+        flash("비밀번호가 변경되었습니다. 새 비밀번호로 로그인하세요.", "success")
+        return redirect(url_for("login"))
+    return render_template("reset.html")
+
+@app.post("/delete_account")
+@login_required
+def delete_account():
+    user = current_user
+
+    # anonymize user's logs
+    ActionLog.query.filter_by(user_email=user.email).update({ActionLog.user_email: "deleted_user"})
+    MailLog.query.filter_by(user_id=user.id).delete()
+
+    db.session.delete(user)
+    db.session.commit()
+    logout_user()
+    flash("회원 정보가 완전히 삭제되었습니다.", "info")
+    return redirect(url_for("index"))
+
+@app.get("/privacy")
+def privacy():
+    return render_template("privacy.html", today=datetime.utcnow().strftime("%Y-%m-%d"))
+
+@app.get("/terms")
+def terms():
+    return render_template("terms.html")
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)

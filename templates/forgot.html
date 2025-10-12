@@ -1,12 +1,11 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h2>비밀번호 재설정 요청</h2>
-<div class="auth-card">
-  <form method="post">
-    <label>가입한 학교 이메일</label>
-    <input name="email" class="input" placeholder="abcd@bl-m.kr" required>
-    <button class="btn btn-primary mt">재설정 메일 보내기</button>
-  </form>
-</div>
+<h2 class="mb-3">비밀번호 재설정</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">이메일</label>
+    <input type="email" name="email" class="form-control" required placeholder="abcd@bl-m.kr">
+  </div>
+  <button class="btn btn-primary">재설정 링크 보내기</button>
+</form>
 {% endblock %}

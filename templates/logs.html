@@ -1,20 +1,19 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h2>작업 로그</h2>
-<table>
-  <thead>
-    <tr><th>시간</th><th>동작</th><th>문서</th><th>이메일</th></tr>
-  </thead>
-  <tbody>
-    {% for l in logs %}
-    <tr>
-      <td>{{ l.time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-      <td>{{ l.action }}</td>
-      <td>{{ l.doc_id }}</td>
-      <td>{{ l.user_email or '—' }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<h3 class="mb-3">작업 로그</h3>
+<div class="card p-0">
+  <table class="table mb-0">
+    <thead><tr><th>시간</th><th>동작</th><th>문서</th><th>이메일</th></tr></thead>
+    <tbody>
+      {% for l in logs %}
+        <tr>
+          <td>{{ l.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>{{ l.action }}</td>
+          <td>{{ l.doc_id }}</td>
+          <td>{{ l.user_email }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

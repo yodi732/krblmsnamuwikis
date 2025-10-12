@@ -1,42 +1,39 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h2>새 문서 만들기</h2>
-
-<form method="post" class="form">
-  <label>제목</label>
-  <input name="title" class="input" placeholder="문서 제목" required>
-
-  <label>내용</label>
-  <textarea name="content" class="textarea" placeholder="문서 내용을 입력하세요. (마크다운/텍스트)"></textarea>
-
-  <fieldset class="mt">
-    <legend>문서 유형</legend>
-    <label><input type="radio" name="doc_type" value="parent" checked> 상위 문서</label>
-    <label class="ml-3"><input type="radio" name="doc_type" value="child"> 하위 문서</label>
-    <select name="parent_id" id="parent_id" disabled required class="select ml-2">
-      <option value="">상위 문서 선택</option>
-      {% for p in parents %}
-      <option value="{{ p.id }}">{{ p.title }}</option>
+<h2 class="mb-3">새 문서 만들기</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">제목</label>
+    <input class="form-control" name="title" required placeholder="문서 제목">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">내용</label>
+    <textarea class="form-control" name="content" rows="8" placeholder="문서 내용을 입력하세요. (마크다운/텍스트)"></textarea>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">문서 유형</label><br>
+    <input type="radio" name="doc_type" value="top" checked> 상위 문서
+    <input class="ms-3" type="radio" name="doc_type" value="child"> 하위 문서
+  </div>
+  <div id="parentRow" class="mb-3" style="display:none">
+    <label class="form-label">상위 문서 선택</label>
+    <select class="form-select" name="parent_id">
+      <option value="">(선택)</option>
+      {% for t in top_docs %}
+        <option value="{{ t.id }}">{{ t.title }}</option>
       {% endfor %}
     </select>
-  </fieldset>
-
-  <button class="btn btn-primary mt">만들기</button>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary">만들기</button>
+    <a class="btn btn-light" href="{{ url_for('index') }}">취소</a>
+  </div>
 </form>
-
-<hr class="my-6">
-
-<h3>현재 상위 문서</h3>
-{% include "_doc_list.html" %}
-
 <script>
-const radios = document.querySelectorAll('input[name="doc_type"]');
-const sel = document.getElementById('parent_id');
-radios.forEach(r => r.addEventListener('change', () => {
-  const isChild = document.querySelector('input[name="doc_type"]:checked').value === 'child';
-  sel.disabled = !isChild;
-  if (!isChild) sel.value = "";
-}));
+  const radios = document.querySelectorAll('input[name="doc_type"]');
+  const parentRow = document.getElementById('parentRow');
+  radios.forEach(r => r.addEventListener('change', () => {
+    parentRow.style.display = (document.querySelector('input[name="doc_type"]:checked').value === 'child') ? 'block' : 'none';
+  }));
 </script>
 {% endblock %}
