@@ -6,23 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
   <style>
-    body{margin:0;background:#eef2f7;font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    body{margin:0;background:#eef2f7;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .navbar{background:#1e2a52;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
     .brand{font-weight:800;letter-spacing:.5px}
+    .nav{margin-left:auto}
     .nav a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);padding:6px 10px;border-radius:8px;margin-left:8px}
     .container{max-width:1180px;margin:18px auto;padding:0 16px}
     .footer{position:fixed;left:12px;bottom:10px;color:#9ca3af;font-size:.85rem}
     .flash{margin:10px auto;max-width:860px;padding:10px 12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c}
     /* Cards & buttons */
     .doc-card{background:#fff;border-radius:10px;padding:14px 16px;margin:14px 0;border:1px solid #e5e7eb}
-    .doc-head{display:flex;align-items:center;gap:8px}
+    .doc-head{display:flex;align-items:center;justify-content:space-between}
     .doc-title{margin:0;font-size:1.1rem}
-    .badge{font-size:.72rem;padding:.16rem .5rem;border-radius:9999px;color:#fff}
-    .badge-parent{background:#1e3a8a}
-    .badge-child{background:#64748b}
     .doc-meta{font-size:.85rem;color:#6b7280;margin-top:4px}
     .children{margin:10px 0 0 14px;padding-left:14px;border-left:3px dotted #cbd5e1}
-    .child-row{display:flex;align-items:center;gap:8px;margin:6px 0}
+    .child-row{display:flex;align-items:center;justify-content:space-between;margin:6px 0}
     .empty{color:#94a3b8;font-style:italic;margin-top:8px}
     .inline{display:inline}
     .btn{border:1px solid #cbd5e1;border-radius:8px;padding:.35rem .6rem;cursor:pointer;background:#f8fafc}
