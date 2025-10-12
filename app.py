@@ -21,6 +21,28 @@ LOG_ANONYMIZE_IP = os.environ.get("LOG_ANONYMIZE_IP", "true").lower() == "true"
 
 db = SQLAlchemy(app)
 
+from sqlalchemy import text, inspect
+
+def ensure_schema():
+    insp = inspect(db.engine)
+    if insp.has_table("document"):
+        cols = {c["name"] for c in insp.get_columns("document")}
+        with db.engine.begin() as conn:
+            if "created_at" not in cols:
+                conn.execute(text("ALTER TABLE document ADD COLUMN created_at TIMESTAMPTZ DEFAULT now() NOT NULL"))
+            if "parent_id" not in cols:
+                conn.execute(text("ALTER TABLE document ADD COLUMN parent_id INTEGER NULL"))
+                try:
+                    conn.execute(text("ALTER TABLE document ADD CONSTRAINT document_parent_fk FOREIGN KEY (parent_id) REFERENCES document(id) ON DELETE CASCADE"))
+                except Exception:
+                    pass
+    else:
+        db.create_all()
+
+with app.app_context():
+    db.create_all()
+    ensure_schema()
+
 # --- Models ---
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,12 +90,19 @@ with app.app_context():
     db.create_all()
 
 # --- Routes ---
+
 @app.route("/")
 def index():
-    parents = (Document.query
-               .filter_by(parent_id=None)
-               .order_by(Document.created_at.desc())
-               .all())
+    try:
+        parents = (Document.query
+                   .filter_by(parent_id=None)
+                   .order_by(Document.created_at.desc())
+                   .all())
+    except Exception:
+        parents = (Document.query
+                   .filter_by(parent_id=None)
+                   .order_by(Document.id.desc())
+                   .all())
     return render_template("index.html", parents=parents)
 
 @app.route("/create", methods=["GET", "POST"])

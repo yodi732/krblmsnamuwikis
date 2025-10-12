@@ -20,6 +20,3 @@ gunicorn app:app
 - 홈 및 생성 페이지에서 동일한 목록 뷰 사용 (동기화)
 - 문서 삭제(홈/생성 화면 모두에서), 부모 삭제 시 자식도 함께 삭제
 - 작업 로그 확인(시간/동작/문서/익명화 IP)
-
-
-드라이버: psycopg3 (psycopg[binary]) 사용. DATABASE_URL은 postgresql(+psycopg)로 정규화됩니다.
