@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>회원가입</h2>
-<form method="post" class="card" style="max-width:420px">
-  <label>이메일</label>
-  <input name="email" type="email" class="input" required><br><br>
+<form method="post" action="{{ url_for('register_post') }}" class="card form">
+  <label>학교 계정 이메일</label>
+  <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
   <label>비밀번호</label>
-  <input name="password" type="password" class="input" required minlength="6"><br><br>
-  <div style="font-size:.9rem;margin-bottom:8px">
-    가입 시 <a href="{{ url_for('privacy') }}">개인정보처리방침</a> 및 <a href="{{ url_for('terms') }}">이용약관</a>에 동의합니다.
-  </div>
-  <button class="btn">회원가입</button>
+  <input type="password" name="password" required minlength="6">
+  <label class="checkline">
+    <input type="checkbox" name="agree" required> 개인정보처리방침 및 이용약관에 동의합니다.
+  </label>
+  <button type="submit">회원가입</button>
 </form>
 {% endblock %}

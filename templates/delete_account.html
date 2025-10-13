@@ -1,15 +1,10 @@
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
-  <h1>회원 탈퇴</h1>
-  <div class="form">
-    <p>탈퇴 시 계정 정보(이메일, 비밀번호 해시, 동의 시각, 실패 카운트)가 즉시 삭제됩니다. 본인이 작성한 문서의 <b>작성자 표시는 제거</b>되며 문서 내용은 유지됩니다.</p>
-    <form method="post">
-      <label>비밀번호 확인</label>
-      <input type="password" name="password" required>
-      <div style="margin-top:10px">
-        <button class="btn primary" type="submit" onclick="return confirm('정말 탈퇴하시겠습니까?')">영구 탈퇴</button>
-        <a class="btn" href="{{ url_for('index') }}">취소</a>
-      </div>
-    </form>
-  </div>
+<h2>회원탈퇴</h2>
+<div class="card">
+  <p>정말 탈퇴하시겠어요? 이 작업은 되돌릴 수 없습니다.</p>
+  <form method="post">
+    <button type="submit" class="danger">네, 탈퇴합니다</button>
+  </form>
+</div>
 {% endblock %}

@@ -1,7 +1,25 @@
-# 별내위키 (오류 원인 고친 배포본)
-- PostgreSQL `DATABASE_URL` 사용. 필요 시 `postgresql+psycopg://`로 자동 보정.
-- 최초 요청 시 자동 마이그레이션: `document.author_id`, `document.created_at` 없으면 추가.
-- @bl-m.kr 도메인만 회원가입/로그인, 비번 해시 저장, 일 10회 로그인 실패 제한.
-- 문서 CRUD는 로그인 사용자만. 로그에는 이메일 표시.
-- 회원 탈퇴(`/delete-account`): 개인정보 삭제 + 작성자 표기 제거(문서 본문은 유지).
-- 하단 푸터는 좌하단 고정: "피드백 → 메일 · 개인정보처리방침 · 이용약관"
+# 별내위키 - 프로덕션 SMTP 포함 버전
+
+## 환경변수
+필수:
+- SECRET_KEY
+- DATABASE_URL (Render/Heroku Postgres URL; `postgres://`는 자동으로 `postgresql+psycopg://`로 보정)
+- APP_BASE_URL (예: https://krblmsnamuwikis.onrender.com)
+- ALLOWED_EMAIL_DOMAIN=bl-m.kr
+
+SMTP (실제 발송):
+- SMTP_HOST
+- SMTP_PORT
+- SMTP_USERNAME
+- SMTP_PASSWORD
+- SMTP_FROM (예: "별내위키 <no-reply@bl-m.kr>")
+- SMTP_USE_TLS=true (또는 SMTP_USE_SSL=true 중 하나)
+
+선택:
+- SMTP_REPLY_TO
+- SMTP_TIMEOUT=15, SMTP_MAX_RETRIES=3, SMTP_RETRY_BACKOFF=2
+
+## 실행
+pip install -r requirements.txt
+export FLASK_ENV=production
+gunicorn app:app --bind 0.0.0.0:8000

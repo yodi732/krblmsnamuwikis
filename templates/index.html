@@ -1,15 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>문서 목록</h2>
-<div class="card">
-  {% if documents %}
-    <ul>
-    {% for d in documents %}
-      <li>{{ d.title }} <span style="color:#6b7280">({{ d.created_at.strftime('%Y-%m-%d %H:%M') }}, {{ d.author_email or '익명' }})</span></li>
-    {% endfor %}
-    </ul>
-  {% else %}
-    아직 문서가 없습니다.
-  {% endif %}
-</div>
+<div class="card">아직 문서가 없습니다.</div>
 {% endblock %}
