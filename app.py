@@ -25,13 +25,21 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    email_verified = db.Column(db.Boolean, default=True)
+    email_verified = db.Column(db.Boolean, default=False)
     agreed_at = db.Column(db.DateTime)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     fail_count = db.Column(db.Integer, default=0)
     last_fail_date = db.Column(db.Date)
 
+
+
+class MailLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    to = db.Column(db.String(255), nullable=False, index=True)
+    subject = db.Column(db.String(255), nullable=False)
+    template = db.Column(db.String(64), nullable=True)  # e.g., 'verify', 'reset'
+    sent_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -91,7 +99,16 @@ def run_bootstrap_migrations():
         except Exception:
             pass
 
-@app.before_first_request
+# ---- Bootstrap schema on startup (Flask 3: no before_first_request) ----
+with app.app_context():
+    try:
+        run_bootstrap_migrations()
+    except Exception as e:
+        # Fallback to create_all on fresh DBs
+        db.create_all()
+
+
+# removed for Flask 3 compat: before_first_request
 def init():
     try:
         run_bootstrap_migrations()
@@ -268,6 +285,39 @@ def register():
     return render_template("register.html")
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+
+
+def send_email(to: str, subject: str, body: str, template: str|None=None):
+    # Log to DB
+    try:
+        log = MailLog(to=to, subject=subject, template=template)
+        db.session.add(log)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    # Try SMTP if env configured
+    host = os.getenv("MAIL_SERVER")
+    if host:
+        import smtplib
+        from email.message import EmailMessage
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = os.getenv("MAIL_FROM", "no-reply@bl-m.kr")
+        msg["To"] = to
+        msg.set_content(body)
+        port = int(os.getenv("MAIL_PORT", "587"))
+        use_tls = os.getenv("MAIL_USE_TLS", "1") not in ("0","false","False")
+        username = os.getenv("MAIL_USERNAME")
+        password = os.getenv("MAIL_PASSWORD")
+        with smtplib.SMTP(host, port) as s:
+            if use_tls:
+                s.starttls()
+            if username and password:
+                s.login(username, password)
+            s.send_message(msg)
+    else:
+        # No SMTP: surface the content for testing
+        flash(f"[메일 미설정] {subject}: {body}")
 serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
 @app.route("/forgot", methods=["GET","POST"])
@@ -313,3 +363,21 @@ def terms():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+@app.route("/verify/<token>")
+def verify_email(token):
+    try:
+        email = serializer.loads(token, salt="email-verify", max_age=3*24*3600)
+    except (BadSignature, SignatureExpired):
+        flash("인증 링크가 유효하지 않거나 만료되었습니다.")
+        return redirect(url_for("login"))
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash("계정을 찾을 수 없습니다.")
+        return redirect(url_for("login"))
+    if not user.email_verified:
+        user.email_verified = True
+        db.session.commit()
+    flash("이메일 인증이 완료되었습니다. 로그인하세요.")
+    return redirect(url_for("login"))
