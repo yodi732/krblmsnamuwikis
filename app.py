@@ -1,353 +1,308 @@
 
-
-import os
-from datetime import datetime, timedelta, date
-from uuid import uuid4
-
+import os, re, secrets, datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-
-DATABASE_URL = os.getenv("DATABASE_URL")  # e.g. postgresql://user:pass@host:port/dbname
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-"+str(uuid4()))
+from sqlalchemy import text
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = SECRET_KEY
-if DATABASE_URL:
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///local.db"
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
+db_url = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///local.db")
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
+elif db_url.startswith("postgresql://") and "+psycopg" not in db_url:
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-# ----- Models -----
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    email_verified = db.Column(db.Boolean, default=False, nullable=False)
-    agreed_at = db.Column(db.DateTime, nullable=True)
-    is_admin = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-
-    # login rate limit per day
-    fail_count = db.Column(db.Integer, default=0, nullable=False)
-    fail_date = db.Column(db.Date, nullable=True)
-
-    verify_token = db.Column(db.String(255), nullable=True)
-    verify_expires = db.Column(db.DateTime, nullable=True)
-
-    reset_token = db.Column(db.String(255), nullable=True)
-    reset_expires = db.Column(db.DateTime, nullable=True)
-
-    documents = db.relationship("Document", back_populates="author")
-
-    def set_password(self, pw):
-        self.password_hash = generate_password_hash(pw)
-
-    def check_password(self, pw):
-        return check_password_hash(self.password_hash, pw)
+    password = db.Column(db.String(255), nullable=False)
+    email_verified = db.Column(db.Boolean, default=True)
+    agreed_at = db.Column(db.DateTime)
+    is_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    fail_count = db.Column(db.Integer, default=0)
+    last_fail_date = db.Column(db.Date)
 
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
-    content = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True)
-    parent = db.relationship("Document", remote_side=[id], backref="children")
-
-    author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    author = db.relationship("User", back_populates="documents")
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    parent_id = db.Column(db.Integer, db.ForeignKey('document.id'), nullable=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     action = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True)
-    document = db.relationship("Document")
-    user_email = db.Column(db.String(255), nullable=True)  # show email instead of IP
-
+    actor_email = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+def load_user(uid):
+    return db.session.get(User, int(uid))
 
-# util
-def send_email(to_email, subject, body):
-    # simple stdout "mailer" for Render logs; replaceable with SMTP later
-    print(f"[MAIL] To: {to_email}\n[MAIL] Subject: {subject}\n[MAIL] Body:\n{body}\n")
-    # TODO: integrate SMTP by env (MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD) if provided.
+def run_bootstrap_migrations():
+    with db.engine.begin() as conn:
+        db.metadata.create_all(bind=conn)
+        # Add author_id if missing
+        try:
+            conn.execute(text("""
+                DO $$
+                BEGIN
+                  IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_schema='public' AND table_name='document' AND column_name='author_id'
+                  ) THEN
+                    ALTER TABLE public.document ADD COLUMN author_id INTEGER NULL;
+                    BEGIN
+                      ALTER TABLE public.document
+                        ADD CONSTRAINT document_author_id_fkey
+                        FOREIGN KEY (author_id) REFERENCES public."user"(id) ON DELETE SET NULL;
+                    EXCEPTION WHEN duplicate_object THEN NULL;
+                    END;
+                  END IF;
+                END$$;
+            """))
+        except Exception:
+            # likely SQLite or permission; ignore
+            pass
+        # Add created_at if missing
+        try:
+            conn.execute(text("""
+                DO $$
+                BEGIN
+                  IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_schema='public' AND table_name='document' AND column_name='created_at'
+                  ) THEN
+                    ALTER TABLE public.document ADD COLUMN created_at TIMESTAMP NULL DEFAULT now();
+                  END IF;
+                END$$;
+            """))
+        except Exception:
+            pass
 
-def require_school_email(email: str) -> bool:
-    return email.lower().endswith("@bl-m.kr")
+@app.before_first_request
+def init():
+    try:
+        run_bootstrap_migrations()
+    except Exception:
+        db.create_all()
 
-def daily_limit_exceeded(user: User) -> bool:
-    today = date.today()
-    if user.fail_date != today:
-        user.fail_date = today
-        user.fail_count = 0
-        db.session.commit()
-    return user.fail_count >= 10
+ALLOWED_DOMAIN = "@bl-m.kr"
+def is_school_email(email:str)->bool:
+    return isinstance(email, str) and email.endswith(ALLOWED_DOMAIN) and re.match(r"^[A-Za-z0-9._%+-]+@bl-m\.kr$", email) is not None
 
-def record_fail(user: User):
-    today = date.today()
-    if user.fail_date != today:
-        user.fail_date = today
-        user.fail_count = 0
-    user.fail_count += 1
+def log(action:str):
+    db.session.add(Log(action=action, actor_email=(current_user.email if current_user.is_authenticated else None)))
     db.session.commit()
 
-# ----- Routes -----
 @app.route("/")
 def index():
     parents = (Document.query
-               .filter_by(parent_id=None)
+               .filter(Document.parent_id.is_(None))
                .order_by(Document.created_at.desc())
                .all())
-    children = (Document.query
-                .filter(Document.parent_id.isnot(None))
-                .order_by(Document.created_at.desc())
-                .all())
     children_map = {}
-    for c in children:
-        children_map.setdefault(c.parent_id, []).append(c)
-    return render_template("index.html", parents=parents, children_map=children_map)
+    if parents:
+        pids = [p.id for p in parents]
+        childs = (Document.query
+                  .filter(Document.parent_id.in_(pids))
+                  .order_by(Document.created_at.desc())
+                  .all())
+        for c in childs:
+            children_map.setdefault(c.parent_id, []).append(c)
+    uid_set = set([d.author_id for d in parents if d.author_id] + [c.author_id for lst in children_map.values() for c in lst if c.author_id])
+    email_map = {}
+    if uid_set:
+        users = User.query.filter(User.id.in_(uid_set)).all()
+        email_map = {u.id: u.email for u in users}
+    for d in parents:
+        d.author_email = email_map.get(d.author_id)
+    for lst in children_map.values():
+        for c in lst:
+            c.author_email = email_map.get(c.author_id)
+    return render_template("index.html", parents=parents, children=children_map)
 
-@app.route("/doc/<int:doc_id>")
-def view_document(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    return render_template("document_view.html", doc=doc)
-
-@app.route("/create", methods=["GET", "POST"])
-def create_document():
-    if not current_user.is_authenticated:
-        flash("로그인 후 이용하세요.")
-        return redirect(url_for("login"))
-    if not current_user.email_verified:
-        flash("이메일 인증 후 이용하세요.")
-        return redirect(url_for("index"))
-    parents = Document.query.filter_by(parent_id=None).order_by(Document.created_at.desc()).all()
-    parent_id = request.args.get("parent_id", type=int)
+@app.route("/create", methods=["GET","POST"])
+@login_required
+def create():
     if request.method == "POST":
         title = request.form.get("title","").strip()
         content = request.form.get("content","").strip()
         parent_id = request.form.get("parent_id") or None
+        if not title or not content:
+            flash("제목과 내용을 입력하세요.")
+            return redirect(url_for("create"))
         if parent_id:
-            # prevent third level nesting
-            parent = Document.query.get(int(parent_id))
-            if parent and parent.parent_id is not None:
-                flash("하위 문서의 하위 문서는 만들 수 없습니다.")
-                return redirect(url_for("create_document"))
-        if not title:
-            flash("제목을 입력하세요.")
-            return redirect(url_for("create_document"))
-        doc = Document(title=title, content=content or None, parent_id=(int(parent_id) if parent_id else None), author_id=current_user.id)
+            parent = db.session.get(Document, int(parent_id))
+            if not parent or parent.parent_id is not None:
+                flash("하위의 하위 문서는 만들 수 없습니다.")
+                return redirect(url_for("create"))
+        doc = Document(title=title, content=content, parent_id=(int(parent_id) if parent_id else None), author_id=current_user.id)
         db.session.add(doc)
-        db.session.flush()
-        db.session.add(Log(action="문서 생성", document_id=doc.id, user_email=current_user.email))
         db.session.commit()
-        flash("문서를 만들었습니다.")
-        return redirect(url_for("view_document", doc_id=doc.id))
-    return render_template("document_form.html", doc=None, parents=parents, parent_id=parent_id)
+        log(f"문서 생성: {title}")
+        return redirect(url_for("index"))
+    parents = Document.query.filter(Document.parent_id.is_(None)).order_by(Document.created_at.desc()).all()
+    return render_template("create.html", parents=parents)
 
 @app.route("/edit/<int:doc_id>", methods=["GET","POST"])
-def edit_document(doc_id):
-    if not current_user.is_authenticated:
-        flash("로그인 후 이용하세요.")
-        return redirect(url_for("login"))
-    if not current_user.email_verified:
-        flash("이메일 인증 후 이용하세요.")
-        return redirect(url_for("index"))
-    doc = Document.query.get_or_404(doc_id)
-    parents = Document.query.filter_by(parent_id=None).order_by(Document.created_at.desc()).all()
+@login_required
+def edit(doc_id):
+    doc = db.session.get(Document, doc_id) or abort(404)
     if request.method == "POST":
         title = request.form.get("title","").strip()
         content = request.form.get("content","").strip()
-        parent_id = request.form.get("parent_id") or None
-        if parent_id:
-            parent = Document.query.get(int(parent_id))
-            if parent and parent.parent_id is not None:
-                flash("하위 문서의 하위 문서는 만들 수 없습니다.")
-                return redirect(url_for("edit_document", doc_id=doc.id))
-        doc.title = title or doc.title
-        doc.content = content or None
-        doc.parent_id = int(parent_id) if parent_id else None
-        db.session.add(Log(action="문서 수정", document_id=doc.id, user_email=current_user.email))
+        if not title or not content:
+            flash("제목과 내용을 입력하세요.")
+            return redirect(url_for("edit", doc_id=doc_id))
+        doc.title = title
+        doc.content = content
         db.session.commit()
-        flash("수정되었습니다.")
-        return redirect(url_for("view_document", doc_id=doc.id))
-    return render_template("document_form.html", doc=doc, parents=parents)
+        log(f"문서 수정: {title}")
+        return redirect(url_for("index"))
+    return render_template("edit.html", doc=doc)
 
-@app.post("/delete/<int:doc_id>")
-def delete_document(doc_id):
-    if not current_user.is_authenticated or not current_user.email_verified:
-        abort(403)
-    doc = Document.query.get_or_404(doc_id)
-    # delete children first (only one level deep exists by rule)
-    for c in list(doc.children):
-        db.session.delete(c)
-    db.session.add(Log(action="문서 삭제", document_id=doc.id, user_email=current_user.email))
+@app.route("/delete/<int:doc_id>", methods=["POST"])
+@login_required
+def delete(doc_id):
+    doc = db.session.get(Document, doc_id) or abort(404)
+    title = doc.title
+    Document.query.filter_by(parent_id=doc.id).delete()
     db.session.delete(doc)
     db.session.commit()
-    flash("삭제했습니다.")
+    log(f"문서 삭제: {title}")
     return redirect(url_for("index"))
 
 @app.route("/logs")
-def view_logs():
+@login_required
+def logs():
     logs = Log.query.order_by(Log.created_at.desc()).limit(200).all()
     return render_template("logs.html", logs=logs)
 
-# ---- Auth ----
-@app.route("/register", methods=["GET","POST"])
-def register():
-    if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        password = request.form.get("password") or ""
-        agree = request.form.get("agree")
-        if not require_school_email(email):
-            flash("학교 이메일(@bl-m.kr)만 가입 가능합니다.")
-            return redirect(url_for("register"))
-        if not agree:
-            flash("약관과 방침에 동의해야 합니다.")
-            return redirect(url_for("register"))
-        if User.query.filter_by(email=email).first():
-            flash("이미 가입된 이메일입니다.")
-            return redirect(url_for("register"))
-        u = User(email=email, agreed_at=datetime.utcnow())
-        u.set_password(password)
-        # email verify token
-        token = uuid4().hex
-        u.verify_token = token
-        u.verify_expires = datetime.utcnow() + timedelta(hours=24)
-        db.session.add(u)
-        db.session.commit()
-        link = url_for("verify_email", token=token, _external=True)
-        send_email(email, "[별내위키] 이메일 인증", f"다음 링크를 24시간 내에 클릭하여 인증하세요:\n{link}")
-        flash("가입 완료! 받은편지함의 인증 메일을 확인하세요.")
-        return redirect(url_for("login"))
-    return render_template("auth.html", mode="register")
-
-@app.route("/verify/<token>")
-def verify_email(token):
-    u = User.query.filter_by(verify_token=token).first()
-    if not u:
-        flash("유효하지 않은 토큰입니다.")
-        return redirect(url_for("index"))
-    if u.verify_expires and u.verify_expires < datetime.utcnow():
-        flash("토큰이 만료되었습니다. 로그인 후 인증 메일을 다시 요청하세요.")
-        return redirect(url_for("login"))
-    u.email_verified = True
-    u.verify_token = None
-    u.verify_expires = None
-    db.session.commit()
-    flash("이메일 인증이 완료되었습니다.")
-    return redirect(url_for("index"))
-
-@app.route("/resend")
+@app.route("/delete-account", methods=["GET","POST"])
 @login_required
-def resend_verification():
-    if current_user.email_verified:
-        flash("이미 인증된 계정입니다.")
+def delete_account():
+    if request.method == "POST":
+        pw = request.form.get("password","")
+        if not check_password_hash(current_user.password, pw):
+            flash("비밀번호가 올바르지 않습니다.")
+            return redirect(url_for("delete_account"))
+        db.session.execute(text("UPDATE document SET author_id=NULL WHERE author_id=:uid"), {"uid": current_user.id})
+        uid = current_user.id
+        logout_user()
+        db.session.execute(text('DELETE FROM "user" WHERE id=:uid'), {"uid": uid})
+        db.session.commit()
+        flash("회원 탈퇴가 완료되었습니다.")
         return redirect(url_for("index"))
-    token = uuid4().hex
-    current_user.verify_token = token
-    current_user.verify_expires = datetime.utcnow() + timedelta(hours=24)
-    db.session.commit()
-    link = url_for("verify_email", token=token, _external=True)
-    send_email(current_user.email, "[별내위키] 인증 메일 재발송", f"아래 링크로 인증을 완료하세요:\n{link}")
-    flash("인증 메일을 다시 보냈습니다.")
-    return redirect(url_for("index"))
+    return render_template("delete_account.html")
 
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
-        password = request.form.get("password") or ""
+        email = request.form.get("email","").strip().lower()
+        password = request.form.get("password","")
+        if not is_school_email(email):
+            flash("학교 이메일(@bl-m.kr)만 로그인할 수 있습니다.")
+            return redirect(url_for("login"))
         user = User.query.filter_by(email=email).first()
-        if user:
-            if daily_limit_exceeded(user):
-                flash("로그인 실패가 하루 10회를 초과했습니다. 내일 다시 시도하세요.")
-                return redirect(url_for("login"))
-            if user.check_password(password):
-                login_user(user)
-                # reset fail counter on success
-                user.fail_count = 0
-                user.fail_date = date.today()
-                db.session.commit()
-                return redirect(url_for("index"))
-            else:
-                record_fail(user)
-        flash("이메일 또는 비밀번호가 올바르지 않습니다.")
-    return render_template("auth.html", mode="login")
+        if not user:
+            flash("가입되지 않은 이메일입니다.")
+            return redirect(url_for("login"))
+        today = datetime.date.today()
+        if user.last_fail_date != today:
+            user.last_fail_date = today
+            user.fail_count = 0
+            db.session.commit()
+        if user.fail_count >= 10:
+            flash("로그인 실패가 오늘 10회를 초과했습니다. 내일 다시 시도하세요.")
+            return redirect(url_for("login"))
+        if not check_password_hash(user.password, password):
+            user.fail_count += 1
+            user.last_fail_date = today
+            db.session.commit()
+            flash("이메일 또는 비밀번호가 올바르지 않습니다.")
+            return redirect(url_for("login"))
+        login_user(user)
+        flash("로그인 되었습니다.")
+        return redirect(url_for("index"))
+    return render_template("login.html")
 
 @app.route("/logout")
 def logout():
-    logout_user()
+    if current_user.is_authenticated:
+        logout_user()
+    flash("로그아웃 되었습니다.")
     return redirect(url_for("index"))
+
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        email = request.form.get("email","").strip().lower()
+        password = request.form.get("password","")
+        agree = request.form.get("agree")
+        if not agree:
+            flash("약관 및 방침에 동의해야 가입할 수 있습니다.")
+            return redirect(url_for("register"))
+        if not is_school_email(email):
+            flash("학교 이메일(@bl-m.kr)만 가입할 수 있습니다.")
+            return redirect(url_for("register"))
+        if User.query.filter_by(email=email).first():
+            flash("이미 등록된 이메일입니다.")
+            return redirect(url_for("register"))
+        user = User(email=email, password=generate_password_hash(password), agreed_at=datetime.datetime.utcnow())
+        db.session.add(user)
+        db.session.commit()
+        flash("가입이 완료되었습니다. 로그인하세요.")
+        return redirect(url_for("login"))
+    return render_template("register.html")
+
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
 @app.route("/forgot", methods=["GET","POST"])
 def forgot():
     if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
+        email = request.form.get("email","").strip().lower()
+        if not is_school_email(email):
+            flash("학교 이메일만 가능합니다.")
+            return redirect(url_for("forgot"))
         user = User.query.filter_by(email=email).first()
-        if user:
-            token = uuid4().hex
-            user.reset_token = token
-            user.reset_expires = datetime.utcnow() + timedelta(hours=1)
-            db.session.commit()
-            link = url_for("reset_with_token", token=token, _external=True)
-            send_email(email, "[별내위키] 비밀번호 재설정", f"아래 링크로 1시간 내에 재설정하세요:\n{link}")
-        flash("재설정 링크를 이메일로 보냈습니다(계정이 존재한다면).")
+        if not user:
+            flash("가입된 이메일이 없습니다.")
+            return redirect(url_for("forgot"))
+        token = serializer.dumps(email, salt="pw-reset")
+        reset_url = url_for("reset", token=token, _external=True)
+        flash(f"재설정 링크(모의): {reset_url}")
         return redirect(url_for("login"))
-    return render_template("auth.html", mode="forgot")
+    return render_template("forgot.html")
 
 @app.route("/reset/<token>", methods=["GET","POST"])
-def reset_with_token(token):
-    user = User.query.filter_by(reset_token=token).first()
-    if not user or (user.reset_expires and user.reset_expires < datetime.utcnow()):
-        flash("유효하지 않거나 만료된 링크입니다.")
+def reset(token):
+    try:
+        email = serializer.loads(token, salt="pw-reset", max_age=3600)
+    except (BadSignature, SignatureExpired):
+        flash("링크가 유효하지 않습니다.")
         return redirect(url_for("login"))
+    user = User.query.filter_by(email=email).first() or abort(404)
     if request.method == "POST":
-        pw = request.form.get("password") or ""
-        user.set_password(pw)
-        user.reset_token = None
-        user.reset_expires = None
+        pw = request.form.get("password","")
+        user.password = generate_password_hash(pw)
         db.session.commit()
-        flash("비밀번호가 재설정되었습니다. 로그인하세요.")
+        flash("비밀번호가 변경되었습니다. 로그인하세요.")
         return redirect(url_for("login"))
-    return """
-    <form method='post' style='max-width:480px;margin:24px auto;font-family:system-ui'>
-      <h3>새 비밀번호 설정</h3>
-      <input name='password' type='password' required minlength='8' style='width:100%;padding:8px;border:1px solid #ddd;border-radius:8px'>
-      <div style='margin-top:12px'><button>저장</button></div>
-    </form>
-    """
+    return render_template("reset.html")
 
-@app.route("/account")
-@login_required
-def account():
-    return render_template("account.html")
-
-@app.post("/account/delete")
-@login_required
-def delete_account():
-    user = current_user
-    # detach authored docs
-    Document.query.filter_by(author_id=user.id).update({Document.author_id: None})
-    # remove user
-    logout_user()
-    db.session.delete(user)
-    db.session.commit()
-    flash("회원탈퇴가 완료되었습니다. 개인정보가 삭제되었습니다.")
-    return redirect(url_for("index"))
-
-# static pages
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
@@ -355,20 +310,6 @@ def privacy():
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
-
-# convenience aliases for URLs in templates
-@app.context_processor
-def inject_urls():
-    return dict(
-        create_document_url=url_for("create_document"),
-    )
-
-# ----- DB init -----
-with app.app_context():
-    db.create_all()
-
-# alias for template urls
-create_document = create_document
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>별내위키</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <div class="brand"><a href="{{ url_for('index') }}" style="text-decoration:none;color:#111">⭐ 별내위키</a></div>
+        <div class="actions">
+          <a class="btn" href="{{ url_for('index') }}">홈</a>
+          {% if current_user.is_authenticated %}
+            <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
+            <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+            <a class="btn" href="{{ url_for('delete_account') }}">회원 탈퇴</a>
+            <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
+          {% else %}
+            <a class="btn" href="{{ url_for('login') }}">로그인</a>
+            <a class="btn" href="{{ url_for('register') }}">회원가입</a>
+          {% endif %}
+        </div>
+      </div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+    <footer>
+      피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a> ·
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a> ·
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </footer>
+  </body>
+</html>

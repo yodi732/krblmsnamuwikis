@@ -1,21 +1,16 @@
-
-{% extends "_layout.html" %}
+{% extends "_base.html" %}
 {% block content %}
-<div class="card p-4">
-  <h5 class="mb-3">문서 수정</h5>
-  <form method="post">
-    <div class="mb-3">
-      <label class="form-label">제목</label>
-      <input type="text" class="form-control" name="title" value="{{ doc.title }}">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">내용</label>
-      <textarea class="form-control" name="content" rows="8">{{ doc.content }}</textarea>
-    </div>
-    <div class="d-flex gap-2">
-      <button class="btn btn-primary btn-pill" type="submit">저장</button>
-      <a class="btn btn-outline-secondary btn-pill" href="{{ url_for('view_doc', doc_id=doc.id) }}">취소</a>
-    </div>
-  </form>
-</div>
+  <h1>문서 수정</h1>
+  <div class="form">
+    <form method="post">
+      <label>제목</label>
+      <input type="text" name="title" value="{{ doc.title }}" required>
+      <label>내용</label>
+      <textarea name="content" rows="8" required>{{ doc.content }}</textarea>
+      <div style="margin-top:10px">
+        <button class="btn primary" type="submit">저장</button>
+        <a class="btn" href="{{ url_for('index') }}">취소</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}

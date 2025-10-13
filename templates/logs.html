@@ -1,11 +1,14 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
 {% block content %}
-  <h2>로그</h2>
-  <ul class="docs">
-    {% for l in logs %}
-      <li class="doc-row">
-        <div>{{ l.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ l.action }} · {% if l.user_email %}{{ l.user_email }}{% else %}시스템{% endif %}{% if l.document %} · 문서: {{ l.document.title }}{% endif %}</div>
-      </li>
+  <h1>로그</h1>
+  <div class="list">
+    {% for log in logs %}
+      <div class="doc-row">
+        <div class="doc-title">{{ log.action }}</div>
+        <div class="doc-meta">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ log.actor_email or '알 수 없음' }}</div>
+      </div>
+    {% else %}
+      <div class="doc-row"><div>로그가 없습니다.</div></div>
     {% endfor %}
-  </ul>
+  </div>
 {% endblock %}
