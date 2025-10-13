@@ -1,21 +1,22 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>활동 로그</h2>
-<div class="card">
-  <table class="table">
-    <thead>
-      <tr><th>시간</th><th>이메일</th><th>동작</th><th>세부</th></tr>
-    </thead>
+  <h2>활동 로그</h2>
+  {% if not rows %}
+    <div class="empty">아직 로그가 없습니다.</div>
+  {% else %}
+  <table class="logtable">
+    <thead><tr><th>시간</th><th>이메일</th><th>행동</th><th>세부</th></tr></thead>
     <tbody>
       {% for r in rows %}
       <tr>
-        <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
-        <td>{{ r.user_email or "-" }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ r.user_email or '-' }}</td>
         <td>{{ r.action }}</td>
-        <td>{{ r.details or "" }}</td>
+        <td class="wrap">{{ r.details or '' }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-</div>
+  {% endif %}
 {% endblock %}

@@ -1,44 +1,51 @@
+
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>별내위키</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  </head>
-  <body>
-    <header class="topbar">
-      <div class="container topbar-inner">
-        <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
-        <nav class="nav">
-          <a href="{{ url_for('index') }}">홈</a>
-          {% if current_user.is_authenticated %}
-            <a href="{{ url_for('logs') }}">로그 보기</a>
-            <form action="{{ url_for('logout') }}" method="post" style="display:inline;">
-              <button type="submit" class="linklike">로그아웃</button>
-            </form>
-            <a href="{{ url_for('delete_confirm') }}">회원탈퇴</a>
-          {% else %}
-            <a href="{{ url_for('login') }}">로그인</a>
-            <a href="{{ url_for('register') }}">회원가입</a>
-          {% endif %}
-        </nav>
-      </div>
-    </header>
-    <main class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="flashes">
-          {% for cat, msg in messages %}
-            <div class="flash {{cat}}">{{ msg }}</div>
-          {% endfor %}
-          </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="brand">별내위키</div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}" class="btn-link">홈</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('logs') }}" class="btn-link">로그 보기</a>
+          <form action="{{ url_for('delete_account') }}" method="post" class="inline-form" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
+            <button type="submit" class="btn danger">회원탈퇴</button>
+          </form>
+          <a href="{{ url_for('logout') }}" class="btn">로그아웃</a>
+        {% else %}
+          <a href="{{ url_for('logs') }}" class="btn-link disabled" title="로그인은 필요합니다.">로그 보기</a>
+          <a href="{{ url_for('login') }}" class="btn">로그인</a>
+          <a href="{{ url_for('register') }}" class="btn">회원가입</a>
         {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
-    </main>
-    <footer class="container footer">
-      피드백 → <a href="mailto:lyhs1115@gmail.com">lyhs1115@gmail.com</a> · <a href="#">개인정보처리방침</a> · <a href="#">이용약관</a>
-    </footer>
-  </body>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash">
+          {% for cat, msg in messages %}
+            <li class="{{cat}}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container foot">
+    피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a> ·
+    <a href="#" onclick="alert('개인정보처리방침은 별도 문서로 연결됩니다.'); return false;">개인정보처리방침</a> ·
+    <a href="#" onclick="alert('이용약관은 별도 문서로 연결됩니다.'); return false;">이용약관</a>
+  </footer>
+</body>
 </html>

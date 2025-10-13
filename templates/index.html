@@ -1,5 +1,17 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>문서 목록</h2>
-<div class="card">아직 문서가 없습니다.</div>
+  <h2>문서 목록</h2>
+  {% if not docs %}
+    <div class="empty">아직 문서가 없습니다.</div>
+  {% else %}
+    <ul class="doclist">
+      {% for d in docs %}
+        <li>
+          <div class="doc-title">{{ d.title }}</div>
+          <div class="doc-meta">{{ d.author_email or '작성자 미상' }} · {{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 {% endblock %}
