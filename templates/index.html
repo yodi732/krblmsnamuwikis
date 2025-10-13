@@ -1,17 +1,15 @@
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
 <h2>문서 목록</h2>
-{% if not documents %}
-  <div class="empty">아직 문서가 없습니다.</div>
-{% else %}
-  <ul class="list">
+<div class="card">
+  {% if documents %}
+    <ul>
     {% for d in documents %}
-      <li><strong>{{ d.title }}</strong> <small>#{{ d.id }}</small></li>
+      <li>{{ d.title }} <span style="color:#6b7280">({{ d.created_at.strftime('%Y-%m-%d %H:%M') }}, {{ d.author_email or '익명' }})</span></li>
     {% endfor %}
-  </ul>
-{% endif %}
-
-{% if current_user.is_authenticated %}
-  <p><a class="btn" href="{{ url_for('new_doc') }}">새 문서</a></p>
-{% endif %}
+    </ul>
+  {% else %}
+    아직 문서가 없습니다.
+  {% endif %}
+</div>
 {% endblock %}

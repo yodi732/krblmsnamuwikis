@@ -1,9 +1,9 @@
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
-<h2>새 비밀번호 설정</h2>
-<p>계정: <strong>{{ email }}</strong></p>
-<form method="post" class="form">
-  <label>새 비밀번호 <input type="password" name="password" required></label>
-  <button class="btn" type="submit">변경</button>
+<h2>새 비밀번호</h2>
+<form method="post" class="card" style="max-width:420px">
+  <label>새 비밀번호</label>
+  <input name="password" type="password" class="input" required minlength="6"><br><br>
+  <button class="btn">변경</button>
 </form>
 {% endblock %}
