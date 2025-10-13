@@ -1,0 +1,9 @@
+{% extends "_base.html" %}
+{% block content %}
+<h2>새 문서</h2>
+<form method="post" class="form">
+  <label>제목 <input type="text" name="title" required></label>
+  <label>본문 <textarea name="content" required></textarea></label>
+  <button class="btn" type="submit">저장</button>
+</form>
+{% endblock %}

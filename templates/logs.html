@@ -1,14 +1,26 @@
 {% extends "_base.html" %}
 {% block content %}
-  <h1>로그</h1>
-  <div class="list">
-    {% for log in logs %}
-      <div class="doc-row">
-        <div class="doc-title">{{ log.action }}</div>
-        <div class="doc-meta">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ log.actor_email or '알 수 없음' }}</div>
-      </div>
+<h2>작업 로그</h2>
+<div class="table-wrap">
+<table class="table">
+  <thead>
+    <tr>
+      <th>시간(UTC)</th><th>이메일</th><th>액션</th><th>대상</th><th>세부</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in logs %}
+    <tr>
+      <td>{{ row.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      <td>{{ row.user_email or '비회원' }}</td>
+      <td>{{ row.action }}</td>
+      <td>{% if row.object_type %}{{ row.object_type }}{% endif %}{% if row.object_id %} #{{ row.object_id }}{% endif %}</td>
+      <td>{{ row.detail }}</td>
+    </tr>
     {% else %}
-      <div class="doc-row"><div>로그가 없습니다.</div></div>
+    <tr><td colspan="5">아직 로그가 없습니다.</td></tr>
     {% endfor %}
-  </div>
+  </tbody>
+</table>
+</div>
 {% endblock %}

@@ -1,14 +1,8 @@
 {% extends "_base.html" %}
 {% block content %}
-  <h1>비밀번호 재설정</h1>
-  <div class="form">
-    <form method="post">
-      <label>학교 이메일(@bl-m.kr)</label>
-      <input type="text" name="email" required placeholder="abcd@bl-m.kr">
-      <div style="margin-top:10px">
-        <button class="btn primary" type="submit">재설정 링크 보내기(모의)</button>
-        <a class="btn" href="{{ url_for('login') }}">로그인으로</a>
-      </div>
-    </form>
-  </div>
+<h2>비밀번호 재설정</h2>
+<form method="post" class="form">
+  <label>가입 이메일 <input type="email" name="email" required></label>
+  <button class="btn" type="submit">재설정 링크 보내기</button>
+</form>
 {% endblock %}

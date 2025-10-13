@@ -1,9 +1,3 @@
-
-# KR BLMS NamuWiki — Render-ready
-
-## Deploy
-1. Push this repo to GitHub.
-2. On Render: Web Service
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `bash -c "python init_db.py && gunicorn app:app --bind 0.0.0.0:$PORT"`
-3. First boot will create `instance/database.db` from `schema.sql`.
+# 별내위키 배포 메모 (Render 기준)
+필수 환경변수:
+SECRET_KEY, DATABASE_URL, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_USE_TLS, MAIL_USE_SSL, MAIL_SENDER, APP_BASE_URL

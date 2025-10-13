@@ -1,14 +1,9 @@
 {% extends "_base.html" %}
 {% block content %}
-  <h1>새 비밀번호 설정</h1>
-  <div class="form">
-    <form method="post">
-      <label>새 비밀번호</label>
-      <input type="password" name="password" required>
-      <div style="margin-top:10px">
-        <button class="btn primary" type="submit">변경</button>
-        <a class="btn" href="{{ url_for('login') }}">로그인으로</a>
-      </div>
-    </form>
-  </div>
+<h2>새 비밀번호 설정</h2>
+<p>계정: <strong>{{ email }}</strong></p>
+<form method="post" class="form">
+  <label>새 비밀번호 <input type="password" name="password" required></label>
+  <button class="btn" type="submit">변경</button>
+</form>
 {% endblock %}

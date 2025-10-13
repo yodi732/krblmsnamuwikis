@@ -1,22 +1,10 @@
 {% extends "_base.html" %}
 {% block content %}
-  <h1>회원가입</h1>
-  <div class="form">
-    <form method="post">
-      <label>학교 이메일(@bl-m.kr)</label>
-      <input type="text" name="email" required placeholder="abcd@bl-m.kr">
-      <label>비밀번호</label>
-      <input type="password" name="password" required>
-      <label class="small">
-        <input type="checkbox" name="agree" value="1" required> 
-        개인정보 처리방침과 이용약관에 동의합니다.
-        (<a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침</a>, 
-         <a href="{{ url_for('terms') }}" target="_blank">이용약관</a>)
-      </label>
-      <div style="margin-top:10px">
-        <button class="btn primary" type="submit">가입</button>
-        <a class="btn" href="{{ url_for('login') }}">로그인</a>
-      </div>
-    </form>
-  </div>
+<h2>회원가입</h2>
+<form method="post" class="form">
+  <label>이메일 <input type="email" name="email" required></label>
+  <label>비밀번호 <input type="password" name="password" required></label>
+  <label class="check"><input type="checkbox" name="agree"> 개인정보처리방침 및 이용약관에 동의</label>
+  <button class="btn" type="submit">가입하기</button>
+</form>
 {% endblock %}
