@@ -1,39 +1,36 @@
+
 {% extends "base.html" %}
-{% block title %}문서 만들기 · 별내위키{% endblock %}
 {% block content %}
 <h1>문서 만들기</h1>
-
-<form method="post">
-  <div class="field-row">
-    <span>문서 종류</span>
-    <label><input type="radio" name="kind" value="parent"> 상위문서</label>
-    <label><input type="radio" name="kind" value="child" checked> 하위문서</label>
-    <span class="muted">하위문서의 하위문서는 만들 수 없습니다.</span>
+<form method="post" class="form">
+  <div class="row">
+    <label>문서 종류</label>
+    <label><input type="radio" name="kind" value="parent" checked> 상위문서</label>
+    <label><input type="radio" name="kind" value="child"> 하위문서</label>
   </div>
 
-  <div class="field-row">
-    <label for="parent_id">상위 문서 선택</label>
-    <select id="parent_id" name="parent_id">
+  <div class="row">
+    <label>상위 문서 선택</label>
+    <select name="parent_id" id="parent-select">
       <option value="">-- 선택 --</option>
       {% for p in parents %}
         <option value="{{ p.id }}">{{ p.title }}</option>
       {% endfor %}
     </select>
+    <span class="hint">하위문서의 하위문서는 만들 수 없습니다.</span>
   </div>
 
-  <div class="field-row">
-    <label for="title">제목</label>
-    <input id="title" name="title">
+  <div class="row">
+    <label>제목</label>
+    <input type="text" name="title" required>
   </div>
 
-  <div class="field-row">
-    <label for="content">내용</label>
-    <textarea id="content" name="content" rows="12"></textarea>
+  <div class="row">
+    <label>내용</label>
+    <textarea name="body" rows="10"></textarea>
   </div>
 
-  <div class="actions">
-    <button class="btn primary" type="submit">저장</button>
-    <a class="btn" href="{{ url_for('index') }}">취소</a>
-  </div>
+  <button class="btn" type="submit">저장</button>
+  <a class="btn btn-outline" href="{{ url_for('index') }}">취소</a>
 </form>
 {% endblock %}

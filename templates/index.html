@@ -1,39 +1,32 @@
+
 {% extends "base.html" %}
-{% block title %}문서 · 별내위키{% endblock %}
 {% block content %}
 <h1>문서</h1>
-
-<table class="table">
+<table class="list">
   <thead>
     <tr>
       <th>제목</th>
-      <th>작성자 / 수정일</th>
-      <th class="right">작업</th>
+      <th>작성자 · 수정일</th>
+      <th style="width:120px;"></th>
     </tr>
   </thead>
   <tbody>
-  {% for p in parents %}
+    {% for p in parents %}
     <tr>
-      <td><a href="{{ url_for('view_document', doc_id=p.id) }}">{{ p.title }}</a></td>
-      <td class="mono">{{ p.author_email }} · {{ p.updated_at }}</td>
-      <td class="right">
-        <a href="{{ url_for('edit_document', doc_id=p.id) }}">수정</a>
-        <a href="{{ url_for('delete_document', doc_id=p.id) }}"
-           class="danger js-confirm" data-question="정말 이 문서를 삭제할까요?">삭제</a>
+      <td><a href="{{ url_for('edit_document', doc_id=p.id) }}">{{ p.title }}</a>
+        {% for c in p.children %}
+        <div class="child"><a href="{{ url_for('edit_document', doc_id=c.id) }}">{{ c.title }}</a></div>
+        {% endfor %}
+      </td>
+      <td>{{ p.author_email }} · {{ p.updated_at|dt }}</td>
+      <td>
+        <a class="link" href="{{ url_for('edit_document', doc_id=p.id) }}">수정</a>
+        <form class="inline" action="{{ url_for('delete_document', doc_id=p.id) }}" method="post">
+          <button class="link link-danger js-delete" type="submit" data-confirm="정말 삭제하시겠어요?">삭제</button>
+        </form>
       </td>
     </tr>
-    {% for c in p.children %}
-      <tr>
-        <td class="indent-1"><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></td>
-        <td class="mono">{{ c.author_email }} · {{ c.updated_at }}</td>
-        <td class="right">
-          <a href="{{ url_for('edit_document', doc_id=c.id) }}">수정</a>
-          <a href="{{ url_for('delete_document', doc_id=c.id) }}"
-             class="danger js-confirm" data-question="정말 이 문서를 삭제할까요?">삭제</a>
-        </td>
-      </tr>
     {% endfor %}
-  {% endfor %}
   </tbody>
 </table>
 {% endblock %}

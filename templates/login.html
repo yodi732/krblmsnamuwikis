@@ -1,23 +1,17 @@
+
 {% extends "base.html" %}
-{% block title %}로그인 · 별내위키{% endblock %}
 {% block content %}
 <h1>로그인</h1>
-<form method="post">
-  <div class="field-row">
-    <label class="nowrap" for="email">학교 계정 이메일</label>
-    <input id="email" name="email" type="email" placeholder="example@school.kr" required>
+<form method="post" class="form narrow">
+  <div class="row">
+    <label for="email">학교 계정 이메일</label>
+    <input id="email" type="email" name="email" placeholder="example@school.kr" required>
   </div>
-
-  <div class="field-row">
-    <label for="password">비밀번호</label>
-    <div class="password-with-toggle">
-      <input id="password" name="password" type="password" required>
-      <button type="button" class="btn small js-toggle-password" data-target="#password">표시</button>
-    </div>
+  <div class="row">
+    <label for="pw">비밀번호</label>
+    <input id="pw" type="password" name="password" required>
+    <button class="btn small toggle" type="button" data-toggle="pw">숨김</button>
   </div>
-
-  <div class="actions">
-    <button class="btn primary" type="submit">로그인</button>
-  </div>
+  <button class="btn" type="submit">로그인</button>
 </form>
 {% endblock %}
