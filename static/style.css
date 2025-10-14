@@ -1,36 +1,39 @@
 
-:root { --blue:#1649b9; --blue-dark:#123d99; --danger:#d64545; }
-*{ box-sizing:border-box; }
-body{ margin:0; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color:#111; background:#f6f8fb;}
-a{ color:#1740c5; text-decoration:none; }
-.topbar{ background:var(--blue); color:#fff; }
-.topbar-inner{ max-width:1100px; margin:0 auto; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; }
-.brand a{ color:#fff; font-weight:700; font-size:18px; }
-.actions .btn{ margin-left:8px; }
-.btn{ display:inline-flex; align-items:center; padding:8px 12px; border-radius:18px; border:1px solid rgba(255,255,255,.5); background:transparent; color:#fff; cursor:pointer; font-size:14px; }
-.btn:hover{ background:rgba(255,255,255,.12); }
-.btn.primary{ background:var(--blue); color:#fff; border:0; border-radius:8px; }
-.btn.small{ font-size:12px; padding:6px 10px; border-radius:12px; }
-.btn.danger{ background:var(--danger); border:0; color:#fff; }
-.container{ max-width:1100px; margin:24px auto; padding:0 16px; }
-.page-title{ font-size:42px; margin:24px 0 16px; }
-.card{ background:#fff; border-radius:10px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); max-width:720px; }
-.card input[type="text"], .card input[type="email"], .card input[type="password"], textarea{
-  width:100%; padding:10px 12px; border:1px solid #d7dbe3; border-radius:8px; outline:none; margin:6px 0 12px;
+:root {
+  --blue:#1846b9;
 }
-textarea{ resize:vertical; }
-.pw-row{ display:flex; gap:8px; align-items:center; }
-.agree-line{ display:flex; align-items:center; gap:8px; margin:10px 0 16px; }
-.flash{ margin-bottom:12px; }
-.flash-item{ padding:10px 12px; border-radius:6px; margin-bottom:6px; }
-.flash-item.success{ background:#e6f5eb; color:#15683b; }
-.flash-item.error{ background:#ffeaea; color:#9e1a1a; }
-.doc-list{ padding:0; list-style:none; }
-.doc-item{ background:#fff; margin-bottom:12px; border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
-.doc-title{ font-weight:700; }
-.doc-meta{ color:#667; font-size:12px; margin:4px 0 6px;}
-.doc-actions .btn{ color:#1740c5; border:1px solid #d0d6e6; background:#eef2ff; }
-.doc-actions .btn.danger{ background:#ffe8e8; color:#b01818; border-color:#ffc9c9; }
-.table{ width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; }
-.table th, .table td{ padding:10px; border-bottom:1px solid #eef1f7; font-size:14px; }
-.footer{ margin:28px 0 40px; color:#555; }
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Helvetica,Arial,sans-serif;background:#f6f8fc;color:#111}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.navbar{background:var(--blue);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.nav-left{display:flex;align-items:center;gap:12px;flex:1}
+.brand{font-weight:800}
+.nav-right{margin-left:auto;display:flex;gap:10px}
+.btn{border:0;border-radius:999px;padding:6px 14px;background:#fff;color:var(--blue);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:#1f4fd8;color:#fff}
+.btn.danger{background:#e02424;color:#fff}
+.btn.outline{background:#fff;border:1px solid rgba(255,255,255,.7);color:#fff}
+
+.container{max-width:1100px;margin:0 auto;padding:28px 24px}
+.h1{font-size:48px;font-weight:900;margin:18px 0}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.input{width:100%;padding:12px;border:1px solid #dbe1ec;border-radius:10px;background:#fff}
+.row{display:flex;gap:10px;align-items:center}
+
+.form-group{margin:12px 0}
+.help{color:#6b7280;font-size:12px}
+
+.footer{border-top:1px solid #e5e7eb;margin-top:40px;padding:14px 24px;color:#374151}
+.footer a{margin:0 6px}
+
+.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
+.table th,.table td{padding:10px;border-bottom:1px solid #eef2f7;text-align:left}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#2441c0;font-size:12px}
+
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.right-checkbox{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.password-wrap{display:flex;gap:8px;align-items:center}
+.password-wrap .btn{padding:8px 10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
