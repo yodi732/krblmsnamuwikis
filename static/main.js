@@ -1,23 +1,33 @@
-// Global confirm hooks for destructive actions
-(function(){
-  function wire(selector, messageBuilder){
-    document.addEventListener('click', function(e){
-      const btn = e.target.closest(selector);
-      if(!btn) return;
-      const msg = typeof messageBuilder === 'function' ? messageBuilder(btn) : messageBuilder;
-      if(!confirm(msg)){ e.preventDefault(); e.stopPropagation(); }
+document.addEventListener('DOMContentLoaded', () => {
+  // 일반 링크용 confirm
+  document.querySelectorAll('a.js-confirm').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const q = a.dataset.question || '이 작업을 진행할까요?';
+      if (!confirm(q)) {
+        e.preventDefault();
+      }
     });
-  }
-
-  // Delete document
-  wire('.confirm-delete', btn => {
-    const title = btn.getAttribute('data-title') || '이 문서';
-    return `정말로 '${title}'을(를) 삭제할까요? 이 작업은 되돌릴 수 없습니다.`;
   });
 
-  // Logout
-  wire('.confirm-logout', `로그아웃하시겠습니까?`);
+  // form 제출 확인
+  document.querySelectorAll('form.js-confirm-submit').forEach(f => {
+    f.addEventListener('submit', (e) => {
+      const q = f.dataset.question || '이 작업을 진행할까요?';
+      if (!confirm(q)) {
+        e.preventDefault();
+      }
+    });
+  });
 
-  // Withdraw (account deletion)
-  wire('.confirm-withdraw', `정말로 회원탈퇴하시겠습니까? 계정과 관련 데이터가 삭제됩니다.`);
-})();
+  // 비밀번호 표시 토글
+  document.querySelectorAll('.js-toggle-password').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-target');
+      const input = document.querySelector(sel);
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.textContent = input.type === 'password' ? '표시' : '숨김';
+      }
+    });
+  });
+});

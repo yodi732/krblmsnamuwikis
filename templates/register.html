@@ -1,58 +1,59 @@
 {% extends "base.html" %}
-{% block title %}회원가입 - 별내위키{% endblock %}
+{% block title %}회원가입 · 별내위키{% endblock %}
 {% block content %}
-<h1 class="page-title">회원가입</h1>
-<div class="card narrow">
-  <form method="post" action="{{ url_for('register') }}">
-    <div class="field-row">
-      <label class="form-label no-wrap">학교 계정 이메일</label>
-      <input type="email" name="email" required placeholder="example@school.kr">
+<h1>회원가입</h1>
+<form method="post">
+  <div class="field-row">
+    <label class="nowrap" for="email">학교 계정 이메일</label>
+    <input id="email" name="email" type="email" placeholder="example@school.kr" required>
+  </div>
+
+  <div class="field-row">
+    <label for="password">비밀번호 설정</label>
+    <div class="password-with-toggle">
+      <input id="password" name="password" type="password" required>
+      <button type="button" class="btn small js-toggle-password" data-target="#password">표시</button>
     </div>
+  </div>
 
-    <div class="field-row">
-      <label class="form-label no-wrap">비밀번호 설정</label>
-      <div class="password-with-toggle">
-        <input type="password" name="password" id="reg-password" required minlength="8" placeholder="8자 이상">
-        <button type="button" class="btn sm" id="toggle-reg-pass">표시</button>
-      </div>
-    </div>
+  <div class="field-row">
+    <label class="checkbox">
+      <input type="checkbox" name="agree" required>
+      개인정보 처리 및 이용약관에 동의합니다
+    </label>
+  </div>
 
-    <div class="field-row">
-      <label class="form-label sr-only">약관 동의</label>
-      <label class="checkbox">
-        <input type="checkbox" name="agree" required> 개인정보 처리 및 이용약관에 동의합니다
-      </label>
+  <!-- 약관/정책 표시 (요약본). 서버 라우트의 전문 페이지와 동일한 내용이 있어야 합니다. -->
+  <details class="legal">
+    <summary>개인정보처리방침 · 이용약관 보기</summary>
+    <section class="card">
+      <h3>개인정보처리방침(요약)</h3>
+      <ul>
+        <li>수집: 이메일(필수), 비밀번호 해시, 접속 로그 등 서비스 운영에 필요한 항목만 최소 수집</li>
+        <li>이용 목적: 회원 인증, 문서 편집 내역 관리, 보안</li>
+        <li>보관 기간: 탈퇴 시 즉시 파기(법령상 의무가 있는 경우 예외적으로 보관)</li>
+        <li>제3자 제공: 없음</li>
+        <li>처리 위탁: 인프라 제공사(Render) 범위 내</li>
+        <li>권리: 이용자는 열람·정정·삭제·처리정지를 요구할 수 있음</li>
+        <li>문의: lyhjs1115@gmail.com</li>
+      </ul>
+      <p>전문은 하단의 <a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침</a> 페이지를 참고하세요.</p>
+    </section>
+    <section class="card">
+      <h3>이용약관(요약)</h3>
+      <ul>
+        <li>목적: 문서 작성/열람 기능 제공</li>
+        <li>이용자의 책임: 관련 법령을 준수하고 타인의 권리를 침해하지 않을 것</li>
+        <li>금지행위: 불법정보·악성코드 유포, 계정공유 등</li>
+        <li>서비스 변경/중단: 사전 고지 후 변경·중단할 수 있음</li>
+        <li>면책: 불가항력에 의한 손해에 대해서는 책임을 지지 않음</li>
+      </ul>
+      <p>전문은 하단의 <a href="{{ url_for('terms') }}" target="_blank">이용약관</a> 페이지를 참고하세요.</p>
+    </section>
+  </details>
 
-      <div class="policies">
-        <details>
-          <summary>개인정보처리방침 보기</summary>
-          <div class="policy-box">
-            <p>본 서비스는 계정 생성·접속·문서 편집 내역 관리 목적의 최소한의 개인정보(이메일 주소, 해시 처리된 비밀번호, 활동 로그)를 처리합니다. 보관 기간은 회원 탈퇴 시 즉시 파기하며, 법령상 보존 의무가 있는 경우 해당 기간 동안 보관합니다. 제3자 제공은 없으며, 호스팅/인프라 제공사에 한해 위탁될 수 있습니다. 이용자는 열람·정정·삭제·처리정지를 요청할 수 있습니다. 문의: lyhjs1115@gmail.com</p>
-          </div>
-        </details>
-        <details>
-          <summary>이용약관 보기</summary>
-          <div class="policy-box">
-            <p>이 서비스는 선의의 협업 문서 편집을 위한 공간입니다. 불법 정보 게시 금지, 타인의 권리 침해 금지, 시스템 남용 금지에 동의해야 합니다. 약관 위반 시 게시물 삭제 및 계정 이용 제한이 이루어질 수 있습니다. 운영팀은 서비스 품질을 위해 약관을 변경할 수 있으며, 중요한 변경은 사전 공지합니다.</p>
-          </div>
-        </details>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn primary" type="submit">회원가입</button>
-    </div>
-  </form>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-document.getElementById('toggle-reg-pass')?.addEventListener('click', function() {
-  const ip = document.getElementById('reg-password');
-  if (!ip) return;
-  ip.type = ip.type === 'password' ? 'text' : 'password';
-  this.textContent = (ip.type === 'password') ? '표시' : '숨김';
-});
-</script>
+  <div class="actions">
+    <button class="btn primary" type="submit">회원가입</button>
+  </div>
+</form>
 {% endblock %}

@@ -1,28 +1,32 @@
+{% set logged_in = (current_user.is_authenticated if current_user is defined else False) %}
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{% block title %}별내위키{% endblock %}</title>
-  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='main.js') }}"></script>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
     <nav class="nav">
-      <a class="chip" href="{{ url_for('index') }}">홈</a>
-      {% if current_user.is_authenticated %}
-        <a class="chip" href="{{ url_for('logs') }}">로그보기</a>
-        <a class="chip" href="{{ url_for('create_document') }}">문서 만들기</a>
-        <form class="inline" action="{{ url_for('logout') }}" method="post" id="logout-form">
-          <button type="submit" class="chip danger outline confirm-logout">로그아웃</button>
+      <a class="btn" href="{{ url_for('index') }}">홈</a>
+      {% if logged_in %}
+        <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
+        <!-- 로그아웃: 확인 후 제출 -->
+        <form class="inline js-confirm-submit" action="/logout" method="post"
+              data-question="정말 로그아웃 하시겠어요?">
+          <button type="submit" class="btn">로그아웃</button>
         </form>
-        <form class="inline" action="{{ url_for('withdraw') }}" method="post" id="withdraw-form">
-          <button type="submit" class="chip danger solid confirm-withdraw">회원탈퇴</button>
+        <!-- 회원탈퇴: 확인 후 제출 -->
+        <form class="inline js-confirm-submit" action="/withdraw" method="post"
+              data-question="정말 회원 탈퇴하시겠어요? 이 작업은 되돌릴 수 없습니다.">
+          <button type="submit" class="btn danger">회원탈퇴</button>
         </form>
       {% else %}
-        <a class="chip" href="{{ url_for('login') }}">로그인</a>
-        <a class="chip" href="{{ url_for('register') }}">회원가입</a>
+        <a class="btn" href="{{ url_for('login') }}">로그인</a>
+        <a class="btn" href="{{ url_for('register') }}">회원가입</a>
       {% endif %}
     </nav>
   </header>
@@ -32,12 +36,9 @@
   </main>
 
   <footer class="footer">
-    피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a>
-    · <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
-    · <a href="{{ url_for('terms') }}">이용약관</a>
+    피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a> ·
+    <a href="{{ url_for('privacy') }}">개인정보처리방침</a> ·
+    <a href="{{ url_for('terms') }}">이용약관</a>
   </footer>
-
-  <script src="{{ url_for('static', filename='main.js') }}"></script>
-  {% block scripts %}{% endblock %}
 </body>
 </html>
