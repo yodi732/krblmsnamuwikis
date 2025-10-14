@@ -2,15 +2,25 @@
 {% extends "base.html" %}
 {% block content %}
   <h1 class="page-title">문서</h1>
-  {% if not docs %}
-    <p class="notice">아직 문서가 없습니다.</p>
-  {% else %}
-    <div class="card">
-      <ul>
+  {% if docs %}
+    <ul class="doc-list">
       {% for d in docs %}
-        <li>{{ d.title }} — <span class="notice">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+      <li class="doc-item">
+        <div class="doc-title">{{ d.title }}</div>
+        <div class="doc-meta">{{ d.author_email or '알 수 없음' }} · {{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        {% if current_user.is_authenticated %}
+          <div class="doc-actions">
+            <a class="btn small" href="{{ url_for('doc_edit', doc_id=d.id) }}">수정</a>
+            <form method="post" action="{{ url_for('doc_delete', doc_id=d.id) }}" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+              <button class="btn small danger" type="submit">삭제</button>
+            </form>
+          </div>
+        {% endif %}
+        <div class="doc-content">{{ d.content[:240] }}{% if d.content|length>240 %}…{% endif %}</div>
+      </li>
       {% endfor %}
-      </ul>
-    </div>
+    </ul>
+  {% else %}
+    <p>아직 문서가 없습니다.</p>
   {% endif %}
 {% endblock %}

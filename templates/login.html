@@ -1,32 +1,15 @@
 
 {% extends "base.html" %}
 {% block content %}
-  <h1 class="page-title">로그인</h1>
-  <div class="card">
-    {% if error %}<p style="color:#b91c1c">{{ error }}</p>{% endif %}
-    <form method="post" action="{{ url_for('login') }}">
-      <div class="form-group">
-        <label for="email">학교 계정 이메일</label>
-        <input id="email" type="email" name="email" placeholder="abcd@bl-m.kr" required>
-      </div>
-      <div class="form-group">
-        <div class="toggle-row">
-          <div style="flex:1">
-            <label for="password">비밀번호</label>
-            <input id="password" type="password" name="password" required>
-          </div>
-          <button type="button" id="togglePw" class="toggle-btn" aria-label="비밀번호 표시">표시</button>
-        </div>
-      </div>
-      <button class="full-btn" type="submit">로그인</button>
-    </form>
+<h1 class="page-title">로그인</h1>
+<form method="post" class="card">
+  <label>학교 계정 이메일</label>
+  <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
+  <label>비밀번호</label>
+  <div class="pw-row">
+    <input id="login_pw" type="password" name="password" required>
+    <button class="btn small" type="button" onclick="togglePw('login_pw', this)">표시</button>
   </div>
-  <script>
-    const pw = document.getElementById('password');
-    const btn = document.getElementById('togglePw');
-    btn.addEventListener('click', ()=>{
-      if(pw.type==='password'){ pw.type='text'; btn.textContent='숨김'; }
-      else { pw.type='password'; btn.textContent='표시'; }
-    });
-  </script>
+  <button class="btn primary" type="submit">로그인</button>
+</form>
 {% endblock %}

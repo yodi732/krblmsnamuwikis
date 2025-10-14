@@ -4,37 +4,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ title or "별내위키" }}</title>
+  <title>별내위키</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav class="nav">
-    <div class="container nav-inner">
+  <header class="topbar">
+    <div class="topbar-inner">
       <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
-      <div class="nav-actions">
+      <nav class="actions">
         <a class="btn" href="{{ url_for('index') }}">홈</a>
         {% if current_user.is_authenticated %}
-          <form action="{{ url_for('logout') }}" method="post" style="margin:0">
-            <button class="btn" type="submit">로그아웃</button>
+          <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+          <a class="btn" href="{{ url_for('doc_new') }}">문서 만들기</a>
+          <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('회원탈퇴 하시겠습니까? 이 작업은 되돌릴 수 없습니다.');" style="display:inline;">
+            <button class="btn danger" type="submit">회원탈퇴</button>
           </form>
+          <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
         {% else %}
           <a class="btn" href="{{ url_for('login') }}">로그인</a>
           <a class="btn" href="{{ url_for('register') }}">회원가입</a>
         {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for cat, msg in messages %}
+            <div class="flash-item {{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer class="footer">
+      <div>
+        피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a>
+        · <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+        · <a href="{{ url_for('terms') }}">이용약관</a>
       </div>
-    </div>
-  </nav>
-  <main class="main">
-    <div class="container">{% block content %}{% endblock %}</div>
+    </footer>
   </main>
-  <footer class="footer">
-    <div class="container">
-      <span>피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
-      <span class="dot">·</span>
-      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
-      <span class="dot">·</span>
-      <a href="{{ url_for('terms') }}">이용약관</a>
-    </div>
-  </footer>
+
+  <script>
+  function togglePw(id, btn){
+    const inp = document.getElementById(id);
+    if (!inp) return;
+    if (inp.type === 'password') { inp.type = 'text'; btn.innerText='숨김'; }
+    else { inp.type = 'password'; btn.innerText='표시'; }
+  }
+  </script>
 </body>
 </html>
