@@ -1,15 +1,24 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h1>{{ doc.title }}</h1>
-<p class="muted">작성자: {{ doc.author_email or '-' }} · 수정일: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
-<pre class="body">{{ doc.body }}</pre>
-<div class="actions">
-  <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
-  {% if current_user.is_authenticated %}
-  <form class="inline" method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" data-confirm="정말 삭제할까요?">
-    <button class="btn danger" type="submit">삭제</button>
-  </form>
+  <h2>{{ doc.title }}</h2>
+  <div class="meta">{{ doc.author_email }} · {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') if doc.updated_at else '' }}</div>
+  <pre class="details">{{ doc.body }}</pre>
+
+  <div style="margin-top:12px">
+    {% if current_user.is_authenticated %}
+      <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">편집</a>
+      <form class="inline" action="{{ url_for('delete_document', doc_id=doc.id) }}" method="post" data-confirm="정말 이 문서를 삭제할까요?">
+        <button class="btn danger" type="submit">삭제</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if doc.children %}
+    <h3>하위 문서</h3>
+    <ul>
+      {% for c in doc.children %}
+        <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+      {% endfor %}
+    </ul>
   {% endif %}
-</div>
 {% endblock %}

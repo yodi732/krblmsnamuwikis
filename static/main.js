@@ -1,18 +1,11 @@
-
-function toggleReveal(btn){
-  const input = btn.previousElementSibling;
-  if (!input) return;
-  if (input.type === "password"){
-    input.type = "text"; btn.textContent = "숨김";
-  } else {
-    input.type = "password"; btn.textContent = "표시";
+\
+document.addEventListener('click', function(e){
+  const target = e.target.closest('form[data-confirm] button, form[data-confirm] input[type=submit]');
+  if (target){
+    const form = target.closest('form[data-confirm]');
+    const msg = form.getAttribute('data-confirm') || '진행할까요?';
+    if (!confirm(msg)){
+      e.preventDefault();
+    }
   }
-}
-// confirm on forms
-document.addEventListener("submit", function(e){
-  const form = e.target;
-  const msg = form.getAttribute("data-confirm");
-  if (msg && !confirm(msg)){
-    e.preventDefault();
-  }
-}, true);
+});

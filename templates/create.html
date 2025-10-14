@@ -1,41 +1,24 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h1>문서 만들기</h1>
+  <h2>문서 만들기</h2>
+  <form method="post">
+    <label for="title">제목</label>
+    <input id="title" name="title" type="text" required>
 
-<form method="post" class="card">
-  <div class="row">
-    <label>문서 종류</label>
-    <div>
-      <label><input type="radio" name="doc_type" value="parent" checked> 상위문서</label>
-      <label><input type="radio" name="doc_type" value="child"> 하위문서</label>
-    </div>
-  </div>
-
-  <div class="row">
-    <label>상위 문서 선택</label>
-    <select name="parent_id">
-      <option value="">-- 선택 --</option>
+    <label for="parent_id">상위 문서 (선택)</label>
+    <select id="parent_id" name="parent_id">
+      <option value="">(없음)</option>
       {% for p in parents %}
         <option value="{{ p.id }}">{{ p.title }}</option>
       {% endfor %}
     </select>
-    <div class="help">하위문서의 하위문서는 만들 수 없습니다.</div>
-  </div>
+    <div class="small">하위문서의 하위문서는 만들 수 없습니다.</div>
 
-  <div class="row">
-    <label>제목</label>
-    <input type="text" name="title" required>
-  </div>
+    <label for="body">내용</label>
+    <textarea id="body" name="body"></textarea>
 
-  <div class="row">
-    <label>내용</label>
-    <textarea name="body" rows="8"></textarea>
-  </div>
-
-  <div class="actions">
-    <button class="btn" type="submit">저장</button>
-    <a class="btn outline" href="{{ url_for('index') }}">취소</a>
-  </div>
-</form>
+    <div style="margin-top:10px">
+      <button class="btn" type="submit">저장</button>
+    </div>
+  </form>
 {% endblock %}
