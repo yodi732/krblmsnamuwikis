@@ -1,33 +1,54 @@
-# 별내위키 – 긴급 패치 (템플릿/정적 파일 교체)
 
-이 압축파일은 다음 문제를 한 번에 해결합니다.
+⭐ StarWiki Render Hotfix (Drop‑in)
 
-1) **홈/로그인에서 500 오류** – 템플릿이 없는 엔드포인트(`withdraw`)를 참조해 생기는 오류를 방지하도록
-   `base.html`의 제출 경로를 **문자열 경로(`/withdraw`)** 로 지정하고, 동작을 브라우저 확인창과 함께 안전하게 처리하도록 했습니다.
-   (서버에 `/withdraw` POST 라우트가 있어야 합니다. 없다면 추가해 주세요.)
+이 패키지는 기존 코드를 거의/전혀 수정하지 않고도 Render에서 발생한
+- user.password 컬럼 없음
+- document.created_by 컬럼 없음
+- document.content 컬럼/스키마 불일치
+- withdraw / create / view_document 엔드포인트 누락으로 인한 BuildError
 
-2) **삭제/로그아웃/회원탈퇴 확인창** – 실수 방지를 위해 진행 전 `confirm()`을 띄우도록 `static/main.js`를 추가했습니다.
+를 자동으로 복구/회피하기 위한 **드롭인 부트스트랩**입니다.
 
-3) **UI 요청 반영**
-   - 문서 만들기 안내 문구를 *“하위문서의 하위문서는 만들 수 없습니다.”* 로 변경
-   - 회원가입/로그인에서 *“학교 계정 이메일”* 라벨을 한 줄로 고정
-   - 회원가입 화면에 개인정보처리방침·이용약관 표시(요약 + 전문 페이지 링크)
-   - 홈(문서 목록)에서 화살표(↳) 제거, **작성일 숨김**, *작성자 / 수정일* 한 줄로 표기
+────────────────────────────────────────────────────────
 
-## 적용 방법
-1. 서버의 기존 프로젝트에서 아래 파일을 **덮어쓰기** 하세요.
-   - `templates/base.html`
-   - `templates/create.html`
-   - `templates/register.html`
-   - `templates/login.html`
-   - `templates/index.html`
-   - `static/style.css` (선택) · `static/main.js` (필수)
+📦 구성
+- autofix_bootstrap.py : 드롭인 모듈 (DB 자가치유 + 엔드포인트 스텁)
 
-2. 서버에 **회원탈퇴 POST 라우트(`/withdraw`)** 가 존재하는지 확인하세요.
-   - 없다면 `@app.post("/withdraw")` 를 추가하여 탈퇴 처리 후 세션을 정리하고 홈으로 리다이렉트해 주세요.
+────────────────────────────────────────────────────────
 
-3. 배포(재시작) 후 브라우저 캐시를 비운 다음 다시 확인합니다.
+🛠 적용 방법 (app.py 기준)
 
----
+1) db 초기화 직후(= `db = SQLAlchemy(app)` 다음 줄), 어떤 쿼리/시드보다 먼저 아래를 추가:
 
-필요 시, 위 템플릿의 `action="/withdraw"`/`action="/logout"` 은 기존 라우트 경로에 맞게 수정하시면 됩니다.
+    from autofix_bootstrap import init_autofix
+    init_autofix(app, db)
+
+2) 배포.
+   - DATABASE_URL(=Render의 PostgreSQL) 또는 로컬/없으면 sqlite:///app.db로 동작
+   - 이 모듈은 테이블이 없으면 만들고, 빠진 컬럼만 안전하게 추가합니다.
+   - 또한 누락된 엔드포인트(stub)를 등록하여 템플릿의 url_for 에러를 차단합니다.
+
+3) (선택) 실제 '문서 만들기' 페이지 등 실 서비스 엔드포인트가 준비되면
+   - autofix가 등록한 스텁은 그대로 두어도 무해합니다.
+   - 혹은 같은 경로로 진짜 라우트를 정의하면 Flask는 마지막 등록된 뷰를 사용하므로 대체됩니다.
+
+────────────────────────────────────────────────────────
+
+🔒 스키마 변경 내역
+- user.password TEXT/VARCHAR(255) 추가 (없을 때만)
+- document.content TEXT 추가 (없을 때만)
+- document.created_by VARCHAR(255) 추가 (없을 때만)
+
+데이터 파괴적 변경(드롭/리네임/타입변경)은 전혀 수행하지 않습니다.
+
+────────────────────────────────────────────────────────
+
+🐞 여전히 에러가 난다면?
+- 템플릿이 'body' 또는 'author_email' 같은 과거 컬럼명을 참조하는지 확인
+- 필요한 경우 컬럼을 추가로 선언해도 됩니다 (패턴 동일):
+  - SQLite : ALTER TABLE <table> ADD COLUMN <col> <TYPE>
+  - Postgres: ALTER TABLE <table> ADD COLUMN IF NOT EXISTS <col> <TYPE>
+
+────────────────────────────────────────────────────────
+
+안정성만 보강, 기능/디자인은 그대로 유지합니다.
