@@ -1,17 +1,28 @@
-
 {% extends "base.html" %}
 {% block content %}
-  <h2>문서 목록</h2>
-  {% if not docs %}
-    <div class="empty">아직 문서가 없습니다.</div>
-  {% else %}
-    <ul class="doclist">
-      {% for d in docs %}
-        <li>
-          <div class="doc-title">{{ d.title }}</div>
-          <div class="doc-meta">{{ d.author_email or '작성자 미상' }} · {{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-        </li>
-      {% endfor %}
-    </ul>
+  <h1>최신 문서</h1>
+  {% if current_user.is_authenticated %}
+  <section class="card">
+    <h2>새 문서 만들기</h2>
+    <form action="{{ url_for('create_document') }}" method="post" class="stack">
+      <input type="text" name="title" placeholder="제목" required>
+      <textarea name="content" rows="6" placeholder="내용(선택)"></textarea>
+      <button type="submit" class="btn primary">생성</button>
+    </form>
+  </section>
   {% endif %}
+
+  <ul class="doc-list">
+    {% for d in docs %}
+      <li class="card">
+        <div class="row space">
+          <strong>{{ d.title }}</strong>
+          <small>{{ d.created_at.strftime("%Y-%m-%d %H:%M") }} · {{ d.author_email or "알수없음" }}</small>
+        </div>
+        <p class="content">{{ (d.content or "")[:300] }}</p>
+      </li>
+    {% else %}
+      <li>아직 문서가 없습니다.</li>
+    {% endfor %}
+  </ul>
 {% endblock %}

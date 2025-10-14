@@ -1,33 +1,27 @@
-
-:root{ --blue:#0f4aa3; --blue-dark:#0d3d88; --text:#1d1d1f; --muted:#666; --bg:#f5f6fa; }
-*{ box-sizing:border-box; }
-body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--text); background:var(--bg); }
-.container{ width:min(1100px, 92%); margin:0 auto; }
-.topbar{ background:var(--blue); color:#fff; }
-.topbar .container{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
-.brand{ font-weight:700; color:#fff; }
-.nav a.btn, .nav .btn{ background:#083773; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; display:inline-block; margin-left:8px; border:1px solid rgba(255,255,255,0.2); }
-.nav .btn:hover{ background:var(--blue-dark); }
-.nav a.btn-link{ color:#fff; text-decoration:none; margin-left:12px; opacity:0.95; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:8px; }
-.nav a.btn-link.disabled{ opacity:0.4; pointer-events:none; }
-.nav .danger{ background:#1a1f2b; border-color:#ffb3b3; }
-.inline-form{ display:inline; margin:0 8px; }
-
-.page{ padding:28px 0 40px; }
-h2{ margin-top:0; }
-.card{ background:#fff; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); max-width:480px; }
-.card input[type="email"], .card input[type="password"]{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid #cfd6e4; margin:6px 0 14px; }
-.card label.agree{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-.btn.primary{ background:#0f4aa3; }
-.flash{ list-style:none; padding:0; }
-.flash li{ background:#fff; border-left:4px solid #0f4aa3; padding:10px 12px; margin:12px 0; border-radius:8px; }
-.flash li.error{ border-left-color:#d33; }
-.flash li.success{ border-left-color:#1a9f4b; }
-.empty{ padding:14px; background:#fff; border-radius:10px; color:var(--muted); }
-.doclist{ list-style:none; padding:0; }
-.doclist li{ background:#fff; margin:10px 0; padding:12px; border-radius:10px; }
-.doc-meta{ color:var(--muted); font-size:12px; }
-.foot{ color:#6b7280; font-size:13px; padding-bottom:40px; }
-.logtable{ width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; }
-.logtable th, .logtable td{ border-bottom:1px solid #e5e7eb; padding:10px; text-align:left; }
-.logtable td.wrap{ white-space:pre-wrap; word-break:break-word; }
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f6f7fb;color:#111}
+.container{max-width:960px;margin:0 auto;padding:16px}
+.row{display:flex;gap:12px;align-items:center}
+.row.space{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:8px}
+.card{background:#fff;border:1px solid #e6e8ee;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
+.table th,.table td{border-bottom:1px solid #eef1f6;padding:10px;font-size:14px;text-align:left}
+.table thead th{background:#f0f4ff}
+.flash-list{list-style:none;padding:0;margin:10px 0}
+.flash{padding:10px 12px;border-radius:10px;margin:6px 0;font-size:14px}
+.flash.success{background:#e6ffed;border:1px solid #b7f5c6}
+.flash.error{background:#ffeaea;border:1px solid #ffc2c2}
+.btn{border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+.btn.primary{background:#1f4fbf;color:#fff}
+.btn.danger{background:#e23f3f;color:#fff}
+.btn.linklike{background:transparent;color:#fff;cursor:pointer}
+.inline{display:inline}
+input[type=text],input[type=password],input[type=email],textarea{width:100%;padding:10px;border:1px solid #d7dbe6;border-radius:8px;background:#fff}
+.hint{color:#666;font-size:12px}
+.top-banner{background:#0d3ea6;color:#fff;position:sticky;top:0}
+.top-banner .brand{font-weight:800;font-size:20px}
+.top-banner .nav a{color:#fff;text-decoration:none;margin-right:12px}
+.top-banner .nav a:hover{text-decoration:underline}
+.doc-list{list-style:none;padding:0;margin:0}
+.content{white-space:pre-wrap}
+.checkbox{display:flex;gap:8px;align-items:center}
