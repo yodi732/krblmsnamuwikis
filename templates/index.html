@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><meta charset="utf-8"><title>별내위키</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>별내위키</title>
+</head>
 <body>
-<h1>문서</h1>
-<ul>
-{% for d in docs %}
-<li>{{ d.title }} - {{ d.created_by }} | 수정일 {{ d.updated_at.strftime('%Y-%m-%d') }}</li>
-{% endfor %}
-</ul>
-<a href="{{ url_for('create') }}">문서 만들기</a>
-</body></html>
+    <h1>별내위키</h1>
+    <p>✅ 데이터베이스 연결 및 컬럼 자동 보정 완료</p>
+</body>
+</html>

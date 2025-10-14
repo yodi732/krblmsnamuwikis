@@ -1,117 +1,45 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
-import os
+from sqlalchemy import text
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'secret'
-
-# DB 설정
-db_url = os.getenv('DATABASE_URL')
-if not db_url:
-    db_url = 'sqlite:///app.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg://bmspostgres_user:Hs1234%21@dpg-d3l64f2dbo4c73ekfru0-a.ap-northeast-1.aws.render.com:5432/bmspostgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-login_manager = LoginManager(app)
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=db.func.now())
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('document.id'), nullable=True)
-    created_by = db.Column(db.String(100))
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    created_by = db.Column(db.String(255))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-with app.app_context():
-    try:
-        db.create_all()
-        # password 컬럼이 없으면 전체 재생성
-        cols = [c.name for c in User.__table__.columns]
-        if 'password' not in cols:
-            db.drop_all()
-            db.create_all()
-        if not User.query.filter_by(email='admin@school.kr').first():
-            admin = User(email='admin@school.kr', password='admin')
-            db.session.add(admin)
-            db.session.commit()
-    except Exception as e:
-        print('DB Error:', e)
-
-@app.route('/')
+@app.route("/")
 def index():
     docs = Document.query.order_by(Document.updated_at.desc()).all()
-    return render_template('index.html', docs=docs)
+    return render_template("index.html", docs=docs)
 
-@app.route('/create', methods=['GET','POST'])
-@login_required
-def create():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        doc = Document(title=title, content=content, created_by=current_user.email)
-        db.session.add(doc)
+# --- DB 부트스트랩: 누락된 테이블/컬럼 자동 생성 ---
+with app.app_context():
+    db.create_all()
+    try:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS password VARCHAR(255);'))
+        db.session.execute(text('ALTER TABLE document ADD COLUMN IF NOT EXISTS created_by VARCHAR(255);'))
         db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('create.html')
+        print("✅ DB 스키마 확인/보정 완료")
+    except Exception as e:
+        db.session.rollback()
+        print("⚠️ DB 스키마 보정 중 오류:", e)
+# --- /DB 부트스트랩 ---
 
-@app.route('/delete/<int:id>')
-@login_required
-def delete(id):
-    if not request.args.get('confirm'):
-        return render_template('confirm_delete.html', id=id)
-    doc = Document.query.get_or_404(id)
-    db.session.delete(doc)
-    db.session.commit()
-    return redirect(url_for('index'))
-
-@app.route('/login', methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email, password=password).first()
-        if user:
-            login_user(user)
-            return redirect(url_for('index'))
-        flash('로그인 실패')
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    return render_template('confirm_logout.html')
-
-@app.route('/logout/confirm')
-@login_required
-def logout_confirm():
-    logout_user()
-    return redirect(url_for('index'))
-
-@app.route('/withdraw')
-@login_required
-def withdraw():
-    return render_template('confirm_withdraw.html')
-
-@app.route('/withdraw/confirm')
-@login_required
-def withdraw_confirm():
-    user = current_user
-    logout_user()
-    db.session.delete(user)
-    db.session.commit()
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
