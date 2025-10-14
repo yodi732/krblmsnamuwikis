@@ -1,34 +1,58 @@
 {% extends "base.html" %}
+{% block title %}회원가입 - 별내위키{% endblock %}
 {% block content %}
-<h1>회원가입</h1>
-<form method="post" class="card auth">
-  <div class="row">
-    <label>학교 계정 이메일</label>
-    <input type="email" name="email" required>
-  </div>
-  <div class="row">
-    <label>비밀번호 설정</label>
-    <div class="pw-wrap">
-      <input type="password" name="password" id="pw">
-      <button class="btn small" type="button" onclick="togglePw()">표시</button>
+<h1 class="page-title">회원가입</h1>
+<div class="card narrow">
+  <form method="post" action="{{ url_for('register') }}">
+    <div class="field-row">
+      <label class="form-label no-wrap">학교 계정 이메일</label>
+      <input type="email" name="email" required placeholder="example@school.kr">
     </div>
-  </div>
 
-  <div class="row agree-row">
-    <span>개인정보 처리 및 이용약관에 동의합니다</span>
-    <label class="right-checkbox">
-      <input type="checkbox" name="agree">
-    </label>
-  </div>
+    <div class="field-row">
+      <label class="form-label no-wrap">비밀번호 설정</label>
+      <div class="password-with-toggle">
+        <input type="password" name="password" id="reg-password" required minlength="8" placeholder="8자 이상">
+        <button type="button" class="btn sm" id="toggle-reg-pass">표시</button>
+      </div>
+    </div>
 
-  <div class="form-actions">
-    <button class="btn primary" type="submit">회원가입</button>
-  </div>
-</form>
+    <div class="field-row">
+      <label class="form-label sr-only">약관 동의</label>
+      <label class="checkbox">
+        <input type="checkbox" name="agree" required> 개인정보 처리 및 이용약관에 동의합니다
+      </label>
+
+      <div class="policies">
+        <details>
+          <summary>개인정보처리방침 보기</summary>
+          <div class="policy-box">
+            <p>본 서비스는 계정 생성·접속·문서 편집 내역 관리 목적의 최소한의 개인정보(이메일 주소, 해시 처리된 비밀번호, 활동 로그)를 처리합니다. 보관 기간은 회원 탈퇴 시 즉시 파기하며, 법령상 보존 의무가 있는 경우 해당 기간 동안 보관합니다. 제3자 제공은 없으며, 호스팅/인프라 제공사에 한해 위탁될 수 있습니다. 이용자는 열람·정정·삭제·처리정지를 요청할 수 있습니다. 문의: lyhjs1115@gmail.com</p>
+          </div>
+        </details>
+        <details>
+          <summary>이용약관 보기</summary>
+          <div class="policy-box">
+            <p>이 서비스는 선의의 협업 문서 편집을 위한 공간입니다. 불법 정보 게시 금지, 타인의 권리 침해 금지, 시스템 남용 금지에 동의해야 합니다. 약관 위반 시 게시물 삭제 및 계정 이용 제한이 이루어질 수 있습니다. 운영팀은 서비스 품질을 위해 약관을 변경할 수 있으며, 중요한 변경은 사전 공지합니다.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="submit">회원가입</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-function togglePw(){
-  const i = document.getElementById('pw');
-  if(i.type==='password'){ i.type='text'; } else { i.type='password'; }
-}
+document.getElementById('toggle-reg-pass')?.addEventListener('click', function() {
+  const ip = document.getElementById('reg-password');
+  if (!ip) return;
+  ip.type = ip.type === 'password' ? 'text' : 'password';
+  this.textContent = (ip.type === 'password') ? '표시' : '숨김';
+});
 </script>
 {% endblock %}

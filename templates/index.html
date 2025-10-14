@@ -1,50 +1,49 @@
 {% extends "base.html" %}
+{% block title %}문서 - 별내위키{% endblock %}
 {% block content %}
-<h1>문서</h1>
+<h1 class="page-title">문서</h1>
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width:55%">제목</th>
+        <th style="width:45%">작성자 · 수정일</th>
+        <th class="narrow"></th>
+      </tr>
+    </thead>
+    <tbody>
+    {# Expect either a flat list 'docs' with .title/.author_email/.updated_at and optional .depth,
+       or a tree 'tree' with .children. We'll normalize into a recursive renderer. #}
+    {% macro row(doc, depth) -%}
+      <tr>
+        <td>
+          <div class="indent" style="--depth: {{ depth|default(0, true) }}">
+            <a href="{{ url_for('view_document', doc_id=doc.id) }}">{{ doc.title }}</a>
+          </div>
+        </td>
+        <td class="meta-oneline">
+          {{ doc.author_email }} · {{ (doc.updated_at or doc.created_at).strftime('%Y-%m-%d %H:%M') if doc.updated_at is not none or doc.created_at is not none else '-' }}
+        </td>
+        <td class="narrow">
+          <a href="{{ url_for('edit_document', doc_id=doc.id) }}" class="link">수정</a>
+          <form class="inline" action="{{ url_for('delete_document', doc_id=doc.id) }}" method="post">
+            <button type="submit" class="link danger confirm-delete" data-title="{{ doc.title }}">삭제</button>
+          </form>
+        </td>
+      </tr>
+      {%- if doc.children %}
+        {%- for child in doc.children %}
+          {{ row(child, (depth or 0) + 1) }}
+        {%- endfor %}
+      {%- endif %}
+    {%- endmacro %}
 
-{% if parents|length == 0 %}
-<p>아직 문서가 없습니다.</p>
-{% else %}
-<table class="table">
-  <thead>
-    <tr>
-      <th style="width:45%">제목</th>
-      <th>작성자</th>
-      <th>작성일</th>
-      <th>수정일</th>
-      <th style="width:140px"></th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for p in parents %}
-    <tr>
-      <td><strong>{{ p.title }}</strong></td>
-      <td>{{ p.author_email }}</td>
-      <td>{{ p.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td>{% if p.updated_at %}{{ p.updated_at.strftime("%Y-%m-%d %H:%M") }}{% else %}-{% endif %}</td>
-      <td class="actions">
-        <a href="{{ url_for('edit_document', doc_id=p.id) }}">수정</a>
-        <form action="{{ url_for('delete_document', doc_id=p.id) }}" method="post" style="display:inline;">
-          <button class="link danger-text" type="submit">삭제</button>
-        </form>
-      </td>
-    </tr>
-    {% for c in p.children %}
-    <tr>
-      <td>&nbsp;&nbsp;↳ {{ c.title }}</td>
-      <td>{{ c.author_email }}</td>
-      <td>{{ c.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td>{% if c.updated_at %}{{ c.updated_at.strftime("%Y-%m-%d %H:%M") }}{% else %}-{% endif %}</td>
-      <td class="actions">
-        <a href="{{ url_for('edit_document', doc_id=c.id) }}">수정</a>
-        <form action="{{ url_for('delete_document', doc_id=c.id) }}" method="post" style="display:inline;">
-          <button class="link danger-text" type="submit">삭제</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+    {% if tree is defined %}
+      {% for d in tree %}{{ row(d, 0) }}{% endfor %}
+    {% else %}
+      {% for d in docs %}{{ row(d, d.depth if d.depth is defined else 0) }}{% endfor %}
+    {% endif %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

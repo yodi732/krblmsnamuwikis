@@ -1,55 +1,42 @@
 {% extends "base.html" %}
+{% block title %}문서 만들기 - 별내위키{% endblock %}
 {% block content %}
-<h1>문서 만들기</h1>
-
-<form method="post" class="card">
-  <div class="row">
-    <label>문서 종류</label>
-    <div class="row-inline">
-      <label class="radio">
-        <input type="radio" name="mode" value="parent" checked> 상위문서
-      </label>
-      <label class="radio">
-        <input type="radio" name="mode" value="child"> 하위문서
-      </label>
+<h1 class="page-title">문서 만들기</h1>
+<div class="card">
+  <form method="post" action="{{ url_for('create_document') }}">
+    <div class="field-row">
+      <label class="form-label no-wrap">문서 종류</label>
+      <div class="choice-group">
+        <label><input type="radio" name="kind" value="parent" {% if kind != 'child' %}checked{% endif %}> 상위문서</label>
+        <label><input type="radio" name="kind" value="child" {% if kind == 'child' %}checked{% endif %}> 하위문서</label>
+      </div>
+      <div class="hint sm" id="child-hint">하위문서의 하위문서는 만들 수 없습니다.</div>
     </div>
-  </div>
 
-  <div class="row" id="parentRow" style="display:none;">
-    <label>상위 문서 선택</label>
-    <select name="parent_id">
-      <option value="">-- 선택 --</option>
-      {% for p in parents %}
-        <option value="{{ p.id }}">{{ p.title }}</option>
-      {% endfor %}
-    </select>
-    <div class="hint">하위의 하위문서는 만들 수 없습니다.</div>
-  </div>
+    <div class="field-row">
+      <label class="form-label no-wrap">상위 문서 선택</label>
+      <select name="parent_id" id="parent-select">
+        <option value="">-- 선택 --</option>
+        {% for d in parents %}
+          <option value="{{ d.id }}" {% if parent_id == d.id %}selected{% endif %}>{{ d.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-  <div class="row">
-    <label>제목</label>
-    <input type="text" name="title" required>
-  </div>
+    <div class="field-row">
+      <label class="form-label no-wrap">제목</label>
+      <input type="text" name="title" required>
+    </div>
 
-  <div class="row">
-    <label>내용</label>
-    <textarea name="content" rows="10"></textarea>
-  </div>
+    <div class="field-row">
+      <label class="form-label no-wrap">내용</label>
+      <textarea name="content" rows="10"></textarea>
+    </div>
 
-  <div class="form-actions">
-    <button class="btn primary" type="submit">저장</button>
-    <a class="btn" href="{{ url_for('index') }}">취소</a>
-  </div>
-</form>
-
-<script>
-const radios = document.querySelectorAll('input[name="mode"]');
-const parentRow = document.getElementById('parentRow');
-function toggleParent() {
-  const v = document.querySelector('input[name="mode"]:checked').value;
-  parentRow.style.display = (v === 'child') ? '' : 'none';
-}
-radios.forEach(r => r.addEventListener('change', toggleParent));
-toggleParent();
-</script>
+    <div class="actions">
+      <button class="btn primary" type="submit">저장</button>
+      <a class="btn" href="{{ url_for('index') }}">취소</a>
+    </div>
+  </form>
+</div>
 {% endblock %}

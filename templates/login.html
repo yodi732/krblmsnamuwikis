@@ -1,26 +1,36 @@
 {% extends "base.html" %}
+{% block title %}로그인 - 별내위키{% endblock %}
 {% block content %}
-<h1>로그인</h1>
-<form method="post" class="card auth">
-  <div class="row">
-    <label>학교 계정 이메일</label>
-    <input type="email" name="email" required>
-  </div>
-  <div class="row">
-    <label>비밀번호</label>
-    <div class="pw-wrap">
-      <input type="password" name="password" id="pw">
-      <button class="btn small" type="button" onclick="togglePw()">표시</button>
+<h1 class="page-title">로그인</h1>
+<div class="card narrow">
+  <form method="post" action="{{ url_for('login') }}">
+    <div class="field-row">
+      <label class="form-label no-wrap">학교 계정 이메일</label>
+      <input type="email" name="email" required placeholder="example@school.kr">
     </div>
-  </div>
-  <div class="form-actions">
-    <button class="btn primary" type="submit">로그인</button>
-  </div>
-</form>
+
+    <div class="field-row">
+      <label class="form-label no-wrap">비밀번호</label>
+      <div class="password-with-toggle">
+        <input type="password" name="password" id="login-password" required>
+        <button type="button" class="btn sm" id="toggle-login-pass">표시</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="submit">로그인</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-function togglePw(){
-  const i = document.getElementById('pw');
-  if(i.type==='password'){ i.type='text'; } else { i.type='password'; }
-}
+document.getElementById('toggle-login-pass')?.addEventListener('click', function() {
+  const ip = document.getElementById('login-password');
+  if (!ip) return;
+  ip.type = ip.type === 'password' ? 'text' : 'password';
+  this.textContent = (ip.type === 'password') ? '표시' : '숨김';
+});
 </script>
 {% endblock %}
