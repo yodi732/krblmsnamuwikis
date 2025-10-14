@@ -1,32 +1,30 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-  <div class="card" style="max-width:900px;margin:0 auto">
-    <h2>회원가입</h2>
-    {% if error %}<p style="color:#d00">{{ error }}</p>{% endif %}
-    <form method="post">
-      <div class="form-group">
-        <label>학교 계정 이메일</label>
-        <input class="input" type="email" name="email" required>
+<div class="card" style="max-width:760px;margin:auto">
+  <h2>회원가입</h2>
+  <form method="post">
+    <div style="margin:12px 0">
+      <label class="small">학교 계정 이메일</label>
+      <input class="input" type="email" name="email" required placeholder="abcd@bl-m.kr">
+    </div>
+    <div style="margin:12px 0;display:flex;gap:8px;align-items:flex-end">
+      <div style="flex:1">
+        <label class="small">비밀번호 설정</label>
+        <input id="pw" class="input" type="password" name="password" required>
       </div>
-      <div class="form-group password-wrap">
-        <div style="flex:1">
-          <label>비밀번호 설정</label>
-          <input class="input" type="password" name="password" id="reg_pw" required minlength="6">
-        </div>
-        <button type="button" class="btn" onclick="toggle('reg_pw', this)">표시</button>
-      </div>
-      <div class="form-group right-checkbox">
-        <label style="margin:0;flex:1">개인정보 처리 및 이용약관에 동의합니다</label>
-        <input type="checkbox" name="agree" required style="width:18px;height:18px">
-      </div>
-      <button class="btn primary" type="submit" style="width:100%">회원가입</button>
-    </form>
-  </div>
-  <script>
-    function toggle(id, btn){
-      const el = document.getElementById(id);
-      el.type = el.type === 'password' ? 'text' : 'password';
-      btn.textContent = (el.type === 'password') ? '표시' : '숨기기';
-    }
-  </script>
+      <button type="button" class="btn ghost" onclick="toggle()">표시</button>
+    </div>
+    <div style="margin:12px 0;display:flex;align-items:center;gap:10px;justify-content:flex-start">
+      <label for="agree" style="white-space:nowrap">개인정보 처리 및 이용약관에 동의합니다</label>
+      <input id="agree" type="checkbox" name="agree" required>
+    </div>
+    <button class="btn blue" type="submit" style="width:100%">회원가입</button>
+  </form>
+</div>
+<script>
+function toggle(){
+  const el=document.getElementById('pw');
+  el.type = el.type==='password' ? 'text':'password';
+}
+</script>
 {% endblock %}

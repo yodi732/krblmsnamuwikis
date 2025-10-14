@@ -1,39 +1,36 @@
-
-:root {
-  --blue:#1846b9;
+:root{
+  --blue:#1849C6;
+  --blue-600:#1d4ed8;
+  --border:#e5e7eb;
+  --bg:#f6f8fc;
+  --text:#111827;
+  --muted:#6b7280;
+  --danger:#e11d48;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Helvetica,Arial,sans-serif;background:#f6f8fc;color:#111}
-a{color:var(--blue);text-decoration:none}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";}
+a{color:var(--blue-600);text-decoration:none}
 a:hover{text-decoration:underline}
-
-.navbar{background:var(--blue);color:#000;padding:10px 16px;display:flex;align-items:center;gap:12px}
-.nav-left{display:flex;align-items:center;gap:12px;flex:1}
+.header{height:56px;background:var(--blue);display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#fff;position:sticky;top:0}
 .brand{font-weight:800}
-.nav-right{margin-left:auto;display:flex;gap:10px}
-.btn{border:0;border-radius:999px;padding:6px 14px;background:#fff;color:var(--blue);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.btn.primary{background:#1f4fd8;color:#000}
-.btn.danger{background:#e02424;color:#000}
-.btn.outline{background:#fff;border:1px solid rgba(255,255,255,.7);color:#000}
-
-.container{max-width:1100px;margin:0 auto;padding:28px 24px}
-.h1{font-size:48px;font-weight:900;margin:18px 0}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.input{width:100%;padding:12px;border:1px solid #dbe1ec;border-radius:10px;background:#fff}
-.row{display:flex;gap:10px;align-items:center}
-
-.form-group{margin:12px 0}
-.help{color:#6b7280;font-size:12px}
-
-.footer{border-top:1px solid #e5e7eb;margin-top:40px;padding:14px 24px;color:#374151}
-.footer a{margin:0 6px}
-
-.table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
-.table th,.table td{padding:10px;border-bottom:1px solid #eef2f7;text-align:left}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#2441c0;font-size:12px}
-
-.flex-between{display:flex;justify-content:space-between;align-items:center}
-.right-checkbox{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.password-wrap{display:flex;gap:8px;align-items:center}
-.password-wrap .btn{padding:8px 10px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
+.nav{display:flex;gap:12px}
+.nav .chip{background:#fff;border-radius:999px;padding:6px 12px;color:#111;font-weight:600}
+.container{max-width:960px;margin:36px auto;padding:0 16px}
+.card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);}
+.table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table th,.table td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left}
+.table th{background:#f9fafb;font-weight:700;color:#111}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 12px;background:#fff;border:1px solid var(--border);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 16px;border:1px solid var(--border);background:#fff;color:#111;font-weight:700;cursor:pointer}
+.btn.blue{background:#1f4fd9;color:#fff;border-color:#1f4fd9}
+.btn.ghost{background:#fff;color:#111}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.input, textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:#fff}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.footer{margin-top:24px;border-top:1px solid var(--border);padding:16px 0;color:var(--muted);font-size:14px}
+.link-danger{color:var(--danger);font-weight:700;border:none;background:none;padding:0;cursor:pointer}
+.small{font-size:14px;color:var(--muted)}
+.section-title{font-size:22px;font-weight:800;margin:24px 0 12px}
+h1{font-size:42px;margin:12px 0 24px}
+/* top right chips text black on white */
+.chip{color:#000}

@@ -1,27 +1,47 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-  <h1 class="h1">문서</h1>
-  {% if docs %}
-    <table class="table">
-      <thead><tr><th>제목</th><th>작성자</th><th>작성일</th><th>수정일</th><th></th></tr></thead>
-      <tbody>
-        {% for d in docs %}
-        <tr>
-          <td>{{ d.title }}</td>
-          <td>{{ d.author_email or '-' }}</td>
-          <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-          <td>{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else '-' }}</td>
-          <td class="actions">
-            {% if current_user.is_authenticated %}
-              <a class="btn" href="{{ url_for('edit_document', doc_id=d.id) }}">수정</a>
-              <a class="btn danger" href="{{ url_for('delete_document', doc_id=d.id) }}" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>아직 문서가 없습니다.</p>
-  {% endif %}
+<h1>문서</h1>
+
+{% if parents %}
+<div class="section-title">상위 문서</div>
+<table class="table">
+  <thead><tr><th>제목</th><th>작성자</th><th>작성일</th><th>수정일</th><th>작업</th></tr></thead>
+  <tbody>
+  {% for d in parents %}
+    <tr>
+      <td>{{ d.title }}</td>
+      <td>{{ d.author_email }}</td>
+      <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ '-' if not d.updated_at else d.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>
+        <a href="{{ url_for('edit_document', doc_id=d.id) }}">수정</a>
+        {% if current_user.is_authenticated %} ·
+          <form action="{{ url_for('delete_document', doc_id=d.id) }}" method="post" style="display:inline" onsubmit="return confirm('정말 삭제할까요? 하위문서도 함께 삭제됩니다.');">
+            <button class="link-danger" type="submit">삭제</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% for c in children_map.get(d.id, []) %}
+    <tr>
+      <td style="padding-left:28px;">└ 하위: {{ c.title }}</td>
+      <td>{{ c.author_email }}</td>
+      <td>{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ '-' if not c.updated_at else c.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>
+        <a href="{{ url_for('edit_document', doc_id=c.id) }}">수정</a>
+        {% if current_user.is_authenticated %} ·
+          <form action="{{ url_for('delete_document', doc_id=c.id) }}" method="post" style="display:inline" onsubmit="return confirm('정말 삭제할까요?');">
+            <button class="link-danger" type="submit">삭제</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>아직 문서가 없습니다.</p>
+{% endif %}
 {% endblock %}

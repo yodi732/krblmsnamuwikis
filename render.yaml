@@ -1,12 +1,7 @@
 services:
-  - type: web
-    name: byeolnae-wiki
-    env: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: SECRET_KEY
-        sync: false
+- type: web
+  name: byeolnaewiki
+  env: python
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+  plan: free
