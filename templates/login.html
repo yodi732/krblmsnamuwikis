@@ -1,24 +1,32 @@
-{% extends 'base.html' %}
-{% block title %}로그인 - 별내위키{% endblock %}
+
+{% extends "base.html" %}
 {% block content %}
-  <h1>로그인</h1>
-  <form method="post" class="card form">
-    <label>학교 계정 이메일
-      <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
-    </label>
-    <label>비밀번호
-      <div class="pwrow">
-        <input type="password" name="password" id="login_password" required>
-        <button type="button" class="btn btn--ghost small" onclick="togglePw('login_password', this)">표시</button>
+  <h1 class="page-title">로그인</h1>
+  <div class="card">
+    {% if error %}<p style="color:#b91c1c">{{ error }}</p>{% endif %}
+    <form method="post" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="email">학교 계정 이메일</label>
+        <input id="email" type="email" name="email" placeholder="abcd@bl-m.kr" required>
       </div>
-    </label>
-    <button class="btn btn--primary block">로그인</button>
-  </form>
+      <div class="form-group">
+        <div class="toggle-row">
+          <div style="flex:1">
+            <label for="password">비밀번호</label>
+            <input id="password" type="password" name="password" required>
+          </div>
+          <button type="button" id="togglePw" class="toggle-btn" aria-label="비밀번호 표시">표시</button>
+        </div>
+      </div>
+      <button class="full-btn" type="submit">로그인</button>
+    </form>
+  </div>
   <script>
-    function togglePw(id, btn){
-      const inp = document.getElementById(id);
-      if (inp.type === 'password'){ inp.type='text'; btn.textContent='숨기기'; }
-      else { inp.type='password'; btn.textContent='표시'; }
-    }
+    const pw = document.getElementById('password');
+    const btn = document.getElementById('togglePw');
+    btn.addEventListener('click', ()=>{
+      if(pw.type==='password'){ pw.type='text'; btn.textContent='숨김'; }
+      else { pw.type='password'; btn.textContent='표시'; }
+    });
   </script>
 {% endblock %}

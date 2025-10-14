@@ -1,14 +1,16 @@
-{% extends 'base.html' %}
-{% block title %}문서 - 별내위키{% endblock %}
+
+{% extends "base.html" %}
 {% block content %}
-  <h1>문서</h1>
+  <h1 class="page-title">문서</h1>
   {% if not docs %}
-    <div class="empty">아직 문서가 없습니다.</div>
+    <p class="notice">아직 문서가 없습니다.</p>
   {% else %}
-    <ul class="doc-list">
+    <div class="card">
+      <ul>
       {% for d in docs %}
-        <li><strong>{{ d.title }}</strong> <span class="muted">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+        <li>{{ d.title }} — <span class="notice">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
       {% endfor %}
-    </ul>
+      </ul>
+    </div>
   {% endif %}
 {% endblock %}
