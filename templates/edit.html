@@ -1,20 +1,18 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<div class="card">
-  <h2>문서 수정</h2>
-  <form method="post">
-    <div style="margin:8px 0">
-      <label class="small">제목</label>
-      <input class="input" name="title" value="{{ doc.title }}" required>
-    </div>
-    <div style="margin:8px 0">
-      <label class="small">내용</label>
-      <textarea class="input" name="content" rows="12">{{ doc.content }}</textarea>
-    </div>
-    <div class="row">
-      <button class="btn blue" type="submit">저장</button>
-      <a class="btn ghost" href="{{ url_for('index') }}">취소</a>
-    </div>
-  </form>
-</div>
+<h1>문서 수정</h1>
+<form method="post" class="card">
+  <div class="row">
+    <label>제목</label>
+    <input type="text" name="title" value="{{ doc.title }}" required>
+  </div>
+  <div class="row">
+    <label>내용</label>
+    <textarea name="content" rows="12">{{ doc.content }}</textarea>
+  </div>
+  <div class="form-actions">
+    <button class="btn primary" type="submit">저장</button>
+    <a class="btn" href="{{ url_for('index') }}">취소</a>
+  </div>
+</form>
 {% endblock %}

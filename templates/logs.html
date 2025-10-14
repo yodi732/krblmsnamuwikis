@@ -1,11 +1,23 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<h2>로그 보기</h2>
+<h1>로그</h1>
 <table class="table">
-  <thead><tr><th>시간</th><th>사용자</th><th>행동</th><th>대상</th></tr></thead>
+  <thead>
+    <tr>
+      <th>시간</th>
+      <th>행동</th>
+      <th>대상(편집자)</th>
+      <th>세부(문서)</th>
+    </tr>
+  </thead>
   <tbody>
-    {% for l in logs %}
-    <tr><td>{{ l.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ l.actor }}</td><td>{{ l.action }}</td><td>{{ l.target }}</td></tr>
+    {% for r in logs %}
+    <tr>
+      <td>{{ r.created_at }}</td>
+      <td>{{ r.action }}</td>
+      <td>{{ r.actor }}</td>
+      <td>{{ r.target }}</td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>

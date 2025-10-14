@@ -1,20 +1,26 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<div class="card" style="max-width:640px;margin:auto">
-  <h2>로그인</h2>
-  <form method="post">
-    <div style="margin:12px 0">
-      <label class="small">학교 계정 이메일</label>
-      <input class="input" type="email" name="email" required>
+<h1>로그인</h1>
+<form method="post" class="card auth">
+  <div class="row">
+    <label>학교 계정 이메일</label>
+    <input type="email" name="email" required>
+  </div>
+  <div class="row">
+    <label>비밀번호</label>
+    <div class="pw-wrap">
+      <input type="password" name="password" id="pw">
+      <button class="btn small" type="button" onclick="togglePw()">표시</button>
     </div>
-    <div style="margin:12px 0">
-      <label class="small">비밀번호</label>
-      <input class="input" type="password" name="password" required>
-    </div>
-    <div class="row">
-      <button class="btn blue" type="submit">로그인</button>
-      <a class="btn ghost" href="{{ url_for('register') }}">회원가입</a>
-    </div>
-  </form>
-</div>
+  </div>
+  <div class="form-actions">
+    <button class="btn primary" type="submit">로그인</button>
+  </div>
+</form>
+<script>
+function togglePw(){
+  const i = document.getElementById('pw');
+  if(i.type==='password'){ i.type='text'; } else { i.type='password'; }
+}
+</script>
 {% endblock %}

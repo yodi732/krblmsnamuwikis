@@ -1,44 +1,55 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<div class="card">
-  <h2>문서 만들기</h2>
-  <form method="post">
-    <div style="margin:8px 0">
-      <label class="small">문서 종류</label>
-      <div class="row">
-        <label class="badge"><input type="radio" name="kind" value="parent" {% if not parents %}checked{% endif %} onclick="sync()"> 상위문서</label>
-        <label class="badge"><input type="radio" name="kind" value="child" {% if parents %}checked{% endif %} onclick="sync()"> 하위문서</label>
-      </div>
+<h1>문서 만들기</h1>
+
+<form method="post" class="card">
+  <div class="row">
+    <label>문서 종류</label>
+    <div class="row-inline">
+      <label class="radio">
+        <input type="radio" name="mode" value="parent" checked> 상위문서
+      </label>
+      <label class="radio">
+        <input type="radio" name="mode" value="child"> 하위문서
+      </label>
     </div>
-    <div style="margin:8px 0" id="parentPick">
-      <label class="small">상위 문서 선택 (하위문서인 경우)</label>
-      <select class="input" name="parent_id" {% if not parents %}disabled{% endif %}>
-        {% for p in parents %}
-          <option value="{{p.id}}">{{p.title}}</option>
-        {% endfor %}
-      </select>
-      {% if not parents %}<div class="small">상위 문서가 없어 하위문서를 만들 수 없습니다.</div>{% endif %}
-    </div>
-    <div style="margin:8px 0">
-      <label class="small">제목</label>
-      <input class="input" name="title" required>
-    </div>
-    <div style="margin:8px 0">
-      <label class="small">내용</label>
-      <textarea class="input" name="content" rows="10"></textarea>
-    </div>
-    <div class="row">
-      <button class="btn blue" type="submit">저장</button>
-      <a class="btn ghost" href="{{ url_for('index') }}">취소</a>
-    </div>
-  </form>
-</div>
+  </div>
+
+  <div class="row" id="parentRow" style="display:none;">
+    <label>상위 문서 선택</label>
+    <select name="parent_id">
+      <option value="">-- 선택 --</option>
+      {% for p in parents %}
+        <option value="{{ p.id }}">{{ p.title }}</option>
+      {% endfor %}
+    </select>
+    <div class="hint">하위의 하위문서는 만들 수 없습니다.</div>
+  </div>
+
+  <div class="row">
+    <label>제목</label>
+    <input type="text" name="title" required>
+  </div>
+
+  <div class="row">
+    <label>내용</label>
+    <textarea name="content" rows="10"></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn primary" type="submit">저장</button>
+    <a class="btn" href="{{ url_for('index') }}">취소</a>
+  </div>
+</form>
+
 <script>
-function sync(){
-  const kind=[...document.querySelectorAll('input[name=kind]')].find(x=>x.checked)?.value;
-  const select=document.querySelector('select[name=parent_id]');
-  if(kind==='child'){select.removeAttribute('disabled');}else{select.setAttribute('disabled','disabled');}
+const radios = document.querySelectorAll('input[name="mode"]');
+const parentRow = document.getElementById('parentRow');
+function toggleParent() {
+  const v = document.querySelector('input[name="mode"]:checked').value;
+  parentRow.style.display = (v === 'child') ? '' : 'none';
 }
-sync();
+radios.forEach(r => r.addEventListener('change', toggleParent));
+toggleParent();
 </script>
 {% endblock %}
