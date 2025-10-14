@@ -1,13 +1,24 @@
-
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}로그인 - 별내위키{% endblock %}
 {% block content %}
-  <h2>로그인</h2>
-  <form method="post" class="card">
-    <label>이메일</label>
-    <input type="email" name="email" required>
-    <label>비밀번호</label>
-    <input type="password" name="password" required>
-    <button class="btn primary" type="submit">로그인</button>
-    <div class="hint"><a href="{{ url_for('request_reset') }}">비밀번호 재설정</a></div>
+  <h1>로그인</h1>
+  <form method="post" class="card form">
+    <label>학교 계정 이메일
+      <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
+    </label>
+    <label>비밀번호
+      <div class="pwrow">
+        <input type="password" name="password" id="login_password" required>
+        <button type="button" class="btn btn--ghost small" onclick="togglePw('login_password', this)">표시</button>
+      </div>
+    </label>
+    <button class="btn btn--primary block">로그인</button>
   </form>
+  <script>
+    function togglePw(id, btn){
+      const inp = document.getElementById(id);
+      if (inp.type === 'password'){ inp.type='text'; btn.textContent='숨기기'; }
+      else { inp.type='password'; btn.textContent='표시'; }
+    }
+  </script>
 {% endblock %}

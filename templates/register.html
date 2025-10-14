@@ -1,16 +1,25 @@
-
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block title %}회원가입 - 별내위키{% endblock %}
 {% block content %}
-  <h2>회원가입</h2>
-  <form method="post" class="card">
-    <label>학교 계정 이메일</label>
-    <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
-    <label>비밀번호</label>
-    <input type="password" name="password" required>
-    <label class="agree">
-      <input type="checkbox" name="agree">
-      개인정보처리방침 및 이용약관에 동의합니다.
+  <h1>회원가입</h1>
+  <form method="post" class="card form">
+    <label>학교 계정 이메일
+      <input type="email" name="email" placeholder="abcd@bl-m.kr" required>
     </label>
-    <button class="btn primary" type="submit">회원가입</button>
+    <label>비밀번호 설정
+      <div class="pwrow">
+        <input type="password" name="password" id="reg_password" required>
+        <button type="button" class="btn btn--ghost small" onclick="togglePw('reg_password', this)">표시</button>
+      </div>
+    </label>
+    <label class="check"><input type="checkbox" name="agree" required> 개인정보 처리 및 이용약관에 <strong>동의합니다</strong></label>
+    <button class="btn btn--primary block">회원가입</button>
   </form>
+  <script>
+    function togglePw(id, btn){
+      const inp = document.getElementById(id);
+      if (inp.type === 'password'){ inp.type='text'; btn.textContent='숨기기'; }
+      else { inp.type='password'; btn.textContent='표시'; }
+    }
+  </script>
 {% endblock %}
