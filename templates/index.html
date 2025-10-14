@@ -1,27 +1,12 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>문서</h2>
-  <table>
-    <thead>
-      <tr><th>제목</th><th>정보</th></tr>
-    </thead>
-    <tbody>
-      {% for p in parents %}
-        <tr>
-          <td><a href="{{ url_for('view_document', doc_id=p.id) }}">{{ p.title }}</a>
-            {% if p.children %}
-              <div class="small">
-                {% for c in p.children %}
-                  • <a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a>
-                {% endfor %}
-              </div>
-            {% endif %}
-          </td>
-          <td class="meta">{{ p.author_email }} · {{ p.updated_at.strftime('%Y-%m-%d %H:%M') if p.updated_at else '' }}</td>
-        </tr>
-      {% else %}
-        <tr><td colspan="2" class="small">아직 문서가 없습니다.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>별내위키</title></head>
+<body>
+<h1>문서</h1>
+<ul>
+{% for d in docs %}
+<li>{{ d.title }} - {{ d.created_by }} | 수정일 {{ d.updated_at.strftime('%Y-%m-%d') }}</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('create') }}">문서 만들기</a>
+</body></html>

@@ -1,24 +1,11 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>문서 만들기</h2>
-  <form method="post">
-    <label for="title">제목</label>
-    <input id="title" name="title" type="text" required>
-
-    <label for="parent_id">상위 문서 (선택)</label>
-    <select id="parent_id" name="parent_id">
-      <option value="">(없음)</option>
-      {% for p in parents %}
-        <option value="{{ p.id }}">{{ p.title }}</option>
-      {% endfor %}
-    </select>
-    <div class="small">하위문서의 하위문서는 만들 수 없습니다.</div>
-
-    <label for="body">내용</label>
-    <textarea id="body" name="body"></textarea>
-
-    <div style="margin-top:10px">
-      <button class="btn" type="submit">저장</button>
-    </div>
-  </form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>문서 만들기</title></head>
+<body>
+<h3>하위문서의 하위문서는 만들 수 없습니다</h3>
+<form method="post">
+<input name="title" placeholder="제목"><br>
+<textarea name="content" placeholder="내용"></textarea><br>
+<button type="submit">저장</button>
+</form>
+</body></html>
