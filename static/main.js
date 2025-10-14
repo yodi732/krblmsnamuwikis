@@ -1,19 +1,18 @@
 
-document.addEventListener("click", (e) => {
-  // Confirm delete / logout / withdraw
-  const btn = e.target.closest("[data-confirm]");
-  if (btn) {
-    const msg = btn.getAttribute("data-confirm") || "진행하시겠어요?";
-    if (!confirm(msg)) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+function toggleReveal(btn){
+  const input = btn.previousElementSibling;
+  if (!input) return;
+  if (input.type === "password"){
+    input.type = "text"; btn.textContent = "숨김";
+  } else {
+    input.type = "password"; btn.textContent = "표시";
   }
-  if (e.target.matches("button.toggle[data-toggle='pw']")) {
-    const input = e.target.closest(".row").querySelector("input[type='password'],input[type='text']");
-    if (input) {
-      if (input.type === "password") { input.type = "text"; e.target.textContent="숨김"; }
-      else { input.type = "password"; e.target.textContent="표시"; }
-    }
+}
+// confirm on forms
+document.addEventListener("submit", function(e){
+  const form = e.target;
+  const msg = form.getAttribute("data-confirm");
+  if (msg && !confirm(msg)){
+    e.preventDefault();
   }
-});
+}, true);

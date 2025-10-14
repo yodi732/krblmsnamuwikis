@@ -2,31 +2,35 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>문서</h1>
-<table class="list">
+<table class="table">
   <thead>
-    <tr>
-      <th>제목</th>
-      <th>작성자 · 수정일</th>
-      <th style="width:120px;"></th>
-    </tr>
+    <tr><th>제목</th><th class="w200">작성자 / 수정일</th><th class="w120">액션</th></tr>
   </thead>
   <tbody>
-    {% for p in parents %}
+  {% for p in parents %}
     <tr>
-      <td><a href="{{ url_for('edit_document', doc_id=p.id) }}">{{ p.title }}</a>
-        {% for c in p.children %}
-        <div class="child"><a href="{{ url_for('edit_document', doc_id=c.id) }}">{{ c.title }}</a></div>
-        {% endfor %}
+      <td><a href="{{ url_for('view_document', doc_id=p.id) }}">{{ p.title }}</a>
+        {% if p.children %}
+          <ul class="children">
+            {% for c in p.children %}
+            <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </td>
-      <td>{{ p.author_email }} · {{ p.updated_at|dt }}</td>
+      <td class="muted">{{ p.author_email or '-' }} · {{ p.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
       <td>
         <a class="link" href="{{ url_for('edit_document', doc_id=p.id) }}">수정</a>
-        <form class="inline" action="{{ url_for('delete_document', doc_id=p.id) }}" method="post">
-          <button class="link link-danger js-delete" type="submit" data-confirm="정말 삭제하시겠어요?">삭제</button>
+        {% if current_user.is_authenticated %}
+        <form class="inline" action="{{ url_for('delete_document', doc_id=p.id) }}" method="post" data-confirm="정말 삭제할까요?">
+          <button class="link danger" type="submit">삭제</button>
         </form>
+        {% endif %}
       </td>
     </tr>
-    {% endfor %}
+  {% else %}
+    <tr><td colspan="3" class="muted">아직 문서가 없습니다.</td></tr>
+  {% endfor %}
   </tbody>
 </table>
 {% endblock %}

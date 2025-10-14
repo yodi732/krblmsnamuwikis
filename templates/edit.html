@@ -2,16 +2,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>문서 수정</h1>
-<form method="post" class="form">
+<form method="post" class="card">
   <div class="row">
     <label>제목</label>
     <input type="text" name="title" value="{{ doc.title }}" required>
   </div>
   <div class="row">
     <label>내용</label>
-    <textarea name="body" rows="10">{{ doc.body }}</textarea>
+    <textarea name="body" rows="8">{{ doc.body }}</textarea>
   </div>
-  <button class="btn" type="submit">저장</button>
-  <a class="btn btn-outline" href="{{ url_for('index') }}">취소</a>
+  <div class="actions">
+    <button class="btn" type="submit">저장</button>
+    <a class="btn outline" href="{{ url_for('view_document', doc_id=doc.id) }}">취소</a>
+  </div>
 </form>
 {% endblock %}

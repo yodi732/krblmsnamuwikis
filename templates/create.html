@@ -2,22 +2,25 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>문서 만들기</h1>
-<form method="post" class="form">
+
+<form method="post" class="card">
   <div class="row">
     <label>문서 종류</label>
-    <label><input type="radio" name="kind" value="parent" checked> 상위문서</label>
-    <label><input type="radio" name="kind" value="child"> 하위문서</label>
+    <div>
+      <label><input type="radio" name="doc_type" value="parent" checked> 상위문서</label>
+      <label><input type="radio" name="doc_type" value="child"> 하위문서</label>
+    </div>
   </div>
 
   <div class="row">
     <label>상위 문서 선택</label>
-    <select name="parent_id" id="parent-select">
+    <select name="parent_id">
       <option value="">-- 선택 --</option>
       {% for p in parents %}
         <option value="{{ p.id }}">{{ p.title }}</option>
       {% endfor %}
     </select>
-    <span class="hint">하위문서의 하위문서는 만들 수 없습니다.</span>
+    <div class="help">하위문서의 하위문서는 만들 수 없습니다.</div>
   </div>
 
   <div class="row">
@@ -27,10 +30,12 @@
 
   <div class="row">
     <label>내용</label>
-    <textarea name="body" rows="10"></textarea>
+    <textarea name="body" rows="8"></textarea>
   </div>
 
-  <button class="btn" type="submit">저장</button>
-  <a class="btn btn-outline" href="{{ url_for('index') }}">취소</a>
+  <div class="actions">
+    <button class="btn" type="submit">저장</button>
+    <a class="btn outline" href="{{ url_for('index') }}">취소</a>
+  </div>
 </form>
 {% endblock %}
