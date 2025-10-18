@@ -1,27 +1,31 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flask + Postgres Starter</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>별내위키 서버 연결 테스트</title>
+  <style>
+    body { font-family: sans-serif; background:#0b1020; color:#e7ecf5; margin:0; padding:30px; }
+    .card { background:#111832; border-radius:12px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,.25); }
+    .warn { color:#ff7f7f; margin-top:15px; }
+    a { color:#9ad0ff; }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <h1>배포 성공 🎉</h1>
-    <p>이 페이지는 JSON이 아니라 HTML로 렌더링됩니다.</p>
-    <p><code>/healthz</code> 는 헬스 체크용 JSON을 반환합니다.</p>
-
-    <section class="card">
-      <h2>Items (DB)</h2>
-      {% if items %}
-        <ul>
-          {% for i in items %}<li>#{{ i.id }} — {{ i.name }}</li>{% endfor %}
-        </ul>
-      {% else %}
-        <p>아직 항목이 없습니다. 예: <code>/add/hello</code> 로 추가해 보세요.</p>
-      {% endif %}
-    </section>
-  </main>
+  <h1>별내위키 서버 연결 상태</h1>
+  <div class="card">
+    {% if db_error %}
+      <div class="warn">⚠️ DB 연결 오류 발생: {{ db_error }}</div>
+    {% endif %}
+    {% if items %}
+      <ul>
+        {% for i in items %}<li>#{{ i.id }} — {{ i.name }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <p>DB가 비어있거나 연결되지 않았습니다.</p>
+    {% endif %}
+  </div>
+  <p><a href="/add/test">/add/test</a>로 테스트 아이템 추가</p>
+  <p><a href="/healthz">/healthz</a>로 헬스체크</p>
 </body>
 </html>
