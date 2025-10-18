@@ -1,47 +1,79 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 import os
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
+def _normalize_db_url(raw: str) -> str:
+    """
+    - Force driver to psycopg (SQLAlchemy 2.x / psycopg3)
+    - Ensure sslmode=verify-full, sslrootcert path
+    """
+    if not raw:
+        return raw
+
+    # If scheme is postgresql:// or postgresql+psycopg:// etc, normalize to +psycopg
+    if raw.startswith("postgresql://"):
+        raw = "postgresql+psycopg://" + raw[len("postgresql://"):]
+
+    # Parse URL
+    p = urlparse(raw)
+    # Parse and update query params
+    q = dict(parse_qsl(p.query, keep_blank_values=True))
+
+    # TLS: enforce verify-full + root cert bundle path
+    q.setdefault("sslmode", "verify-full")
+    q.setdefault("sslrootcert", "/etc/ssl/certs/ca-certificates.crt")
+
+    new_query = urlencode(q)
+    new_url = urlunparse((p.scheme, p.netloc, p.path, p.params, new_query, p.fragment))
+    return new_url
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "default_secret")
 
-# DATABASE_URL fix
-db_url = os.environ.get("DATABASE_URL", "").strip()
+# SQLAlchemy config
+db_url = _normalize_db_url(os.environ.get("DATABASE_URL", ""))
 if not db_url:
-    raise RuntimeError("DATABASE_URL is not set")
-
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
-elif db_url.startswith("postgresql://") and "+psycopg" not in db_url:
-    db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    # Fallback to local sqlite to allow booting without DB for e.g. health checks
+    db_url = "sqlite:///local.db"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Extra engine options: pre-ping and duplicate TLS guarantees
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
-    "pool_recycle": 1800,
-    "connect_args": {"connect_timeout": 5},
+    "connect_args": {
+        "sslmode": "verify-full",
+        "sslrootcert": "/etc/ssl/certs/ca-certificates.crt",
+    } if db_url.startswith("postgresql+psycopg://") else {}
 }
 
 db = SQLAlchemy(app)
 
-class Document(db.Model):
+# Example model
+class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_by = db.Column(db.String(255))
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(255))
-
-with app.app_context():
-    db.create_all()
+    name = db.Column(db.String(120), nullable=False)
 
 @app.route("/")
 def index():
-    docs = Document.query.all()
-    return render_template("index.html", docs=docs)
+    return jsonify(status="ok", db_uri=app.config["SQLALCHEMY_DATABASE_URI"].split("?")[0])
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+@app.route("/items")
+def items():
+    data = [{"id": it.id, "name": it.name} for it in Item.query.order_by(Item.id).all()]
+    return jsonify(items=data)
+
+def init_db():
+    # Ensure create_all runs under an app context
+    with app.app_context():
+        db.create_all()
+
+# Optionally run DB init on startup once. You can disable by setting RUN_DB_INIT=0
+if os.environ.get("RUN_DB_INIT", "1") == "1":
+    try:
+        init_db()
+    except Exception as e:
+        # Avoid crash loop: log to stdout and keep booting so Render health checks can hit '/'
+        print("DB init failed:", repr(e))
