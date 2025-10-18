@@ -1,0 +1,7 @@
+{% if current_user.is_authenticated %}
+  <a href="{{ url_for('account') }}">내 계정</a> ·
+  <a href="{{ url_for('logout') }}">로그아웃</a>
+{% else %}
+  <a href="{{ url_for('login') }}">로그인</a> ·
+  <a href="{{ url_for('signup') }}">회원가입</a>
+{% endif %}
