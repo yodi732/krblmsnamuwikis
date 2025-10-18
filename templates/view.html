@@ -1,24 +1,9 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>{{ doc.title }}</h2>
-  <div class="meta">{{ doc.author_email }} · {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') if doc.updated_at else '' }}</div>
-  <pre class="details">{{ doc.body }}</pre>
-
-  <div style="margin-top:12px">
-    {% if current_user.is_authenticated %}
-      <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">편집</a>
-      <form class="inline" action="{{ url_for('delete_document', doc_id=doc.id) }}" method="post" data-confirm="정말 이 문서를 삭제할까요?">
-        <button class="btn danger" type="submit">삭제</button>
-      </form>
-    {% endif %}
-  </div>
-
-  {% if doc.children %}
-    <h3>하위 문서</h3>
-    <ul>
-      {% for c in doc.children %}
-        <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>{{ doc.title }}</title></head>
+<body>
+<h2>{{ doc.title }}</h2>
+<p>{{ doc.content }}</p>
+<a href="/">← 돌아가기</a>
+</body>
+</html>
