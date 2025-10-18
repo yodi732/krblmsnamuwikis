@@ -5,7 +5,11 @@
     <title>별내위키</title>
 </head>
 <body>
-    <h1>별내위키</h1>
-    <p>✅ 데이터베이스 연결 및 컬럼 자동 보정 완료</p>
+    <h1>별내위키 문서 목록</h1>
+    <ul>
+        {% for doc in docs %}
+        <li>{{ doc.title }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
