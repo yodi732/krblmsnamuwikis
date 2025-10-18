@@ -1,5 +1,8 @@
-{% extends "base.html" %}
+
+{% extends "_layout.html" %}
 {% block content %}
-  <h2>오류</h2>
-  <div class="details">{{ msg }}</div>
+<div class="card">
+  <h2>오류 {{ code }}</h2>
+  <p>{{ msg }}</p>
+</div>
 {% endblock %}

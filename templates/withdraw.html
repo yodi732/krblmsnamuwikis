@@ -1,0 +1,11 @@
+
+{% extends "_layout.html" %}
+{% block content %}
+<div class="card" style="max-width:560px">
+  <h2>회원탈퇴</h2>
+  <p class="muted">탈퇴 시 계정 정보는 즉시 삭제됩니다.</p>
+  <form method="post" onsubmit="return confirmWithdraw();">
+    <button class="btn danger" type="submit">회원탈퇴</button>
+  </form>
+</div>
+{% endblock %}

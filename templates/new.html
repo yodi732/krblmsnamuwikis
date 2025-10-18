@@ -1,11 +1,23 @@
-{% extends "base.html" %}
+
+{% extends "_layout.html" %}
 {% block content %}
-  <h2>새 문서</h2>
-  <form method="post" class="form">
-    <label>제목</label>
-    <input name="title" placeholder="문서 제목" required>
-    <label>내용</label>
-    <textarea name="content" rows="12" placeholder="여기에 내용을 입력하세요."></textarea>
-    <button class="btn" type="submit">저장</button>
+<div class="card" style="max-width:900px">
+  <h2>문서 만들기</h2>
+  {% if parent %}<div class="muted">상위 문서: {{ parent.title }}</div>{% endif %}
+  <form method="post">
+    <div class="row">
+      <label>제목</label>
+      <input type="text" name="title" required>
+    </div>
+    <div class="row">
+      <label>내용</label>
+      <textarea name="content" placeholder="내용을 입력하세요"></textarea>
+    </div>
+    <button class="btn" type="submit">생성</button>
   </form>
+</div>
+<p style="margin-top:20px;">
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='이용약관', is_system=True).first().id if Document.query.filter_by(title='이용약관', is_system=True).first() else 1)) }}">이용약관</a> ·
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='개인정보처리방침', is_system=True).first().id if Document.query.filter_by(title='개인정보처리방침', is_system=True).first() else 1)) }}">개인정보처리방침</a>
+</p>
 {% endblock %}

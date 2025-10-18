@@ -1,16 +1,33 @@
 
-{% extends "base.html" %}
-{% block body %}
-<section class="card">
+{% extends "_layout.html" %}
+{% block content %}
+<div class="card" style="max-width:900px">
   <h2>문서 수정</h2>
-  <form method="post" class="form">
-    <label>제목</label>
-    <input name="title" value="{{ d.title }}" required>
-    <label>슬러그(주소)</label>
-    <input name="slug" value="{{ d.slug }}">
-    <label>내용</label>
-    <textarea name="content" rows="12">{{ d.content }}</textarea>
-    <button class="btn primary">저장</button>
+  <form method="post">
+    <div class="row">
+      <label>제목</label>
+      <input type="text" name="title" value="{{ doc.title }}" required>
+    </div>
+    <div class="row">
+      <label>상위 문서</label>
+      <select name="parent_id">
+        <option value="">(없음)</option>
+        {% for p in all_parents %}
+          {% if p.id != doc.id %}
+            <option value="{{ p.id }}" {% if doc.parent_id==p.id %}selected{% endif %}>{{ p.title }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="row">
+      <label>내용</label>
+      <textarea name="content">{{ doc.content }}</textarea>
+    </div>
+    <button class="btn" type="submit">저장</button>
   </form>
-</section>
+</div>
+<p style="margin-top:20px;">
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='이용약관', is_system=True).first().id if Document.query.filter_by(title='이용약관', is_system=True).first() else 1)) }}">이용약관</a> ·
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='개인정보처리방침', is_system=True).first().id if Document.query.filter_by(title='개인정보처리방침', is_system=True).first() else 1)) }}">개인정보처리방침</a>
+</p>
 {% endblock %}

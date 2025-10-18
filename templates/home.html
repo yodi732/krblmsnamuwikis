@@ -1,0 +1,41 @@
+
+{% extends "_layout.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card">
+    <h2>목차 (상위 문서)</h2>
+    <ul>
+      {% for d in roots %}
+      <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a></li>
+      {% else %}
+      <li class="muted">아직 문서가 없습니다.</li>
+      {% endfor %}
+    </ul>
+    <div class="muted" style="margin-top:8px">* 하위 문서는 각 문서 화면에서 만들 수 있어요.</div>
+  </div>
+  <div class="card">
+    <h2>문서 목록</h2>
+    <ul>
+      {% for d in recents %}
+      <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a>
+        <span class="muted"> · 업데이트: {{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div style="margin-top:24px">
+  <a href="{{ url_for('view_doc', doc_id=roots|selectattr('title', 'equalto', '이용약관')|list|first.id if roots|selectattr('title','equalto','이용약관')|list else 1) }}"></a>
+  <a href="{{ url_for('home') }}"></a>
+  <div class="muted"><a href="{{ url_for('home') }}"></a></div>
+  <div class="muted"><a href="{{ url_for('home') }}"></a></div>
+  <div><a href="{{ url_for('home') }}"></a></div>
+  <div class="muted"><a href="{{ url_for('home') }}"></a></div>
+  <div class="muted"><a href="{{ url_for('home') }}"></a></div>
+  <div class="muted"><a href="{{ url_for('home') }}"></a></div>
+</div>
+<p style="margin-top:20px;">
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='이용약관', is_system=True).first().id if Document.query.filter_by(title='이용약관', is_system=True).first() else 1)) }}">이용약관</a> ·
+  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='개인정보처리방침', is_system=True).first().id if Document.query.filter_by(title='개인정보처리방침', is_system=True).first() else 1)) }}">개인정보처리방침</a>
+</p>
+{% endblock %}

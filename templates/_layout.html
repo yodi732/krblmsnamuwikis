@@ -1,40 +1,64 @@
+
 <!doctype html>
-<html lang='ko'>
+<html lang="ko">
 <head>
-  <meta charset='utf-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
-  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'>
-  <link href='{{ url_for('static', filename='styles.css') }}' rel='stylesheet'>
+  <style>
+    :root{--nav:#1f2a44;--btn:#4f6ef7;--bg:#f3f6ff;--card:#fff;--muted:#6b7280;}
+    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Apple SD Gothic Neo,sans-serif;color:#111;}
+    .nav{background:var(--nav);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0}
+    .brand{font-weight:800;font-size:18px;margin-right:auto}
+    .nav a.btn{color:#fff;text-decoration:none;background:#334155;border:1px solid #475569;padding:8px 12px;border-radius:10px}
+    .nav a.btn.primary{background:var(--btn);border-color:var(--btn)}
+    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 6px 20px rgba(31,41,55,.08);padding:22px}
+    .grid{display:grid;grid-template-columns:340px 1fr;gap:22px}
+    h1{margin:8px 0 16px}
+    h2{margin:0 0 10px;font-size:18px}
+    ul{margin:8px 0 0 18px}
+    .muted{color:var(--muted);font-size:13px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{display:inline-block;background:var(--btn);color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .btn.small{padding:6px 10px;font-size:13px}
+    .btn.outline{background:#e8edff;color:#2740d6}
+    .btn.danger{background:#ef4444}
+    .footer{margin:40px auto 20px;max-width:1100px;padding:0 16px;color:#555}
+    .flash{background:#fff8db;border:1px solid #f5e6a7;padding:10px 12px;border-radius:8px;margin:8px 0}
+    textarea{width:100%;min-height:280px}
+    input[type=text],input[type=email],input[type=password],select,textarea{border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;width:100%;box-sizing:border-box;background:#fff}
+    form .row{margin-bottom:14px}
+  </style>
+  <script>
+    function confirmDelete(msg){return confirm(msg || "정말 삭제하시겠어요? 이 동작은 되돌릴 수 없습니다.");}
+    function confirmWithdraw(){return confirm("정말 회원을 탈퇴하시겠어요? 이 동작은 되돌릴 수 없습니다.");}
+  </script>
 </head>
 <body>
-  <nav class='navbar navbar-dark' style='background:#1f2a57;'>
-    <div class='container'>
-      <a class='navbar-brand' href='{{ url_for('index') }}' style='color:white;font-weight:700;'>별내위키</a>
-      <div>
-        <a class='btn btn-outline-light me-2' href='{{ url_for('index') }}'>홈</a>
-        <a class='btn btn-outline-light me-2' href='{{ url_for('create') }}'>문서 만들기</a>
-        <a class='btn btn-outline-light' href='{{ url_for('logs') }}'>로그 보기</a>
-      </div>
-    </div>
-  </nav>
-  <div class='container mt-4 mb-5'>
+  <div class="nav">
+    <div class="brand"><a href="{{ url_for('home') }}" style="color:#fff;text-decoration:none">별내위키</a></div>
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+    <a class="btn" href="{{ url_for('new_doc') }}">문서 만들기</a>
+    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+    {% if me %}
+      <a class="btn" href="{{ url_for('withdraw') }}">회원탈퇴</a>
+      <a class="btn primary" href="{{ url_for('logout') }}">로그아웃</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('login') }}">로그인</a>
+      <a class="btn primary" href="{{ url_for('register') }}">회원가입</a>
+    {% endif %}
+  </div>
+  <div class="wrap">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for category, message in messages %}
-          <div class='alert alert-{{ category }}'>{{ message }}</div>
+        {% for cat,msg in messages %}
+          <div class="flash">{{ msg }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
   </div>
-  <footer class='footer-left'>
-    피드백 → <a href='mailto:lyhjs1115@gmail.com' style='color:#bfff00;'>lyhjs1115@gmail.com</a>
-  </footer>
-  <script>
-    function confirmDelete(formId) {
-      if (confirm("정말 삭제하시겠습니까?")) document.getElementById(formId).submit();
-    }
-  </script>
+  <div class="footer muted">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
 </body>
 </html>

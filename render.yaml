@@ -1,7 +1,11 @@
 services:
-- type: web
-  name: byeolnaewiki
-  env: python
-  buildCommand: pip install -r requirements.txt
-  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
-  plan: free
+  - type: web
+    name: blmwiki
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 120
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
