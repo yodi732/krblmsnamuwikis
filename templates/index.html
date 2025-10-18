@@ -1,15 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>별내위키</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flask + Postgres Starter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>별내위키 문서 목록</h1>
-    <ul>
-        {% for doc in docs %}
-        <li>{{ doc.title }}</li>
-        {% endfor %}
-    </ul>
+  <main class="container">
+    <h1>배포 성공 🎉</h1>
+    <p>이 페이지는 JSON이 아니라 HTML로 렌더링됩니다.</p>
+    <p><code>/healthz</code> 는 헬스 체크용 JSON을 반환합니다.</p>
+
+    <section class="card">
+      <h2>Items (DB)</h2>
+      {% if items %}
+        <ul>
+          {% for i in items %}<li>#{{ i.id }} — {{ i.name }}</li>{% endfor %}
+        </ul>
+      {% else %}
+        <p>아직 항목이 없습니다. 예: <code>/add/hello</code> 로 추가해 보세요.</p>
+      {% endif %}
+    </section>
+  </main>
 </body>
 </html>

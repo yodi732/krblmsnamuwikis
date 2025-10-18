@@ -1,79 +1,55 @@
 import os
-from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
-
-from flask import Flask, jsonify
+import urllib.parse
+from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
-
-def _normalize_db_url(raw: str) -> str:
-    """
-    - Force driver to psycopg (SQLAlchemy 2.x / psycopg3)
-    - Ensure sslmode=verify-full, sslrootcert path
-    """
-    if not raw:
-        return raw
-
-    # If scheme is postgresql:// or postgresql+psycopg:// etc, normalize to +psycopg
-    if raw.startswith("postgresql://"):
-        raw = "postgresql+psycopg://" + raw[len("postgresql://"):]
-
-    # Parse URL
-    p = urlparse(raw)
-    # Parse and update query params
-    q = dict(parse_qsl(p.query, keep_blank_values=True))
-
-    # TLS: enforce verify-full + root cert bundle path
-    q.setdefault("sslmode", "verify-full")
-    q.setdefault("sslrootcert", "/etc/ssl/certs/ca-certificates.crt")
-
-    new_query = urlencode(q)
-    new_url = urlunparse((p.scheme, p.netloc, p.path, p.params, new_query, p.fragment))
-    return new_url
 
 app = Flask(__name__)
 
-# SQLAlchemy config
-db_url = _normalize_db_url(os.environ.get("DATABASE_URL", ""))
-if not db_url:
-    # Fallback to local sqlite to allow booting without DB for e.g. health checks
-    db_url = "sqlite:///local.db"
+# ----- DB CONFIG -----
+raw_url = os.getenv("DATABASE_URL", "")
+# ensure psycopg driver + verify-full pinned (works if already present too)
+fixed = raw_url.replace("postgresql://", "postgresql+psycopg://")
+if "sslmode=" not in fixed:
+    sep = "&" if "?" in fixed else "?"
+    fixed += f"{sep}sslmode=verify-full"
+if "sslrootcert=" not in fixed:
+    sep = "&" if "?" in fixed else "?"
+    fixed += f"{sep}sslrootcert=/etc/ssl/certs/ca-certificates.crt"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Extra engine options: pre-ping and duplicate TLS guarantees
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_pre_ping": True,
-    "connect_args": {
-        "sslmode": "verify-full",
-        "sslrootcert": "/etc/ssl/certs/ca-certificates.crt",
-    } if db_url.startswith("postgresql+psycopg://") else {}
-}
-
+app.config["SQLALCHEMY_DATABASE_URI"] = fixed
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
 db = SQLAlchemy(app)
 
-# Example model
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
 
+# create tables once on boot if RUN_DB_INIT=1 (default)
+if os.getenv("RUN_DB_INIT", "1") == "1":
+    with app.app_context():
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning("DB init failed: %r", e)
+
+# ----- ROUTES -----
 @app.route("/")
 def index():
-    return jsonify(status="ok", db_uri=app.config["SQLALCHEMY_DATABASE_URI"].split("?")[0])
+    # Render HTML page
+    items = Item.query.order_by(Item.id.desc()).all()
+    return render_template("index.html", items=items)
 
-@app.route("/items")
-def items():
-    data = [{"id": it.id, "name": it.name} for it in Item.query.order_by(Item.id).all()]
-    return jsonify(items=data)
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok"})
 
-def init_db():
-    # Ensure create_all runs under an app context
-    with app.app_context():
-        db.create_all()
+# simple API to add a demo item (GET for convenience in demo)
+@app.route("/add/<name>")
+def add(name):
+    it = Item(name=name)
+    db.session.add(it)
+    db.session.commit()
+    return jsonify({"ok": True, "id": it.id, "name": it.name})
 
-# Optionally run DB init on startup once. You can disable by setting RUN_DB_INIT=0
-if os.environ.get("RUN_DB_INIT", "1") == "1":
-    try:
-        init_db()
-    except Exception as e:
-        # Avoid crash loop: log to stdout and keep booting so Render health checks can hit '/'
-        print("DB init failed:", repr(e))
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
