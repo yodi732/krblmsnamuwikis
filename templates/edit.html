@@ -1,16 +1,16 @@
+
 {% extends "base.html" %}
-{% block content %}
-  <h2>문서 편집</h2>
-  <form method="post">
-    <label for="title">제목</label>
-    <input id="title" name="title" type="text" value="{{ doc.title }}" required>
-
-    <label for="body">내용</label>
-    <textarea id="body" name="body">{{ doc.body }}</textarea>
-
-    <div style="margin-top:10px">
-      <button class="btn" type="submit">저장</button>
-      <a class="btn" href="{{ url_for('view_document', doc_id=doc.id) }}">취소</a>
-    </div>
+{% block body %}
+<section class="card">
+  <h2>문서 수정</h2>
+  <form method="post" class="form">
+    <label>제목</label>
+    <input name="title" value="{{ d.title }}" required>
+    <label>슬러그(주소)</label>
+    <input name="slug" value="{{ d.slug }}">
+    <label>내용</label>
+    <textarea name="content" rows="12">{{ d.content }}</textarea>
+    <button class="btn primary">저장</button>
   </form>
+</section>
 {% endblock %}

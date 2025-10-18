@@ -1,13 +1,15 @@
+
 {% extends "base.html" %}
-{% block content %}
-<h2>로그인</h2>
-<form method="post" class="card form">
-  <label>아이디
-    <input name="username" required autocomplete="username">
-  </label>
-  <label>비밀번호
-    <input type="password" name="password" required autocomplete="current-password">
-  </label>
-  <button class="btn" type="submit">로그인</button>
-</form>
+{% block body %}
+<section class="card narrow">
+  <h2>로그인</h2>
+  <form method="post" class="form">
+    <label>이메일</label>
+    <input type="email" name="email" required>
+    <label>비밀번호</label>
+    <input type="password" name="password" required>
+    <button class="btn primary">로그인</button>
+  </form>
+  <p class="muted">계정이 없으신가요? <a href="{{ url_for('signup') }}">회원가입</a></p>
+</section>
 {% endblock %}

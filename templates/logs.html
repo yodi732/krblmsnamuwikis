@@ -1,24 +1,20 @@
+
 {% extends "base.html" %}
-{% block content %}
-<h1>로그</h1>
-<table class="table">
-  <thead>
-    <tr>
-      <th>시간</th>
-      <th>행동</th>
-      <th>대상(편집자)</th>
-      <th>세부(문서)</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in logs %}
-    <tr>
-      <td>{{ r.created_at }}</td>
-      <td>{{ r.action }}</td>
-      <td>{{ r.actor }}</td>
-      <td>{{ r.target }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% block body %}
+<section class="card">
+  <h2>로그</h2>
+  <table class="table">
+    <thead><tr><th>시간</th><th>유저ID</th><th>행위</th><th>메타</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ r.user_id or '-' }}</td>
+        <td>{{ r.action }}</td>
+        <td class="meta">{{ r.meta }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endblock %}

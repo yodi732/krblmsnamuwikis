@@ -1,11 +1,16 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head><meta charset="utf-8"><title>문서 만들기</title></head>
-<body>
-<h3>하위문서의 하위문서는 만들 수 없습니다</h3>
-<form method="post">
-<input name="title" placeholder="제목"><br>
-<textarea name="content" placeholder="내용"></textarea><br>
-<button type="submit">저장</button>
-</form>
-</body></html>
+
+{% extends "base.html" %}
+{% block body %}
+<section class="card">
+  <h2>문서 만들기</h2>
+  <form method="post" class="form">
+    <label>제목</label>
+    <input name="title" required>
+    <label>슬러그(주소) <small>(비워두면 자동 생성)</small></label>
+    <input name="slug">
+    <label>내용</label>
+    <textarea name="content" rows="12"></textarea>
+    <button class="btn primary">생성</button>
+  </form>
+</section>
+{% endblock %}

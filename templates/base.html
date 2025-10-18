@@ -1,45 +1,48 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StarWiki</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>별내위키</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script defer src="{{ url_for('static', filename='main.js') }}"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="topbar">
-      <div class="row">
-        <a class="btn" href="{{ url_for('index') }}">홈</a>
-        {% if current_user.is_authenticated %}
-          <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
-        {% endif %}
-      </div>
-      <div class="row">
-        {% if current_user.is_authenticated %}
-          <form class="inline" action="{{ url_for('logout') }}" method="post" data-confirm="로그아웃 하시겠어요?">
-            <button class="btn" type="submit">로그아웃</button>
-          </form>
-          <form class="inline" action="{{ url_for('withdraw') }}" method="post" data-confirm="정말 회원탈퇴 하시겠어요? 되돌릴 수 없습니다.">
-            <button class="btn danger" type="submit">회원탈퇴</button>
-          </form>
-        {% else %}
-          <a class="btn" href="{{ url_for('login') }}">로그인</a>
-          <a class="btn" href="{{ url_for('register') }}">가입</a>
-        {% endif %}
-      </div>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash">{{ message }}</div>
-        {% endfor %}
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
+    <nav class="actions">
+      <a class="btn" href="{{ url_for('create_doc') }}">문서 만들기</a>
+      <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+      {% if current_user %}
+        <form action="{{ url_for('delete_account') }}" method="post" style="display:inline">
+          <button class="btn danger" type="submit" onclick="return confirm('계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">회원탈퇴</button>
+        </form>
+        <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
+      {% else %}
+        <a class="btn" href="{{ url_for('login') }}">로그인</a>
+        <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
       {% endif %}
-    {% endwith %}
-
-    {% block content %}{% endblock %}
+    </nav>
   </div>
+</header>
+
+<main class="wrap content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+        {% for cat,msg in messages %}
+          <li class="{{cat}}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+</main>
+
+<footer class="footer wrap">
+  <a href="{{ url_for('doc_view', slug='terms') }}">이용약관</a> ·
+  <a href="{{ url_for('doc_view', slug='privacy') }}">개인정보처리방침</a>
+</footer>
 </body>
 </html>

@@ -1,17 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>별내위키</title></head>
-<body>
-<h1>별내위키</h1>
-<form action="/add" method="post">
-    <input name="title" placeholder="문서 제목">
-    <textarea name="content" placeholder="내용"></textarea>
-    <button type="submit">문서 생성</button>
-</form>
-<ul>
-{% for doc in docs %}
-    <li><a href="/view/{{ doc.slug }}">{{ doc.title }}</a></li>
-{% endfor %}
-</ul>
-</body>
-</html>
+
+{% extends "base.html" %}
+{% block body %}
+<div class="grid">
+  <aside class="card">
+    <h3>목차</h3>
+    <ul class="toc">
+      {% for s in sidebar %}
+        <li><a href="{{ url_for('doc_view', slug=s.slug) }}">{{ s.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </aside>
+  <section class="card">
+    <h2>문서 목록</h2>
+    <ul class="docs">
+      {% for d in docs %}
+        <li><a href="{{ url_for('doc_view', slug=d.slug) }}">{{ d.title }}</a> <small>· 업데이트: {{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</small></li>
+      {% else %}
+        <li>아직 문서가 없습니다.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

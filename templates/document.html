@@ -1,21 +1,17 @@
+
 {% extends "base.html" %}
-{% block content %}
-  <h2>{{ doc.title }}</h2>
-  <div class="actions" style="margin-bottom:8px">
-    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
-    <a class="btn" href="{{ url_for('new_document', parent_id=doc.id) }}">하위 문서 만들기</a>
+{% block body %}
+<article class="card">
+  <div class="doc-header">
+    <h1>{{ d.title }}</h1>
+    <div class="doc-actions">
+      <a class="btn" href="{{ url_for('edit_doc', slug=d.slug) }}">수정</a>
+      <form action="{{ url_for('delete_doc', slug=d.slug) }}" method="post" style="display:inline">
+        <button class="btn danger" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+      </form>
+    </div>
   </div>
-  {% if warning %}<div class="alert">{{ warning }}</div>{% endif %}
-  <div class="muted">업데이트: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
-  <hr>
-  <div>{{ doc.content | safe }}</div>
-  {% if children %}
-  <hr>
-  <h3>하위 문서</h3>
-  <ul>
-    {% for c in children %}
-      <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+  <div class="doc-meta">수정: {{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+  <div class="doc-content">{{ d.content|replace('\n','<br>')|safe }}</div>
+</article>
 {% endblock %}
