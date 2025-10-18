@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import inspect, text
+from sqlalchemy import inspect, text, func
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from datetime import datetime
@@ -19,7 +19,8 @@ class Document(db.Model):
     content = db.Column(db.Text, default="")
     slug = db.Column(db.String(255), unique=True, index=True)
     parent_id = db.Column(db.Integer, db.ForeignKey("document.id"))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,10 +57,11 @@ def ensure_schema_and_slugs():
 
 # 기본 페이지 생성
 def ensure_terms_pages():
+    now = datetime.utcnow()
     if not Document.query.filter_by(slug="terms").first():
-        db.session.add(Document(title="이용약관", slug="terms", content="이용약관 내용"))
+        db.session.add(Document(title="이용약관", slug="terms", content="이용약관 내용", created_at=now, updated_at=now))
     if not Document.query.filter_by(slug="privacy").first():
-        db.session.add(Document(title="개인정보처리방침", slug="privacy", content="개인정보처리방침 내용"))
+        db.session.add(Document(title="개인정보처리방침", slug="privacy", content="개인정보처리방침 내용", created_at=now, updated_at=now))
     db.session.commit()
 
 @app.route("/")
@@ -77,7 +79,8 @@ def add():
     title = request.form["title"]
     content = request.form["content"]
     slug = slugify(title)
-    doc = Document(title=title, content=content, slug=slug)
+    now = datetime.utcnow()
+    doc = Document(title=title, content=content, slug=slug, created_at=now, updated_at=now)
     db.session.add(doc)
     db.session.commit()
     return redirect(url_for("index"))
