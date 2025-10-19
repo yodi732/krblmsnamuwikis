@@ -1,15 +1,12 @@
+
 {% extends "_layout.html" %}
 {% block content %}
-<h1>문서</h1>
-<ul class="doc-list">
+<h1 class="h1">문서</h1>
+<ul class="doclist">
   {% for it in items %}
-    <li>
-      <a href="{{ url_for('view_doc', doc_id=it.id) }}">{{ it.title }}</a>
-      {% if it.parent_id %}<span class="badge">하위</span>{% endif %}
-      {% if it.is_system %}<span class="badge sys">시스템</span>{% endif %}
-    </li>
+    <li><a href="{{ url_for('doc_detail', doc_id=it.id) }}">{{ it.title }}</a></li>
   {% else %}
-    <li>아직 문서가 없습니다.</li>
+    <li class="muted">아직 문서가 없습니다.</li>
   {% endfor %}
 </ul>
 {% endblock %}

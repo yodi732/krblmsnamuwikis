@@ -1,9 +1,14 @@
+
 {% extends "_layout.html" %}
 {% block content %}
-<h1>로그인</h1>
+<h1 class="h1">로그인</h1>
 <form method="post" class="form">
-  <label>이메일<input type="email" name="email" required></label>
-  <label>비밀번호<input type="password" name="password" required></label>
-  <button class="btn primary" type="submit">로그인</button>
+  <label>이메일</label>
+  <input type="email" name="email" required placeholder="you@example.com">
+  <label>비밀번호</label>
+  <input type="password" name="password" required placeholder="••••••••">
+  <div class="form-actions">
+    <button class="btn primary" type="submit">로그인</button>
+  </div>
 </form>
 {% endblock %}

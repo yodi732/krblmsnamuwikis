@@ -1,208 +1,250 @@
-from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+
 import os
-from sqlalchemy import text
 from datetime import datetime
+from urllib.parse import urlparse
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text, func
+from werkzeug.security import generate_password_hash, check_password_hash
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY","dev-secret")
-
-# Database config
-db_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.secret_key = SECRET_KEY
+
 db = SQLAlchemy(app)
 
-# Models
-class Document(db.Model):
-    __tablename__ = "document"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)  # align with DB (no 'body')
-    parent_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    is_system = db.Column(db.Boolean, default=False, nullable=False)
-
-    parent = db.relationship("Document", remote_side=[id], backref="children")
-
+# -------------------- Models --------------------
 class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    pw_hash = db.Column(db.String(255), nullable=False)  # column name that logs expect
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    pw_hash = db.Column(db.String(255), nullable=False, default="")
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-def ensure_schema_and_seed():
-    # Create tables if missing
-    db.create_all()
+class Document(db.Model):
+    __tablename__ = "document"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False, default="")
+    parent_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True)
+    is_system = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Ensure columns exist & compatible (Postgres-safe)
-    with db.engine.begin() as conn:
-        # document.content fix if an old 'body' exists
-        # Add content if not exists
-        conn.exec_driver_sql("""
-            DO $$
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name='document' AND column_name='content'
-                ) THEN
-                    ALTER TABLE document ADD COLUMN content TEXT NOT NULL DEFAULT '';
-                END IF;
-                IF EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name='document' AND column_name='body'
-                ) THEN
-                    UPDATE document SET content = COALESCE(content, '') || COALESCE(body, '');
-                    ALTER TABLE document DROP COLUMN body;
-                END IF;
-                -- is_system
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name='document' AND column_name='is_system'
-                ) THEN
-                    ALTER TABLE document ADD COLUMN is_system BOOLEAN NOT NULL DEFAULT FALSE;
-                END IF;
-                -- updated_at
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name='document' AND column_name='updated_at'
-                ) THEN
-                    ALTER TABLE document ADD COLUMN updated_at TIMESTAMP WITHOUT TIME ZONE;
-                    UPDATE document SET updated_at = NOW() WHERE updated_at IS NULL;
-                    ALTER TABLE document ALTER COLUMN updated_at SET DEFAULT NOW();
-                END IF;
-                -- user.pw_hash
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name='"user"' AND column_name='pw_hash'
-                ) THEN
-                    ALTER TABLE "user" ADD COLUMN pw_hash VARCHAR(255) NOT NULL DEFAULT '';
-                END IF;
-            END$$;
-        """)
+    parent = db.relationship("Document", remote_side=[id])
 
-        # Seed system docs
-        conn.exec_driver_sql("""
-            INSERT INTO document (title, content, parent_id, created_at, updated_at, is_system)
-            SELECT '이용약관', '서비스 이용약관 본문입니다.', NULL, NOW(), NOW(), TRUE
-            WHERE NOT EXISTS (SELECT 1 FROM document WHERE is_system = TRUE AND title = '이용약관');
-        """)
-        conn.exec_driver_sql("""
-            INSERT INTO document (title, content, parent_id, created_at, updated_at, is_system)
-            SELECT '개인정보처리방침', '개인정보처리방침 본문입니다.', NULL, NOW(), NOW(), TRUE
-            WHERE NOT EXISTS (SELECT 1 FROM document WHERE is_system = TRUE AND title = '개인정보처리방침');
-        """)
-
+# -------------------- One-time bootstrap --------------------
+_boot_ran = False
 @app.before_request
 def _run_once():
-    # one-time init per worker
-    if not getattr(app, "_inited", False):
-        with app.app_context():
-            ensure_schema_and_seed()
-            app._inited = True
+    global _boot_ran
+    if _boot_ran:
+        return
+    ensure_schema_and_seed()
+    _boot_ran = True
 
-# Helpers
+def ensure_schema_and_seed():
+    with db.engine.begin() as conn:
+        # Create tables if not exists
+        conn.exec_driver_sql("""
+            CREATE TABLE IF NOT EXISTS "user"(
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                pw_hash VARCHAR(255) NOT NULL DEFAULT '',
+                created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            );
+        """)
+        conn.exec_driver_sql("""
+            CREATE TABLE IF NOT EXISTS document(
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                content TEXT NOT NULL DEFAULT '',
+                parent_id INTEGER REFERENCES document(id),
+                is_system BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+            );
+        """)
+        # Safe column adds / migrations
+        # content (for older schemas that had body)
+        conn.exec_driver_sql("""
+            ALTER TABLE document ADD COLUMN IF NOT EXISTS content TEXT NOT NULL DEFAULT '';
+        """)
+        # body -> content migration (best-effort; 'body' may not exist)
+        try:
+            conn.exec_driver_sql("""
+                UPDATE document SET content = COALESCE(content,'') || COALESCE(body,'')
+            """)
+            conn.exec_driver_sql("""
+                ALTER TABLE document DROP COLUMN body
+            """)
+        except Exception:
+            pass
+        # is_system
+        conn.exec_driver_sql("""
+            ALTER TABLE document ADD COLUMN IF NOT EXISTS is_system BOOLEAN NOT NULL DEFAULT FALSE;
+        """)
+        # updated_at
+        conn.exec_driver_sql("""
+            ALTER TABLE document ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE;
+        """)
+        conn.exec_driver_sql("""
+            UPDATE document SET updated_at = NOW() WHERE updated_at IS NULL;
+        """)
+        conn.exec_driver_sql("""
+            ALTER TABLE document ALTER COLUMN updated_at SET DEFAULT NOW();
+        """)
+        # user.pw_hash (robust for PG/SQLite)
+        conn.exec_driver_sql("""
+            ALTER TABLE "user" ADD COLUMN IF NOT EXISTS pw_hash VARCHAR(255) NOT NULL DEFAULT '';
+        """)
+
+        # Seed system docs (Terms & Privacy)
+        terms_id = conn.execute(text("""
+            INSERT INTO document (title, content, is_system)
+            VALUES (:t, :c, true)
+            ON CONFLICT DO NOTHING
+            RETURNING id
+        """), {"t": "이용약관", "c": TERMS_CONTENT}).fetchone()
+        privacy_id = conn.execute(text("""
+            INSERT INTO document (title, content, is_system)
+            VALUES (:t, :c, true)
+            ON CONFLICT DO NOTHING
+            RETURNING id
+        """), {"t": "개인정보처리방침", "c": PRIVACY_CONTENT}).fetchone()
+
+        # If RETURNING didn't produce rows because record exists, fetch ids
+        if terms_id is None:
+            terms_id = conn.execute(text("SELECT id FROM document WHERE title=:t"), {"t":"이용약관"}).fetchone()
+        if privacy_id is None:
+            privacy_id = conn.execute(text("SELECT id FROM document WHERE title=:t"), {"t":"개인정보처리방침"}).fetchone()
+        app.config["TERMS_ID"] = terms_id[0] if terms_id else None
+        app.config["PRIVACY_ID"] = privacy_id[0] if privacy_id else None
+
+# -------------------- Helpers --------------------
 def current_user():
     uid = session.get("uid")
     if not uid:
         return None
     return User.query.get(uid)
 
-def login_required():
-    if not current_user():
-        return redirect(url_for("login", next=request.path))
-
-# Routes
+# -------------------- Routes --------------------
 @app.route("/")
 def home():
     items = Document.query.order_by(Document.title.asc()).all()
     return render_template("home.html", items=items, me=current_user())
 
 @app.route("/doc/<int:doc_id>")
-def view_doc(doc_id):
+def doc_detail(doc_id):
     doc = Document.query.get_or_404(doc_id)
-    return render_template("view.html", doc=doc, me=current_user())
+    # gather children (only one depth shown; child's children won't be creatable)
+    children = Document.query.filter_by(parent_id=doc.id).all()
+    parent = doc.parent
+    return render_template("doc.html", doc=doc, parent=parent, children=children, me=current_user())
 
-@app.route("/create", methods=["GET","POST"])
-def create():
-    if not current_user():
-        return redirect(url_for("login", next=url_for("create")))
+@app.route("/create", methods=["GET", "POST"], endpoint="create")
+def create_doc():
+    me = current_user()
+    if not me:
+        return redirect(url_for("login", next=request.path))
     if request.method == "POST":
-        title = request.form.get("title","").strip()
-        content = request.form.get("content","").strip()
-        parent_id = request.form.get("parent_id")
-        parent_id = int(parent_id) if parent_id else None
-        # block depth > 1: allow only root or one level
+        title = (request.form.get("title") or "").strip()
+        parent_id = request.form.get("parent_id") or None
+        # block 2+ depth
         if parent_id:
-            parent = Document.query.get(parent_id)
+            parent = Document.query.get(int(parent_id))
             if parent and parent.parent_id:
-                flash("하위문서의 하위문서는 만들 수 없습니다.")
+                flash("하위문서의 하위문서는 만들 수 없습니다.", "warning")
                 return redirect(url_for("create"))
-        doc = Document(title=title, content=content, parent_id=parent_id)
+        if not title:
+            flash("제목을 입력하세요.", "danger")
+            return redirect(url_for("create"))
+        doc = Document(title=title, content=request.form.get("content",""), parent_id=int(parent_id) if parent_id else None)
         db.session.add(doc)
         db.session.commit()
-        return redirect(url_for("view_doc", doc_id=doc.id))
-    roots = Document.query.filter(Document.parent_id.is_(None)).order_by(Document.title).all()
-    return render_template("create.html", roots=roots, me=current_user())
+        return redirect(url_for("doc_detail", doc_id=doc.id))
+    # show possible parents (only top-level can be parent)
+    parents = Document.query.filter_by(parent_id=None).order_by(Document.title.asc()).all()
+    return render_template("create.html", parents=parents, me=me)
 
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email","").strip().lower()
-        password = request.form.get("password","")
-        user = User.query.filter_by(email=email).first()
-        if not user or not user.pw_hash or not check_password_hash(user.pw_hash, password):
-            flash("이메일 또는 비밀번호가 올바르지 않습니다.")
-            return render_template("login.html", me=current_user())
-        session["uid"] = user.id
-        nxt = request.args.get("next") or url_for("home")
-        return redirect(nxt)
+        email = (request.form.get("email") or "").lower().strip()
+        password = request.form.get("password") or ""
+        user = User.query.filter(func.lower(User.email)==email).first()
+        if user and user.pw_hash and check_password_hash(user.pw_hash, password):
+            session["uid"] = user.id
+            next_url = request.args.get("next") or url_for("home")
+            return redirect(next_url)
+        flash("이메일 또는 비밀번호가 틀렸습니다.", "danger")
     return render_template("login.html", me=current_user())
 
 @app.route("/logout")
 def logout():
-    session.clear()
+    session.pop("uid", None)
     return redirect(url_for("home"))
 
 @app.route("/signup", methods=["GET","POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email","").strip().lower()
-        password = request.form.get("password","")
-        agree_terms = request.form.get("agree_terms") == "on"
-        agree_priv = request.form.get("agree_priv") == "on"
-        if not (agree_terms and agree_priv):
-            flash("약관과 개인정보처리방침에 모두 동의해야 합니다.")
-            return render_template("signup.html", me=current_user())
-        if User.query.filter_by(email=email).first():
-            flash("이미 가입된 이메일입니다.")
-            return render_template("signup.html", me=current_user())
-        u = User(email=email, pw_hash=generate_password_hash(password))
-        db.session.add(u)
+        email = (request.form.get("email") or "").lower().strip()
+        password = request.form.get("password") or ""
+        agree_terms = request.form.get("agree_terms")
+        agree_privacy = request.form.get("agree_privacy")
+        if not (agree_terms and agree_privacy):
+            flash("약관 및 개인정보처리방침에 모두 동의해야 합니다.", "danger")
+            return redirect(url_for("signup"))
+        if not email or not password:
+            flash("이메일과 비밀번호를 입력하세요.", "danger")
+            return redirect(url_for("signup"))
+        if User.query.filter(func.lower(User.email)==email).first():
+            flash("이미 가입된 이메일입니다.", "warning")
+            return redirect(url_for("signup"))
+        user = User(email=email, pw_hash=generate_password_hash(password))
+        db.session.add(user)
         db.session.commit()
-        session["uid"] = u.id
+        session["uid"] = user.id
         return redirect(url_for("home"))
-    # Load doc ids for links
-    terms = Document.query.filter_by(is_system=True, title="이용약관").first()
-    priv = Document.query.filter_by(is_system=True, title="개인정보처리방침").first()
-    return render_template("signup.html", terms=terms, priv=priv, me=current_user())
+    return render_template("signup.html",
+                           terms_id=app.config.get("TERMS_ID"),
+                           privacy_id=app.config.get("PRIVACY_ID"),
+                           me=current_user())
 
 @app.route("/terms")
 def terms():
-    doc = Document.query.filter_by(is_system=True, title="이용약관").first()
-    if not doc:
+    tid = app.config.get("TERMS_ID")
+    if not tid:
         abort(404)
-    return redirect(url_for("view_doc", doc_id=doc.id))
+    return redirect(url_for("doc_detail", doc_id=tid))
 
 @app.route("/privacy")
 def privacy():
-    doc = Document.query.filter_by(is_system=True, title="개인정보처리방침").first()
-    if not doc:
+    pid = app.config.get("PRIVACY_ID")
+    if not pid:
         abort(404)
-    return redirect(url_for("view_doc", doc_id=doc.id))
+    return redirect(url_for("doc_detail", doc_id=pid))
 
+# -------------------- Constants (seed content) --------------------
+TERMS_CONTENT = """
+제1조(목적) 이 약관은 서비스 이용에 관한 기본적인 사항을 규정합니다.
+
+제2조(가입) 회원은 이메일과 비밀번호를 등록하여 가입합니다.
+
+제3조(의무) 회원은 법령과 본 약관을 준수합니다.
+"""
+
+PRIVACY_CONTENT = """
+1. 수집항목: 이메일, 비밀번호 해시
+2. 이용목적: 회원 가입 및 서비스 제공
+3. 보관기간: 탈퇴 시까지 또는 관계 법령에 따름
+"""
+
+# -------------------- Dev entry --------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Simple dev server
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)

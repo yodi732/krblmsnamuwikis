@@ -1,1 +1,32 @@
-<h1>{{ doc.title }}</h1><p>{{ doc.body }}</p>
+
+{% extends "_layout.html" %}
+{% block content %}
+<article class="doc">
+  <h1 class="h1">{{ doc.title }}</h1>
+  <div class="doc-grid">
+    <section class="doc-content">
+      <pre class="content">{{ doc.content }}</pre>
+    </section>
+    <aside class="doc-side">
+      {% if parent %}
+      <div class="side-card">
+        <div class="side-title">상위 문서</div>
+        <ul class="side-list">
+          <li><a href="{{ url_for('doc_detail', doc_id=parent.id) }}">{{ parent.title }}</a></li>
+        </ul>
+      </div>
+      {% endif %}
+      <div class="side-card">
+        <div class="side-title">하위 문서</div>
+        <ul class="side-list">
+          {% for ch in children %}
+            <li><a href="{{ url_for('doc_detail', doc_id=ch.id) }}">{{ ch.title }}</a></li>
+          {% else %}
+            <li class="muted">없음</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+  </div>
+</article>
+{% endblock %}

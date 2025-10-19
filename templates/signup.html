@@ -1,19 +1,35 @@
+
 {% extends "_layout.html" %}
 {% block content %}
-<h1>회원가입</h1>
+<h1 class="h1">회원가입</h1>
 <form method="post" class="form">
-  <label>이메일<input type="email" name="email" required></label>
-  <label>비밀번호<input type="password" name="password" required></label>
-  <label class="inline">
+  <label>이메일</label>
+  <input type="email" name="email" required placeholder="you@example.com">
+  <label>비밀번호</label>
+  <input type="password" name="password" required placeholder="8자 이상 권장">
+
+  <label class="agree">
     <input type="checkbox" name="agree_terms" required>
-    <span>이용약관에 동의합니다</span>
-    {% if terms %}<a class="link" href="{{ url_for('view_doc', doc_id=terms.id) }}" target="_blank">전문 보기</a>{% endif %}
+    <span>
+      이용약관에 동의합니다
+      {% if terms_id %}
+        · <a target="_blank" rel="noopener" href="{{ url_for('doc_detail', doc_id=terms_id) }}">전문 보기</a>
+      {% endif %}
+    </span>
   </label>
-  <label class="inline">
-    <input type="checkbox" name="agree_priv" required>
-    <span>개인정보처리방침에 동의합니다</span>
-    {% if priv %}<a class="link" href="{{ url_for('view_doc', doc_id=priv.id) }}" target="_blank">전문 보기</a>{% endif %}
+
+  <label class="agree">
+    <input type="checkbox" name="agree_privacy" required>
+    <span>
+      개인정보처리방침에 동의합니다
+      {% if privacy_id %}
+        · <a target="_blank" rel="noopener" href="{{ url_for('doc_detail', doc_id=privacy_id) }}">전문 보기</a>
+      {% endif %}
+    </span>
   </label>
-  <button class="btn primary" type="submit">가입하기</button>
+
+  <div class="form-actions">
+    <button class="btn primary" type="submit">가입하기</button>
+  </div>
 </form>
 {% endblock %}
