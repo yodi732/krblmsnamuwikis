@@ -1,43 +1,16 @@
-
 {% extends "_layout.html" %}
 {% block content %}
-<div class="card">
-  <h1>{{ doc.title }}</h1>
-  <div class="muted">수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
-  <div style="margin-top:14px; white-space:pre-wrap; line-height:1.7">{{ doc.content }}</div>
-  <div style="margin-top:16px" class="actions">
-    {% if me %}
-      <a class="btn outline" href="{{ url_for('new_doc', parent=doc.id) }}">하위 문서 만들기</a>
-      {% if not doc.is_system %}
-        <a class="btn outline" href="{{ url_for('edit_doc', doc_id=doc.id) }}">수정</a>
-        <form method="post" action="{{ url_for('delete_doc', doc_id=doc.id) }}" onsubmit="return confirmDelete();">
-          <button class="btn danger" type="submit">삭제</button>
-        </form>
-      {% endif %}
-    {% endif %}
-  </div>
-</div>
+<section class="card">
+  <h1 class="card-title">{{ d.title }}</h1>
+  <article class="doc-body">{{ d.body|safe }}</article>
 
-<div class="card" style="margin-top:16px">
-  <h2>하위 문서</h2>
-  <ul>
+  {% if children %}
+  <h2 class="h2">하위 문서</h2>
+  <ul class="doc-children">
     {% for c in children %}
-      <li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
-    {% else %}
-      <li class="muted">하위 문서가 없습니다.</li>
+      <li><span class="twig">└</span> <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
     {% endfor %}
   </ul>
-</div>
-
-<div style="margin-top:16px" class="muted">
-  {% if doc.parent %}
-    상위 문서: <a href="{{ url_for('view_doc', doc_id=doc.parent.id) }}">{{ doc.parent.title }}</a>
-  {% else %}
-    상위 문서: (없음)
   {% endif %}
-</div>
-<p style="margin-top:20px;">
-  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='이용약관', is_system=True).first().id if Document.query.filter_by(title='이용약관', is_system=True).first() else 1)) }}">이용약관</a> ·
-  <a href="{{ url_for('view_doc', doc_id=(Document.query.filter_by(title='개인정보처리방침', is_system=True).first().id if Document.query.filter_by(title='개인정보처리방침', is_system=True).first() else 1)) }}">개인정보처리방침</a>
-</p>
+</section>
 {% endblock %}

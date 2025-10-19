@@ -1,50 +1,59 @@
 {% extends "_layout.html" %}
-{% block title %}회원가입 — 별내위키{% endblock %}
 {% block content %}
-<section class="card narrow">
+<section class="card form-card">
   <h1 class="card-title">회원가입</h1>
-
-  <form method="post" action="{{ url_for('signup') }}" class="vstack gap-md">
-    <label class="form-label">이메일 (@bl-m.kr만 허용)</label>
+  <form method="post" class="form">
+    <label>이메일 (@bl-m.kr만 허용)</label>
     <input class="input" type="email" name="email" placeholder="id@bl-m.kr" required>
-
-    <label class="form-label">비밀번호</label>
+    <label>비밀번호</label>
     <input class="input" type="password" name="password" required>
 
-    <label class="checkbox-row">
-      <input type="checkbox" name="agree_terms" required>
-      <span>이용약관에 동의합니다</span>
-    </label>
-    <div class="policy-box">
-      <div class="policy-title">요약</div>
-      <div class="policy-body">
-        본 서비스는 교육 목적의 위키입니다. 사용자는 다음을 준수합니다.<br>
-        1) 타인의 권리를 침해하지 않습니다.<br>
-        2) 법령과 학교 규정을 준수합니다.<br>
-        3) 관리자가 판단할 경우 문서를 수정/삭제할 수 있습니다.
+    <div class="consent">
+      <label class="consent-row">
+        <input type="checkbox" name="agree_terms">
+        <span>이용약관에 동의합니다</span>
+      </label>
+    </div>
+    <div class="document-box">
+      <div class="doc-summary">
+        <strong>요약</strong>
+        <p>본 서비스는 교육 목적의 위키입니다. 사용자는 다음을 준수합니다.</p>
+        <ol>
+          <li>타인의 권리를 침해하지 않습니다.</li>
+          <li>법령과 학교 규정을 준수합니다.</li>
+          <li>관리자가 판단할 경우 문서를 수정/삭제할 수 있습니다.</li>
+        </ol>
+        <a class="inline-link" href="#" target="_blank" rel="noopener">전문 보기</a>
       </div>
-      <a class="policy-link" href="{{ url_for('terms') }}">전문 보기</a>
     </div>
 
-    <label class="checkbox-row">
-      <input type="checkbox" name="agree_privacy" required>
-      <span>개인정보처리방침에 동의합니다</span>
-    </label>
-    <div class="policy-box">
-      <div class="policy-title">요약</div>
-      <div class="policy-body">
-        본 위키는 서비스 제공을 위해 최소한의 개인정보만 수집·이용합니다.<br>
-        1. 수집 항목: 학교 이메일(@bl-m.kr), 비밀번호(해시 처리), 로그인/문서 활동 로그<br>
-        2. 이용 목적: 사용자 인증, 서비스 운영 기록 관리<br>
-        3. 보관 및 파기: 회원 탈퇴 즉시 계정 정보는 삭제하며, 관계 법령상 보관이 필요한 로그는 해당 기간 동안 안전하게 보관 후 파기합니다.<br>
-        4. 제3자 제공/국외이전: 하지 않습니다.<br>
-        5. 정보주체 권리: 열람·정정·삭제·처리정지 요구 및 동의 철회 가능<br>
-        6. 보호 조치: 비밀번호는 평문이 아닌 해시로 저장하며, 최소 권한 원칙으로 접근을 통제합니다.
+    <div class="consent">
+      <label class="consent-row">
+        <input type="checkbox" name="agree_privacy">
+        <span>개인정보처리방침에 동의합니다</span>
+      </label>
+    </div>
+    <div class="document-box">
+      <div class="doc-summary">
+        <strong>요약</strong>
+        <ol>
+          <li>수집 항목: 학교 이메일(@bl-m.kr), 비밀번호(해시 처리), 로그인/문서 활동 로그</li>
+          <li>이용 목적: 사용자 인증, 서비스 운영 기록 관리</li>
+          <li>보관 및 파기: 회원 탈퇴 즉시 계정 정보는 삭제하며, 법령상 보관이 필요한 로그는 해당 기간 동안 안전하게 보관 후 파기합니다.</li>
+          <li>제3자 제공/국외이전: 하지 않습니다.</li>
+          <li>정보주체 권리: 열람·정정·삭제·처리정지 요구 및 동의 철회 가능</li>
+          <li>보호 조치: 비밀번호는 평문이 아닌 해시로 저장하며, 최소 권한 원칙으로 접근을 통제합니다.</li>
+        </ol>
+        <a class="inline-link" href="#" target="_blank" rel="noopener">전문 보기</a>
       </div>
-      <a class="policy-link" href="{{ url_for('privacy') }}">전문 보기</a>
     </div>
 
-    <button class="btn btn-primary mt-sm" type="submit">가입</button>
+    <div class="form-actions">
+      <button class="btn btn-accent" type="submit">가입</button>
+    </div>
   </form>
 </section>
+<div class="under-links">
+  <a href="#">이용약관</a> · <a href="#">개인정보처리방침</a>
+</div>
 {% endblock %}

@@ -1,32 +1,24 @@
 {% extends "_layout.html" %}
-{% block title %}문서 — 별내위키{% endblock %}
 {% block content %}
 <section class="card">
   <h1 class="card-title">문서</h1>
-  <div class="doc-tree">
-    <ul class="tree-root">
-      {% for r in roots %}
-        <li>
-          <a href="{{ url_for('view_doc', doc_id=r.id) }}">{{ r.title }}</a>
-          {% if r.children %}
-            <ul>
-              {% for c in r.children %}
-                <li>
-                  <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a>
-                  {% if c.children %}
-                    <ul>
-                      {% for cc in c.children %}
-                        <li><a href="{{ url_for('view_doc', doc_id=cc.id) }}">{{ cc.title }}</a></li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
+  <ul class="doc-tree">
+    {% for d in items %}
+      <li>
+        <a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a>
+        {% set children = by_parent.get(d.id, []) %}
+        {% if children %}
+          <ul class="doc-children">
+            {% for c in children %}
+              <li><span class="twig">└</span> <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
 </section>
+<div class="under-links">
+  <a href="#">이용약관</a> · <a href="#">개인정보처리방침</a>
+</div>
 {% endblock %}

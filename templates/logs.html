@@ -1,7 +1,11 @@
 {% extends "_layout.html" %}
 {% block content %}
-<div class="card">
-  <h2>로그</h2>
-  <p>여기는 로그인 사용자만 접근 가능한 보호 영역입니다.</p>
-</div>
+<section class="card">
+  <h1 class="card-title">최근 편집(최근 50개)</h1>
+  <ul class="doc-list">
+    {% for d in docs %}
+      <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a> <span class="muted">· {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
 {% endblock %}
