@@ -1,11 +1,24 @@
-{% extends "_layout.html" %}{% block content %}
-<div class="card"><h1>목차</h1><div class="list"><ul>
-{% for d in roots %}<li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a></li>{% else %}
-<li class="small">아직 문서가 없습니다.</li>{% endfor %}
-</ul></div></div>
-<div class="card"><h2>문서 목록</h2><div class="list"><ul>
-{% for d in recents %}<li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a> <span class="small">· 업데이트: {{ d.updated_at.strftime("%Y-%m-%d %H:%M") if d.updated_at else "" }}</span></li>
-{% else %}<li class="small">최근 문서 없음</li>{% endfor %}
-</ul></div></div>
-<div class="small"><a href="{{ url_for('open_terms') }}">이용약관</a> · <a href="{{ url_for('open_privacy') }}">개인정보처리방침</a></div>
+{% extends "_layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>문서</h2>
+  <div class="columns">
+    <div>
+      <h3>상위 문서</h3>
+      <ul>
+        {% for r in root_nodes %}
+          <li><a href="{{ url_for('view_doc', doc_id=r.id) }}">{{ r.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h3>최근 변경</h3>
+      <ul>
+        {% for d in recents %}
+          <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a> <span class="muted">· {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
 {% endblock %}

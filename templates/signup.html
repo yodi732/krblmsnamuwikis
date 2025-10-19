@@ -1,8 +1,15 @@
-{% extends "_layout.html" %}{% block content %}
-<div class="card"><h1>회원가입</h1><form method="post">
-<label>이메일 (@bl-m.kr만 허용)</label><input class="input" name="email" type="email" required>
-<label>비밀번호</label><input class="input" name="password" type="password" minlength="8" required>
-<div style="margin:10px 0"><label><input type="checkbox" name="agree_terms" required> 이용약관에 동의합니다.</label><br>
-<label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침에 동의합니다.</label></div>
-<div class="actions"><button class="btn" type="submit">가입</button></div>{% if error %}<div class="small" style="color:#d00">{{ error }}</div>{% endif %}
-</form></div>{% endblock %}
+{% extends "_layout.html" %}
+{% block content %}
+<div class="card">
+  <h2>회원가입</h2>
+  <form method="post">
+    <label>이메일 (@bl-m.kr만 허용)</label><input type="email" name="email" required placeholder="id@bl-m.kr">
+    <label>비밀번호</label><input type="password" name="password" required>
+    <label class="check"><input type="checkbox" name="agree_terms"> 이용약관에 동의합니다.</label>
+    <div class="policy-box small">{{ (terms.content[:1000] ~ '...') if terms else '' }}</div><a href="{{ url_for('terms') }}">전문 보기</a>
+    <label class="check"><input type="checkbox" name="agree_privacy"> 개인정보처리방침에 동의합니다.</label>
+    <div class="policy-box small">{{ (privacy.content[:1200] ~ '...') if privacy else '' }}</div><a href="{{ url_for('privacy') }}">전문 보기</a>
+    <button class="primary" type="submit">가입</button>
+  </form>
+</div>
+{% endblock %}

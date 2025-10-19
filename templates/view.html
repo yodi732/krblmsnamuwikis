@@ -1,16 +1,17 @@
-{% extends "_layout.html" %}{% block content %}
+{% extends "_layout.html" %}
+{% block content %}
 <div class="card">
-<h1>{{ doc.title }}</h1><div class="small">수정: {{ doc.updated_at.strftime("%Y-%m-%d %H:%M") if doc.updated_at else "" }}</div><hr>
-<div>{{ doc.content | replace('\n','<br>') | safe }}</div>
-{% if me and not doc.is_system %}<div class="actions">
-<a class="btn" href="{{ url_for('edit_doc', doc_id=doc.id) }}">수정</a>
-<button class="btn danger" onclick="confirmDelete('{{ url_for('delete_doc', doc_id=doc.id) }}')">삭제</button>
-</div>{% endif %}
-</div>
-<div class="card"><h3>연결 문서</h3>
-{% if parent %}<div class="small">상위 문서: <a href="{{ url_for('view_doc', doc_id=parent.id) }}">{{ parent.title }}</a></div>{% endif %}
-{% if children %}<div class="small" style="margin-top:8px;">하위 문서:</div><ul>
-{% for c in children %}<li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>{% endfor %}
-</ul>{% else %}<div class="small">하위 문서 없음</div>{% endif %}
+  <div class="doc-head">
+    <h1>{{ d.title }}</h1>
+    {% if me and not d.is_system %}
+      <form method="post" action="{{ url_for('delete_doc', doc_id=d.id) }}" onsubmit="return confirm('정말 삭제하시겠습니까? 되돌릴 수 없습니다.');"><button class="danger">삭제</button></form>
+    {% endif %}
+  </div>
+  <div class="meta">{% if parent %}<span>상위: <a href="{{ url_for('view_doc', doc_id=parent.id) }}">{{ parent.title }}</a></span> · {% endif %}<span>수정: {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></div>
+  <div class="content">{{ d.content|e|replace('\n','<br>')|safe }}</div>
+  {% if children %}
+  <h3>하위 문서</h3>
+  <ul>{% for c in children %}<li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>{% endfor %}</ul>
+  {% endif %}
 </div>
 {% endblock %}
