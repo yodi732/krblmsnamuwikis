@@ -1,22 +1,8 @@
-
-{% extends "base.html" %}
-{% block body %}
-<section class="card narrow">
-  <h2>회원가입</h2>
-  <form method="post" class="form">
-    <label>이메일</label>
-    <input type="email" name="email" required>
-    <label>비밀번호</label>
-    <input type="password" name="password" required>
-    <div class="agreements">
-      <label><input type="checkbox" name="agree_terms" required> 이용약관 동의</label>
-      <a class="link" href="{{ url_for('doc_view', slug='terms') }}" target="_blank">약관 보기</a>
-    </div>
-    <div class="agreements">
-      <label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침 동의</label>
-      <a class="link" href="{{ url_for('doc_view', slug='privacy') }}" target="_blank">방침 보기</a>
-    </div>
-    <button class="btn primary">가입</button>
-  </form>
-</section>
-{% endblock %}
+{% extends "_layout.html" %}{% block content %}
+<div class="card"><h1>회원가입</h1><form method="post">
+<label>이메일 (@bl-m.kr만 허용)</label><input class="input" name="email" type="email" required>
+<label>비밀번호</label><input class="input" name="password" type="password" minlength="8" required>
+<div style="margin:10px 0"><label><input type="checkbox" name="agree_terms" required> 이용약관에 동의합니다.</label><br>
+<label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침에 동의합니다.</label></div>
+<div class="actions"><button class="btn" type="submit">가입</button></div>{% if error %}<div class="small" style="color:#d00">{{ error }}</div>{% endif %}
+</form></div>{% endblock %}

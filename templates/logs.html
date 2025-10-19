@@ -1,14 +1,5 @@
-
-{% extends "_layout.html" %}
-{% block content %}
-<div class="card">
-  <h2>로그 (최근 200건)</h2>
-  <ul>
-  {% for l in items %}
-    <li>[{{ l.created_at.strftime('%Y-%m-%d %H:%M') }}] {{ l.action }} — {{ l.detail }}</li>
-  {% else %}
-    <li class="muted">기록이 없습니다.</li>
-  {% endfor %}
-  </ul>
-</div>
-{% endblock %}
+{% extends "_layout.html" %}{% block content %}
+<div class="card"><h1>활동 로그</h1><ul>
+{% for l in logs %}<li class="small">{{ l.created_at.strftime("%Y-%m-%d %H:%M") }} · {{ l.event }}</li>{% else %}
+<li class="small">로그가 없습니다.</li>{% endfor %}
+</ul></div>{% endblock %}

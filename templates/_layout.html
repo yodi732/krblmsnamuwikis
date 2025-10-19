@@ -1,64 +1,24 @@
-
 <!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>별내위키</title>
-  <style>
-    :root{--nav:#1f2a44;--btn:#4f6ef7;--bg:#f3f6ff;--card:#fff;--muted:#6b7280;}
-    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans KR,Apple SD Gothic Neo,sans-serif;color:#111;}
-    .nav{background:var(--nav);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0}
-    .brand{font-weight:800;font-size:18px;margin-right:auto}
-    .nav a.btn{color:#fff;text-decoration:none;background:#334155;border:1px solid #475569;padding:8px 12px;border-radius:10px}
-    .nav a.btn.primary{background:var(--btn);border-color:var(--btn)}
-    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
-    .card{background:var(--card);border-radius:14px;box-shadow:0 6px 20px rgba(31,41,55,.08);padding:22px}
-    .grid{display:grid;grid-template-columns:340px 1fr;gap:22px}
-    h1{margin:8px 0 16px}
-    h2{margin:0 0 10px;font-size:18px}
-    ul{margin:8px 0 0 18px}
-    .muted{color:var(--muted);font-size:13px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{display:inline-block;background:var(--btn);color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-    .btn.small{padding:6px 10px;font-size:13px}
-    .btn.outline{background:#e8edff;color:#2740d6}
-    .btn.danger{background:#ef4444}
-    .footer{margin:40px auto 20px;max-width:1100px;padding:0 16px;color:#555}
-    .flash{background:#fff8db;border:1px solid #f5e6a7;padding:10px 12px;border-radius:8px;margin:8px 0}
-    textarea{width:100%;min-height:280px}
-    input[type=text],input[type=email],input[type=password],select,textarea{border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;width:100%;box-sizing:border-box;background:#fff}
-    form .row{margin-bottom:14px}
-  </style>
-  <script>
-    function confirmDelete(msg){return confirm(msg || "정말 삭제하시겠어요? 이 동작은 되돌릴 수 없습니다.");}
-    function confirmWithdraw(){return confirm("정말 회원을 탈퇴하시겠어요? 이 동작은 되돌릴 수 없습니다.");}
-  </script>
-</head>
-<body>
-  <div class="nav">
-    <div class="brand"><a href="{{ url_for('home') }}" style="color:#fff;text-decoration:none">별내위키</a></div>
-    <a class="btn" href="{{ url_for('home') }}">홈</a>
-    <a class="btn" href="{{ url_for('new_doc') }}">문서 만들기</a>
-    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-    {% if me %}
-      <a class="btn" href="{{ url_for('withdraw') }}">회원탈퇴</a>
-      <a class="btn primary" href="{{ url_for('logout') }}">로그아웃</a>
-    {% else %}
-      <a class="btn" href="{{ url_for('login') }}">로그인</a>
-      <a class="btn primary" href="{{ url_for('register') }}">회원가입</a>
-    {% endif %}
-  </div>
-  <div class="wrap">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat,msg in messages %}
-          <div class="flash">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </div>
-  <div class="footer muted">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
-</body>
-</html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별내위키</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head><body>
+<div class="nav">
+  <div class="brand"><a href="{{ url_for('home') }}" style="color:#fff;text-decoration:none;">별내위키</a></div>
+  <a class="btn" href="{{ url_for('home') }}">홈</a>
+  <a class="btn" href="{{ url_for('create_doc') }}">문서 만들기</a>
+  <a class="btn" href="{{ url_for('view_logs') }}">로그 보기</a>
+  {% if me %}
+    <a class="btn secondary" href="{{ url_for('logout') }}">로그아웃</a>
+    <a class="btn danger" href="{{ url_for('withdraw') }}">회원탈퇴</a>
+  {% else %}
+    <a class="btn secondary" href="{{ url_for('login') }}">로그인</a>
+    <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
+  {% endif %}
+</div>
+<div class="container">{% block content %}{% endblock %}</div>
+<div class="footer small">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+<script>
+function confirmDelete(url){ if(confirm("정말 삭제하시겠습니까? 복구할 수 없습니다.")){ window.location.href=url; } }
+function confirmWithdraw(url){ if(confirm("정말 회원탈퇴 하시겠습니까? 모든 데이터가 삭제됩니다.")){ window.location.href=url; } }
+</script>
+</body></html>
