@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<div class="card" style="max-width:620px;margin:0 auto">
+  <div style="font-weight:700;margin-bottom:8px">회원가입</div>
+  <form method="post" onsubmit="return checkAgree()">
+    <div class="label">이메일 (@bl-m.kr만 허용)</div>
+    <input class="input" name="email" type="email" placeholder="id@bl-m.kr" required>
+    <div class="label mt-12">비밀번호</div>
+    <input class="input" name="password" type="password" required>
+    <div class="mt-16 small">가입하면 아래 정책에 동의한 것으로 간주됩니다.</div>
+    <div class="mt-12"><label><input type="checkbox" id="agree_terms"> 이용약관에 동의합니다</label> <a href="javascript:void(0)" onclick="openPolicy('terms')" class="small">이용약관 전문 보기</a></div>
+    <div class="mt-12"><label><input type="checkbox" id="agree_privacy"> 개인정보처리방침에 동의합니다</label> <a href="javascript:void(0)" onclick="openPolicy('privacy')" class="small">개인정보처리방침 전문 보기</a></div>
+    <button class="btn primary mt-16" type="submit">가입</button>
+  </form>
+  <script>function checkAgree(){const t=document.getElementById('agree_terms').checked;const p=document.getElementById('agree_privacy').checked;if(!t||!p){alert('이용약관과 개인정보처리방침에 모두 동의해야 가입할 수 있습니다.');return false;}return true;}</script>
+  {% if error %}<div class="small" style="color:#d00;margin-top:8px">{{ error }}</div>{% endif %}
+</div>
+{% endblock %}

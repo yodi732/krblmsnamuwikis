@@ -1,37 +1,47 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title or "별내위키" }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head><body>
+<div class="nav">
+  <div class="left">
+    <div class="brand"><span class="emoji">🏛️</span>별내위키</div>
+    <a class="btn link" href="{{ url_for('home') }}">홈</a>
+    <a class="btn link" href="{{ url_for('create_document') }}">문서 만들기</a>
+    <a class="btn link" href="{{ url_for('list_documents') }}">문서 목록</a>
+  </div>
+  <div class="right">
+    {% if g.user %}
+      <a class="btn" href="{{ url_for('view_logs') }}">로그 보기</a>
+      <form action="{{ url_for('logout') }}" method="post" style="display:inline"><button class="btn" type="submit">로그아웃</button></form>
+      <button class="btn" onclick="if(confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')){window.location='{{ url_for('delete_account') }}'}">회원탈퇴</button>
+    {% else %}
+      <a class="btn" href="{{ url_for('login') }}">로그인</a>
+      <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
+    {% endif %}
+  </div>
+</div>
+<div class="container">
+  {% block content %}{% endblock %}
+  <div class="footer small">
+    <div><a href="{{ url_for('view_system_doc','terms') }}">이용약관</a> · <a href="{{ url_for('view_system_doc','privacy') }}">개인정보처리방침</a></div>
+    <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+  </div>
+</div>
 
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>KRBLMS 위키</title>
-    <style>
-        body { display: flex; font-family: sans-serif; }
-        nav { width: 250px; background: #f5f5f5; padding: 10px; }
-        nav ul { list-style-type: none; padding-left: 10px; }
-        nav li { margin: 4px 0; }
-        nav li ul { padding-left: 15px; list-style-type: disc; }
-        main { flex: 1; padding: 20px; }
-        a { text-decoration: none; color: #0074d9; }
-    </style>
-</head>
-<body>
-    <nav>
-        <h3>Sections</h3>
-        <ul>
-            {% for sec in sections %}
-            <li>
-                <a href="{{ url_for('section', section_id=sec['id']) }}">{{ sec['name'] }}</a>
-                <ul>
-                {% for p in pages if p['section_id'] == sec['id'] %}
-                    <li>• <a href="{{ url_for('page', page_id=p['id']) }}">{{ p['title'] }}</a></li>
-                {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ul>
-    </nav>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-</body>
-</html>
+<div id="modal-backdrop" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div id="modal-title" style="font-weight:700"></div>
+      <button class="btn" onclick="closeModal()">닫기</button>
+    </div>
+    <div id="modal-content" class="small"></div>
+  </div>
+</div>
+<script>
+function openModal(title, html){document.getElementById('modal-title').innerText=title;document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-backdrop').style.display='flex';}
+function closeModal(){document.getElementById('modal-backdrop').style.display='none';}
+async function openPolicy(slug){const r=await fetch('/policy/'+slug);const j=await r.json();openModal(j.title,j.content_html);}
+</script>
+</body></html>
