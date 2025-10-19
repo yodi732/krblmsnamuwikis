@@ -1,22 +1,32 @@
 {% extends "_layout.html" %}
-{% block content %}
-<h1>회원가입</h1>
-<form method="post" class="form">
-  <label>이메일</label>
-  <input type="email" name="email" required placeholder="you@example.com"/>
-  <label>비밀번호</label>
-  <input type="password" name="password" required minlength="6"/>
-
-  <label class="agree">
-    <input type="checkbox" name="agree_terms" required>
-    <span>이용약관에 동의합니다 · <a href="{{ url_for('terms') }}" target="_blank" rel="noopener">전문 보기</a></span>
-  </label>
-
-  <label class="agree">
-    <input type="checkbox" name="agree_priv" required>
-    <span>개인정보처리방침에 동의합니다 · <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">전문 보기</a></span>
-  </label>
-
-  <button type="submit" class="btn primary">가입하기</button>
-</form>
+{% block title %}회원가입{% endblock %}
+{% block body %}
+<div class="card" style="max-width:560px;margin:auto">
+  <h2 style="margin-top:0">회원가입</h2>
+  {% if error %}<p class="small" style="color:#fda4af">{{ error }}</p>{% endif %}
+  <form method="post" class="stack">
+    <div class="form-row">
+      <label>이메일</label>
+      <input class="input" type="email" name="email" required>
+    </div>
+    <div class="form-row">
+      <label>비밀번호</label>
+      <input class="input" type="password" name="password" required minlength="6">
+    </div>
+    <div class="row small">
+      <label class="checkbox">
+        <input type="checkbox" name="agree_terms" required>
+        <span>이용약관에 동의합니다</span>
+      </label>
+      <span>·</span>
+      <label class="checkbox">
+        <input type="checkbox" name="agree_privacy" required>
+        <span>개인정보처리방침에 동의합니다</span>
+      </label>
+      <a href="{{ url_for('terms_page') }}" target="_blank" rel="noopener" class="btn ghost small">전문 보기(약관)</a>
+      <a href="{{ url_for('privacy_page') }}" target="_blank" rel="noopener" class="btn ghost small">전문 보기(개인정보)</a>
+    </div>
+    <button class="btn primary" type="submit">가입하기</button>
+  </form>
+</div>
 {% endblock %}

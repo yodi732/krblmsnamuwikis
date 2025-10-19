@@ -1,11 +1,20 @@
 {% extends "_layout.html" %}
-{% block content %}
-<h1>로그인</h1>
-<form method="post" class="form">
-  <label>이메일</label>
-  <input type="email" name="email" required placeholder="you@example.com"/>
-  <label>비밀번호</label>
-  <input type="password" name="password" required/>
-  <button type="submit" class="btn primary">로그인</button>
-</form>
+{% block title %}로그인{% endblock %}
+{% block body %}
+<div class="card" style="max-width:480px;margin:auto">
+  <h2 style="margin-top:0">로그인</h2>
+  {% if error %}<p class="small" style="color:#fda4af">{{ error }}</p>{% endif %}
+  <form method="post" class="stack">
+    <div class="form-row">
+      <label>이메일</label>
+      <input class="input" type="email" name="email" required>
+    </div>
+    <div class="form-row">
+      <label>비밀번호</label>
+      <input class="input" type="password" name="password" required>
+    </div>
+    <button class="btn primary" type="submit">로그인</button>
+  </form>
+  <p class="small">계정이 없나요? <a href="{{ url_for('signup') }}">회원가입</a></p>
+</div>
 {% endblock %}

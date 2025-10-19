@@ -1,0 +1,38 @@
+{% extends "_layout.html" %}
+{% block title %}{{ doc.title }}{% endblock %}
+{% block body %}
+<div class="grid">
+  <article class="card">
+    <h1 style="margin:4px 0 12px 0">{{ doc.title }}</h1>
+    <div class="small">최종 수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') if doc.updated_at else '' }}</div>
+    <hr class="sep">
+    <div>{{ doc.content|safe }}</div>
+  </article>
+  <aside class="sidebar">
+    <div class="card">
+      {% if parent %}
+        <h4>상위 문서</h4>
+        <div class="list"><a href="{{ url_for('view', doc_id=parent.id) }}">{{ parent.title }}</a></div>
+        <hr class="sep">
+      {% endif %}
+      {% if siblings|length > 0 %}
+        <h4>같은 묶음</h4>
+        <div class="list">
+          {% for s in siblings %}
+            {% if s.id != doc.id %}<a href="{{ url_for('view', doc_id=s.id) }}">{{ s.title }}</a>{% endif %}
+          {% endfor %}
+        </div>
+        <hr class="sep">
+      {% endif %}
+      <h4>하위 문서</h4>
+      <div class="list">
+        {% for c in children %}
+          <a href="{{ url_for('view', doc_id=c.id) }}">{{ c.title }}</a>
+        {% else %}
+          <span class="small">없음</span>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

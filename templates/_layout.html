@@ -1,46 +1,35 @@
-{% macro nav_button(href, text) -%}
-<a class="btn btn-soft" href="{{ href }}">{{ text }}</a>
-{%- endmacro %}
+{% set me = me or None %}
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>별내 위키</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}별내나무위키{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <a class="home" href="{{ url_for('home') }}">🏠 홈</a>
-  </div>
-  <nav class="actions">
-    {{ nav_button(url_for('create'), "문서 만들기") }}
-    {{ nav_button(url_for('terms'), "이용약관") }}
-    {{ nav_button(url_for('privacy'), "개인정보처리방침") }}
-    {% if me %}
-      <span class="me">{{ me.email }}</span>
-      {{ nav_button(url_for('logout'), "로그아웃") }}
-    {% else %}
-      {{ nav_button(url_for('login'), "로그인") }}
-      {{ nav_button(url_for('signup'), "회원가입") }}
-    {% endif %}
+  <nav class="nav">
+    <div class="left">
+      <a href="{{ url_for('home') }}" class="btn">🏠 홈</a>
+      <a href="{{ url_for('create') }}" class="btn ghost">문서 만들기</a>
+      <a href="{{ url_for('list_docs') }}" class="btn ghost">문서 목록</a>
+    </div>
+    <div class="right">
+      {% if me %}
+        <span class="badge">{{ me.email }}</span>
+        <a href="{{ url_for('logout') }}" class="btn">로그아웃</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn">로그인</a>
+        <a href="{{ url_for('signup') }}" class="btn primary">회원가입</a>
+      {% endif %}
+    </div>
   </nav>
-</header>
-<main class="container">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flashwrap">
-        {% for cat, msg in messages %}
-        <div class="flash {{ cat }}">{{ msg }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-  {% block content %}{% endblock %}
-</main>
-<footer class="foot">
-  <small>© 별내 위키</small>
-</footer>
+  <div class="container">
+    {% block body %}{% endblock %}
+    <div class="footer">
+      <a href="{{ url_for('terms_page') }}">이용약관</a> ·
+      <a href="{{ url_for('privacy_page') }}">개인정보처리방침</a>
+    </div>
+  </div>
 </body>
 </html>
