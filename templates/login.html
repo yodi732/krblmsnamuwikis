@@ -1,17 +1,1 @@
-
-{% extends "_layout.html" %}
-{% block content %}
-<div class="auth card">
-  <h1>로그인</h1>
-  {% with msgs = get_flashed_messages(with_categories=true) %}
-    {% if msgs %}<div class="flash">{% for cat, msg in msgs %}<p class="{{cat}}">{{ msg }}</p>{% endfor %}</div>{% endif %}
-  {% endwith %}
-  <form method="post" class="form">
-    <label>이메일 (@bl-m.kr만 허용)</label>
-    <input name="email" type="email" placeholder="id@bl-m.kr" required>
-    <label>비밀번호</label>
-    <input name="password" type="password" required>
-    <button class="btn-primary" type="submit">로그인</button>
-  </form>
-</div>
-{% endblock %}
+<h1>로그인</h1><form method='POST'><input name='email'><input name='password' type='password'><button>로그인</button></form>

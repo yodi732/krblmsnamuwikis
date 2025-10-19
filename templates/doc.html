@@ -1,16 +1,1 @@
-{% extends "_layout.html" %}
-{% block content %}
-<section class="card">
-  <h1 class="card-title">{{ d.title }}</h1>
-  <article class="doc-body">{{ d.body|safe }}</article>
-
-  {% if children %}
-  <h2 class="h2">하위 문서</h2>
-  <ul class="doc-children">
-    {% for c in children %}
-      <li><span class="twig">└</span> <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-</section>
-{% endblock %}
+<h1>{{ doc.title }}</h1><p>{{ doc.body }}</p>

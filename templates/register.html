@@ -1,14 +1,1 @@
-
-{% extends "_layout.html" %}
-{% block content %}
-<div class="card" style="max-width:560px">
-  <h2>회원가입</h2>
-  <form method="post">
-    <div class="row"><label>학교 이메일 ({{ domain }})</label><input type="email" name="email" required></div>
-    <div class="row"><label>비밀번호</label><input type="password" name="password" required></div>
-    <div class="row"><label><input type="checkbox" name="agree_terms" required> 이용약관에 동의합니다.</label></div>
-    <div class="row"><label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침에 동의합니다.</label></div>
-    <button class="btn" type="submit">가입</button>
-  </form>
-</div>
-{% endblock %}
+<h1>회원가입</h1><form method='POST'><input name='email'><input name='password' type='password'><button>가입</button></form>
