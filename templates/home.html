@@ -1,16 +1,32 @@
 {% extends "_layout.html" %}
+{% block title %}문서 — 별내위키{% endblock %}
 {% block content %}
-<div class="card">
-  <h2>문서</h2>
-  <ul class="doc-tree">
-    {% for doc, depth in items %}
-      <li style="padding-left: {{ depth * 18 }}px">
-        <a href="{{ url_for('view_doc', doc_id=doc.id) }}">
-          {% if depth > 0 %}<span class="branch">└─</span>{% endif %}
-          {{ doc.title }}
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-</div>
+<section class="card">
+  <h1 class="card-title">문서</h1>
+  <div class="doc-tree">
+    <ul class="tree-root">
+      {% for r in roots %}
+        <li>
+          <a href="{{ url_for('view_doc', doc_id=r.id) }}">{{ r.title }}</a>
+          {% if r.children %}
+            <ul>
+              {% for c in r.children %}
+                <li>
+                  <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a>
+                  {% if c.children %}
+                    <ul>
+                      {% for cc in c.children %}
+                        <li><a href="{{ url_for('view_doc', doc_id=cc.id) }}">{{ cc.title }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
 {% endblock %}

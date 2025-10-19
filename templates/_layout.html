@@ -1,47 +1,35 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>별내위키</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}별내위키{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav class="topbar">
-    <a class="brand" href="{{ url_for('home') }}">별내위키</a>
-    <div class="nav-actions">
-      <a href="{{ url_for('create') }}" class="btn">문서 만들기</a>
-      <a href="{{ url_for('logs') }}" class="btn">로그 보기</a>
-      {% if me %}
-        <span class="me">{{ me.email }}</span>
-        <form action="{{ url_for('delete_account') }}" method="post" style="display:inline">
-          <button class="btn danger" onclick="return confirm('정말 탈퇴하시겠어요? 복구할 수 없습니다.');">회원탈퇴</button>
-        </form>
-        <a href="{{ url_for('logout') }}" class="btn">로그아웃</a>
-      {% else %}
-        <a href="{{ url_for('login') }}" class="btn">로그인</a>
-        <a href="{{ url_for('signup') }}" class="btn primary">회원가입</a>
-      {% endif %}
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="{{ url_for('home') }}">별내위키</a>
+      <nav class="nav">
+        <a class="btn btn-ghost" href="{{ url_for('home') }}">홈</a>
+        <a class="btn btn-ghost" href="{{ url_for('create_doc') }}">문서 만들기</a>
+        <a class="btn btn-ghost" href="{{ url_for('view_logs') }}">로그 보기</a>
+        <a class="btn btn-primary" href="{{ url_for('login') }}">로그인</a>
+        <a class="btn btn-outline" href="{{ url_for('signup') }}">회원가입</a>
+      </nav>
     </div>
-  </nav>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flash-wrap">
-        {% for cat, msg in messages %}
-          <div class="flash {{ cat }}">{{ msg }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-  <main class="container">
+  </header>
+
+  <main class="container main">
     {% block content %}{% endblock %}
   </main>
-  <footer class="footer">
-    <div class="links">
+
+  <footer class="container footer">
+    <div class="footer-links">
       <a href="{{ url_for('terms') }}">이용약관</a> ·
       <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
     </div>
-    <div class="feedback">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+    <div class="footer-right">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
   </footer>
 </body>
 </html>

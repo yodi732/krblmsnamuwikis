@@ -1,13 +1,14 @@
 {% extends "_layout.html" %}
+{% block title %}로그인 — 별내위키{% endblock %}
 {% block content %}
-<div class="card narrow">
-  <h2>로그인</h2>
-  <form method="post">
-    <label>이메일 (@bl-m.kr만 허용)</label>
-    <input type="email" name="email" required placeholder="id@bl-m.kr">
-    <label>비밀번호</label>
-    <input type="password" name="password" required>
-    <button class="btn primary" type="submit">로그인</button>
+<section class="card narrow">
+  <h1 class="card-title">로그인</h1>
+  <form method="post" action="{{ url_for('login', next=request.args.get('next')) }}" class="vstack gap-md">
+    <label class="form-label">이메일 (@bl-m.kr만 허용)</label>
+    <input class="input" type="email" name="email" placeholder="id@bl-m.kr" required>
+    <label class="form-label">비밀번호</label>
+    <input class="input" type="password" name="password" required>
+    <button class="btn btn-primary mt-sm" type="submit">로그인</button>
   </form>
-</div>
+</section>
 {% endblock %}
