@@ -1,29 +1,19 @@
-{% extends "_layout.html" %}
-{% block title %}문서 만들기{% endblock %}
-{% block body %}
-<div class="card" style="max-width:760px;margin:auto">
-  <h2 style="margin-top:0">문서 만들기</h2>
-  {% if error %}<p class="small" style="color:#fda4af">{{ error }}</p>{% endif %}
-  <form method="post" class="stack">
-    <div class="form-row">
-      <label>제목</label>
-      <input class="input" name="title" required>
-    </div>
-    <div class="form-row">
-      <label>상위 문서(선택)</label>
-      <select class="input" name="parent_id">
-        <option value="">(없음)</option>
-        {% for d in parents %}
-          <option value="{{ d.id }}">{{ d.title }}</option>
-        {% endfor %}
-      </select>
-      <div class="small">하위 문서의 하위 문서는 허용하지 않습니다.</div>
-    </div>
-    <div class="form-row">
-      <label>내용</label>
-      <textarea class="input" name="content" rows="10"></textarea>
-    </div>
-    <button class="btn primary" type="submit">생성</button>
+
+{% extends "_layout.html" %}{% block content %}
+<div class="card" style="max-width:880px;margin:0 auto">
+  <h3>문서 만들기</h3>
+  {% if error %}<div class="small" style="color:#b00020">{{ error }}</div>{% endif %}
+  <form method="post">
+    <label>제목</label>
+    <input class="input" type="text" name="title" required>
+    <label>상위 문서 (선택)</label>
+    <select class="input" name="parent_id">
+      <option value="">(없음)</option>
+      {% for d in parents %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}
+    </select>
+    <label>내용</label>
+    <textarea name="content" required></textarea>
+    <div style="margin-top:12px"><button class="btn" type="submit">작성</button></div>
   </form>
 </div>
 {% endblock %}

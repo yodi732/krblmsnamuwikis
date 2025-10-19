@@ -1,35 +1,26 @@
-{% set me = me or None %}
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block title %}별내나무위키{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <nav class="nav">
-    <div class="left">
-      <a href="{{ url_for('home') }}" class="btn">🏠 홈</a>
-      <a href="{{ url_for('create') }}" class="btn ghost">문서 만들기</a>
-      <a href="{{ url_for('list_docs') }}" class="btn ghost">문서 목록</a>
-    </div>
-    <div class="right">
-      {% if me %}
-        <span class="badge">{{ me.email }}</span>
-        <a href="{{ url_for('logout') }}" class="btn">로그아웃</a>
-      {% else %}
-        <a href="{{ url_for('login') }}" class="btn">로그인</a>
-        <a href="{{ url_for('signup') }}" class="btn primary">회원가입</a>
-      {% endif %}
-    </div>
-  </nav>
-  <div class="container">
-    {% block body %}{% endblock %}
-    <div class="footer">
-      <a href="{{ url_for('terms_page') }}">이용약관</a> ·
-      <a href="{{ url_for('privacy_page') }}">개인정보처리방침</a>
-    </div>
-  </div>
-</body>
-</html>
+
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별내위키</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head><body>
+<nav class="nav"><div class="nav-inner">
+  <a class="brand" href="{{ url_for('home') }}"><span class="brand-emoji">🏛️</span>별내위키</a>
+  <a href="{{ url_for('create') }}">문서 만들기</a>
+  <a href="{{ url_for('list_docs') }}">문서 목록</a>
+  <div class="spacer"></div>
+  {% if me %}
+    <span class="small">{{ me.email }}</span>
+    <a class="btn ghost" href="{{ url_for('logout') }}">로그아웃</a>
+  {% else %}
+    <a class="btn ghost" href="{{ url_for('login') }}">로그인</a>
+    <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
+  {% endif %}
+</div></nav>
+<main class="container">
+{% block content %}{% endblock %}
+<div class="footer"><div class="footer-inner">
+  <div><a href="{{ url_for('view_doc_by_title', title='이용약관') }}">이용약관</a> · <a href="{{ url_for('view_doc_by_title', title='개인정보처리방침') }}">개인정보처리방침</a></div>
+  <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+</div></div>
+</main></body></html>

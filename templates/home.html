@@ -1,30 +1,22 @@
-{% extends "_layout.html" %}
-{% block title %}홈 - 별내나무위키{% endblock %}
-{% block body %}
-  <div class="grid">
-    <div>
-      <div class="card">
-        <h2 style="margin:0 0 12px 0">최근 문서</h2>
-        <div class="home-list">
-          {% for d in items %}
-          <a href="{{ url_for('view', doc_id=d.id) }}"><span>{{ d.title }}</span><span class="small">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else '' }}</span></a>
-          {% else %}
-          <p class="small">아직 문서가 없습니다. 상단의 <span class="kbd">문서 만들기</span>로 시작해 보세요.</p>
-          {% endfor %}
-        </div>
-      </div>
+
+{% extends "_layout.html" %}{% block content %}
+<div class="card-row">
+  <div class="card" style="flex:2">
+    <h3>최근 문서</h3>
+    <div class="list">
+      {% for d in recent_docs %}
+        <a href="{{ url_for('view_doc', doc_id=d.id) }}"><span>{{ d.title }}</span><span class="meta">{{ d.updated_at.strftime("%Y-%m-%d %H:%M") if d.updated_at else "" }}</span></a>
+      {% else %}<div class="small">아직 문서가 없습니다. 오른쪽 상단의 ‘문서 만들기’를 눌러 시작하세요.</div>{% endfor %}
     </div>
-    <aside class="sidebar">
-      <div class="card">
-        <h4>바로가기</h4>
-        <div class="list">
-          <a href="{{ url_for('terms_page') }}">이용약관</a>
-          <a href="{{ url_for('privacy_page') }}">개인정보처리방침</a>
-        </div>
-        <hr class="sep">
-        <h4>문서 구조</h4>
-        <div class="small">상위 문서 &rarr; (최대) 한 단계 하위 문서만 허용</div>
-      </div>
-    </aside>
   </div>
+  <div class="card" style="flex:1">
+    <h3>바로가기</h3>
+    <div class="list">
+      <a href="{{ url_for('view_doc_by_title', title='이용약관') }}"><span>이용약관</span><span>↗</span></a>
+      <a href="{{ url_for('view_doc_by_title', title='개인정보처리방침') }}"><span>개인정보처리방침</span><span>↗</span></a>
+    </div>
+    <hr class="sep">
+    <div class="small">문서 구조<br>상위 문서 → (직속) 한 단계 하위 문서만 허용</div>
+  </div>
+</div>
 {% endblock %}
