@@ -1,1 +1,17 @@
-<h1>문서 만들기</h1><form method='POST'><input name='title'><select name='parent_id'><option value=''>상위 문서 없음</option>{% for d in docs %}<option value='{{d.id}}'>{{d.title}}</option>{% endfor %}</select><button>생성</button></form>
+{% extends "_layout.html" %}
+{% block content %}
+<h1>문서 만들기</h1>
+<form method="post" class="form">
+  <label>제목<input type="text" name="title" required></label>
+  <label>상위 문서
+    <select name="parent_id">
+      <option value="">(루트)</option>
+      {% for r in roots %}
+        <option value="{{ r.id }}">{{ r.title }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>내용<textarea name="content" rows="8"></textarea></label>
+  <button class="btn primary" type="submit">저장</button>
+</form>
+{% endblock %}

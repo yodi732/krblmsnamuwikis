@@ -1,30 +1,19 @@
-
 {% extends "_layout.html" %}
 {% block content %}
-<div class="auth card">
-  <h1>회원가입</h1>
-  {% with msgs = get_flashed_messages(with_categories=true) %}
-    {% if msgs %}<div class="flash">{% for cat, msg in msgs %}<p class="{{cat}}">{{ msg }}</p>{% endfor %}</div>{% endif %}
-  {% endwith %}
-  <form method="post" class="form">
-    <label>이메일 (@bl-m.kr만 허용)</label>
-    <input name="email" type="email" placeholder="id@bl-m.kr" required>
-    <label>비밀번호</label>
-    <input name="password" type="password" required>
-
-    <div class="agreements">
-      <label class="inline"><input type="checkbox" name="agree_terms"><span>이용약관에 동의합니다</span></label>
-      <a class="link" target="_blank" href="{{ url_for('terms') }}">전문 보기</a>
-    </div>
-    <div class="agreements">
-      <label class="inline"><input type="checkbox" name="agree_priv"><span>개인정보처리방침에 동의합니다</span></label>
-      <a class="link" target="_blank" href="{{ url_for('privacy') }}">전문 보기</a>
-    </div>
-    <button class="btn-primary" type="submit">가입</button>
-  </form>
-  <div class="agreements-mini">
-    <a href="{{ url_for('terms') }}">이용약관</a> ·
-    <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
-  </div>
-</div>
+<h1>회원가입</h1>
+<form method="post" class="form">
+  <label>이메일<input type="email" name="email" required></label>
+  <label>비밀번호<input type="password" name="password" required></label>
+  <label class="inline">
+    <input type="checkbox" name="agree_terms" required>
+    <span>이용약관에 동의합니다</span>
+    {% if terms %}<a class="link" href="{{ url_for('view_doc', doc_id=terms.id) }}" target="_blank">전문 보기</a>{% endif %}
+  </label>
+  <label class="inline">
+    <input type="checkbox" name="agree_priv" required>
+    <span>개인정보처리방침에 동의합니다</span>
+    {% if priv %}<a class="link" href="{{ url_for('view_doc', doc_id=priv.id) }}" target="_blank">전문 보기</a>{% endif %}
+  </label>
+  <button class="btn primary" type="submit">가입하기</button>
+</form>
 {% endblock %}
