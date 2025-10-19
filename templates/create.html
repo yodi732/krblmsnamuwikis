@@ -1,25 +1,22 @@
+
 {% extends "_layout.html" %}
 {% block content %}
-<section class="card form-card">
-  <h1 class="card-title">문서 만들기</h1>
+<div class="card">
+  <h1>문서 만들기</h1>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}<div class="flash">{% for cat, msg in msgs %}<p class="{{cat}}">{{ msg }}</p>{% endfor %}</div>{% endif %}
+  {% endwith %}
   <form method="post" class="form">
     <label>제목</label>
-    <input class="input" type="text" name="title" required>
-
+    <input name="title" required>
     <label>상위 문서(선택)</label>
-    <select class="input" name="parent_id">
+    <select name="parent_id">
       <option value="">(없음)</option>
-      {% for p in parents %}
-        <option value="{{ p.id }}">{{ p.title }}</option>
-      {% endfor %}
+      {% for p in parents %}<option value="{{ p.id }}">{{ p.title }}</option>{% endfor %}
     </select>
-
     <label>내용</label>
-    <textarea class="input" name="body" rows="10"></textarea>
-
-    <div class="form-actions">
-      <button class="btn btn-primary" type="submit">저장</button>
-    </div>
+    <textarea name="body" rows="10"></textarea>
+    <button class="btn-primary" type="submit">저장</button>
   </form>
-</section>
+</div>
 {% endblock %}

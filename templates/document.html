@@ -1,17 +1,18 @@
 
-{% extends "base.html" %}
-{% block body %}
-<article class="card">
-  <div class="doc-header">
+{% extends "_layout.html" %}
+{% block content %}
+  <article class="card">
     <h1>{{ d.title }}</h1>
-    <div class="doc-actions">
-      <a class="btn" href="{{ url_for('edit_doc', slug=d.slug) }}">수정</a>
-      <form action="{{ url_for('delete_doc', slug=d.slug) }}" method="post" style="display:inline">
-        <button class="btn danger" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
-      </form>
+    <div class="doc-meta">
+      {% if d.parent %}<span class="badge">상위문서: <a href="{{ url_for('doc', doc_id=d.parent.id) }}">{{ d.parent.title }}</a></span>{% endif %}
+      {% if d.can_add_child() %}<span class="badge">하위문서 가능</span>{% else %}<span class="badge muted">하위문서의 하위문서 제한</span>{% endif %}
     </div>
-  </div>
-  <div class="doc-meta">수정: {{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
-  <div class="doc-content">{{ d.content|replace('\n','<br>')|safe }}</div>
-</article>
+    <pre class="doc-body">{{ d.body }}</pre>
+    {% if d.children %}
+      <h3>하위 문서</h3>
+      <ul class="doc-children">
+        {% for c in d.children|sort(attribute='title') %}<li><a href="{{ url_for('doc', doc_id=c.id) }}">{{ c.title }}</a></li>{% endfor %}
+      </ul>
+    {% endif %}
+  </article>
 {% endblock %}

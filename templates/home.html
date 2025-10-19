@@ -1,24 +1,22 @@
+
 {% extends "_layout.html" %}
 {% block content %}
-<section class="card">
-  <h1 class="card-title">문서</h1>
-  <ul class="doc-tree">
-    {% for d in items %}
-      <li>
-        <a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a>
-        {% set children = by_parent.get(d.id, []) %}
-        {% if children %}
-          <ul class="doc-children">
-            {% for c in children %}
-              <li><span class="twig">└</span> <a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-<div class="under-links">
-  <a href="#">이용약관</a> · <a href="#">개인정보처리방침</a>
-</div>
+  <section id="docs" class="card">
+    <h1>문서</h1>
+    <ul class="doc-tree">
+      {% for d in docs if d.parent_id is none %}
+        <li>
+          <a href="{{ url_for('doc', doc_id=d.id) }}">{{ d.title }}</a>
+          {% set children = d.children|sort(attribute='title') %}
+          {% if children %}
+            <ul>
+              {% for c in children %}
+                <li>↳ <a href="{{ url_for('doc', doc_id=c.id) }}">{{ c.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
 {% endblock %}

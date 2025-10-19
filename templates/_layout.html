@@ -1,51 +1,36 @@
-{% set logged_in = me is not none %}
+
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header class="navbar">
-    <div class="container nav-inner">
-      <a class="brand" href="{{ url_for('home') }}">별내위키</a>
-      <nav class="nav-links">
-        <a class="btn" href="{{ url_for('home') }}">홈</a>
-        <a class="btn" href="{{ url_for('create') }}">문서 만들기</a>
-        <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-        {% if logged_in %}
-          <form action="{{ url_for('logout') }}" method="get" style="display:inline">
-            <button class="btn btn-primary" type="submit">로그아웃</button>
-          </form>
-        {% else %}
-          <a class="btn btn-primary" href="{{ url_for('login') }}">로그인</a>
-          <a class="btn btn-accent" href="{{ url_for('signup') }}">회원가입</a>
-        {% endif %}
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-wrap">
-          {% for cat, msg in messages %}
-            <div class="flash {{ cat }}">{{ msg }}</div>
-          {% endfor %}
-        </div>
+  <header class="topbar">
+    <div class="brand"><a href="{{ url_for('home') }}">별내위키</a></div>
+    <nav class="nav">
+      <a class="chip" href="{{ url_for('home') }}">홈</a>
+      <a class="chip" href="{{ url_for('create') }}">문서 만들기</a>
+      <a class="chip" href="{{ url_for('home') }}#docs">로그 보기</a>
+      {% if me %}
+        <a class="chip" href="{{ url_for('logout') }}">로그아웃</a>
+      {% else %}
+        <a class="chip" href="{{ url_for('login') }}">로그인</a>
+        <a class="chip chip-primary" href="{{ url_for('signup') }}">회원가입</a>
       {% endif %}
-    {% endwith %}
+    </nav>
+  </header>
+  <main class="container">
     {% block content %}{% endblock %}
   </main>
-
-  <footer class="container foot">
-    <div class="foot-links">
-      <a href="{{ url_for('view_doc', doc_id=terms_id) if false else url_for('home') }}">이용약관</a> ·
-      <a href="{{ url_for('home') }}">개인정보처리방침</a>
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="{{ url_for('terms') }}">이용약관</a> ·
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
     </div>
-    <div class="foot-feedback">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+    <div class="feedback">피드백 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
   </footer>
 </body>
 </html>
