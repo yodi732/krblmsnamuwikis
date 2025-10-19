@@ -1,12 +1,14 @@
-
 {% extends "_layout.html" %}
 {% block content %}
-<h1 class="h1">문서</h1>
-<ul class="doclist">
-  {% for it in items %}
-    <li><a href="{{ url_for('doc_detail', doc_id=it.id) }}">{{ it.title }}</a></li>
+<h1>문서 목록</h1>
+<div class="grid docs">
+  {% for d in items %}
+  <a class="card" href="{{ url_for('doc_detail', doc_id=d.id) }}">
+    <div class="card-title">{{ d.title }}</div>
+    {% if d.parent %}<div class="card-sub">상위: {{ d.parent.title }}</div>{% endif %}
+  </a>
   {% else %}
-    <li class="muted">아직 문서가 없습니다.</li>
+    <p>아직 문서가 없습니다. 우측 상단의 “문서 만들기”로 시작하세요.</p>
   {% endfor %}
-</ul>
+</div>
 {% endblock %}

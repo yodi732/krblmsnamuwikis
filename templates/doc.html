@@ -1,32 +1,40 @@
-
 {% extends "_layout.html" %}
 {% block content %}
 <article class="doc">
-  <h1 class="h1">{{ doc.title }}</h1>
-  <div class="doc-grid">
-    <section class="doc-content">
-      <pre class="content">{{ doc.content }}</pre>
-    </section>
-    <aside class="doc-side">
-      {% if parent %}
-      <div class="side-card">
-        <div class="side-title">상위 문서</div>
-        <ul class="side-list">
-          <li><a href="{{ url_for('doc_detail', doc_id=parent.id) }}">{{ parent.title }}</a></li>
-        </ul>
-      </div>
-      {% endif %}
-      <div class="side-card">
-        <div class="side-title">하위 문서</div>
-        <ul class="side-list">
-          {% for ch in children %}
-            <li><a href="{{ url_for('doc_detail', doc_id=ch.id) }}">{{ ch.title }}</a></li>
-          {% else %}
-            <li class="muted">없음</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </aside>
-  </div>
+  <h1>{{ doc.title }}</h1>
+  <div class="doc-body">{{ doc.content|safe }}</div>
 </article>
+
+<aside class="sidebar">
+  {% if parent %}
+  <section class="panel">
+    <div class="panel-title">상위 문서</div>
+    <ul class="list">
+      <li><a href="{{ url_for('doc_detail', doc_id=parent.id) }}">{{ parent.title }}</a></li>
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="panel">
+    <div class="panel-title">같은 묶음</div>
+    <ul class="list">
+    {% for s in siblings %}
+      <li><a class="{{ 'active' if s.id==doc.id else '' }}" href="{{ url_for('doc_detail', doc_id=s.id) }}">{{ s.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">하위 문서</div>
+    <ul class="list">
+      {% if children %}
+        {% for c in children %}
+          <li><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></li>
+        {% endfor %}
+      {% else %}
+        <li class="muted">없음</li>
+      {% endif %}
+    </ul>
+  </section>
+</aside>
 {% endblock %}

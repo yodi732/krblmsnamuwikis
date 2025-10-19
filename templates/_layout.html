@@ -1,48 +1,46 @@
-
-{% set is_logged_in = me is not none %}
+{% macro nav_button(href, text) -%}
+<a class="btn btn-soft" href="{{ href }}">{{ text }}</a>
+{%- endmacro %}
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>별내 위키</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
 <body>
-  <header class="topbar">
-    <div class="container topbar-inner">
-      <a class="brand" href="{{ url_for('home') }}">홈</a>
-      <nav class="nav">
-        <a class="btn ghost" href="{{ url_for('create') }}">문서 만들기</a>
-        <a class="btn link" href="{{ url_for('terms') }}">이용약관</a>
-        <a class="btn link" href="{{ url_for('privacy') }}">개인정보처리방침</a>
-      </nav>
-      <div class="auth">
-        {% if is_logged_in %}
-          <span class="me">{{ me.email }}</span>
-          <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
-        {% else %}
-          <a class="btn" href="{{ url_for('login') }}">로그인</a>
-          <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
-        {% endif %}
-      </div>
-    </div>
-  </header>
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flashwrap">
+<header class="topbar">
+  <div class="brand">
+    <a class="home" href="{{ url_for('home') }}">🏠 홈</a>
+  </div>
+  <nav class="actions">
+    {{ nav_button(url_for('create'), "문서 만들기") }}
+    {{ nav_button(url_for('terms'), "이용약관") }}
+    {{ nav_button(url_for('privacy'), "개인정보처리방침") }}
+    {% if me %}
+      <span class="me">{{ me.email }}</span>
+      {{ nav_button(url_for('logout'), "로그아웃") }}
+    {% else %}
+      {{ nav_button(url_for('login'), "로그인") }}
+      {{ nav_button(url_for('signup'), "회원가입") }}
+    {% endif %}
+  </nav>
+</header>
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashwrap">
         {% for cat, msg in messages %}
-          <div class="flash {{ cat }}">{{ msg }}</div>
+        <div class="flash {{ cat }}">{{ msg }}</div>
         {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </main>
-  <footer class="container footer">
-    <div>© 별내 위키</div>
-    <div class="muted">본 사이트는 이용약관과 개인정보처리방침을 따릅니다.</div>
-  </footer>
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot">
+  <small>© 별내 위키</small>
+</footer>
 </body>
 </html>

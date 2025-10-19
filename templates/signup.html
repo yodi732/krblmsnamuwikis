@@ -1,35 +1,22 @@
-
 {% extends "_layout.html" %}
 {% block content %}
-<h1 class="h1">회원가입</h1>
+<h1>회원가입</h1>
 <form method="post" class="form">
   <label>이메일</label>
-  <input type="email" name="email" required placeholder="you@example.com">
+  <input type="email" name="email" required placeholder="you@example.com"/>
   <label>비밀번호</label>
-  <input type="password" name="password" required placeholder="8자 이상 권장">
+  <input type="password" name="password" required minlength="6"/>
 
   <label class="agree">
     <input type="checkbox" name="agree_terms" required>
-    <span>
-      이용약관에 동의합니다
-      {% if terms_id %}
-        · <a target="_blank" rel="noopener" href="{{ url_for('doc_detail', doc_id=terms_id) }}">전문 보기</a>
-      {% endif %}
-    </span>
+    <span>이용약관에 동의합니다 · <a href="{{ url_for('terms') }}" target="_blank" rel="noopener">전문 보기</a></span>
   </label>
 
   <label class="agree">
-    <input type="checkbox" name="agree_privacy" required>
-    <span>
-      개인정보처리방침에 동의합니다
-      {% if privacy_id %}
-        · <a target="_blank" rel="noopener" href="{{ url_for('doc_detail', doc_id=privacy_id) }}">전문 보기</a>
-      {% endif %}
-    </span>
+    <input type="checkbox" name="agree_priv" required>
+    <span>개인정보처리방침에 동의합니다 · <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">전문 보기</a></span>
   </label>
 
-  <div class="form-actions">
-    <button class="btn primary" type="submit">가입하기</button>
-  </div>
+  <button type="submit" class="btn primary">가입하기</button>
 </form>
 {% endblock %}
