@@ -1,15 +1,32 @@
 {% extends "_layout.html" %}
 {% block content %}
-<div class="card">
+<div class="card narrow">
   <h2>회원가입</h2>
   <form method="post">
-    <label>이메일 (@bl-m.kr만 허용)</label><input type="email" name="email" required placeholder="id@bl-m.kr">
-    <label>비밀번호</label><input type="password" name="password" required>
-    <label class="check"><input type="checkbox" name="agree_terms"> 이용약관에 동의합니다.</label>
-    <div class="policy-box small">{{ (terms.content[:1000] ~ '...') if terms else '' }}</div><a href="{{ url_for('terms') }}">전문 보기</a>
-    <label class="check"><input type="checkbox" name="agree_privacy"> 개인정보처리방침에 동의합니다.</label>
-    <div class="policy-box small">{{ (privacy.content[:1200] ~ '...') if privacy else '' }}</div><a href="{{ url_for('privacy') }}">전문 보기</a>
-    <button class="primary" type="submit">가입</button>
+    <label>이메일 (@bl-m.kr만 허용)</label>
+    <input type="email" name="email" required placeholder="id@bl-m.kr">
+    <label>비밀번호</label>
+    <input type="password" name="password" required>
+
+    <label class="check-inline">이용약관에 동의합니다.
+      <input type="checkbox" name="agree_terms" required>
+    </label>
+    <div class="policy-box">
+      <div class="muted">요약</div>
+      <div class="scroll">{{ (terms.content[:600] ~ '...') if terms }}</div>
+      <a href="{{ url_for('terms') }}">전문 보기</a>
+    </div>
+
+    <label class="check-inline">개인정보처리방침에 동의합니다.
+      <input type="checkbox" name="agree_privacy" required>
+    </label>
+    <div class="policy-box">
+      <div class="muted">요약</div>
+      <div class="scroll">{{ (privacy.content[:800] ~ '...') if privacy }}</div>
+      <a href="{{ url_for('privacy') }}">전문 보기</a>
+    </div>
+
+    <button class="btn primary" type="submit">가입</button>
   </form>
 </div>
 {% endblock %}

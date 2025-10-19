@@ -1,13 +1,20 @@
 {% extends "_layout.html" %}
 {% block content %}
-<div class="card">
+<div class="card narrow">
   <h2>문서 만들기</h2>
   <form method="post">
-    <label>제목</label><input name="title" required>
+    <label>제목</label>
+    <input type="text" name="title" required>
     <label>상위 문서</label>
-    <select name="parent_id"><option value="">(없음)</option>{% for p in parents %}<option value="{{ p.id }}">{{ p.title }}</option>{% endfor %}</select>
-    <label>내용</label><textarea name="content" rows="12"></textarea>
-    <button class="primary" type="submit">생성</button>
+    <select name="parent_id">
+      <option value="">(없음)</option>
+      {% for p in parents %}
+        <option value="{{ p.id }}">{{ p.title }}</option>
+      {% endfor %}
+    </select>
+    <label>내용</label>
+    <textarea name="content" rows="12" required></textarea>
+    <button class="btn primary" type="submit">저장</button>
   </form>
 </div>
 {% endblock %}

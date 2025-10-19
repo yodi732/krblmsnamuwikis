@@ -1,15 +1,13 @@
 {% extends "_layout.html" %}
 {% block content %}
-<div class="card">
+<div class="card narrow">
   <h2>로그인</h2>
   <form method="post">
-    <label>이메일 (@bl-m.kr만 허용)</label><input type="email" name="email" required placeholder="id@bl-m.kr">
-    <label>비밀번호</label><input type="password" name="password" required>
-    <button class="primary" type="submit">로그인</button>
+    <label>이메일 (@bl-m.kr만 허용)</label>
+    <input type="email" name="email" required placeholder="id@bl-m.kr">
+    <label>비밀번호</label>
+    <input type="password" name="password" required>
+    <button class="btn primary" type="submit">로그인</button>
   </form>
-  <div class="policy">
-    <h3>이용약관 요약</h3><div class="policy-box">{{ (terms.content[:800] ~ '...') if terms else '' }}</div><a href="{{ url_for('terms') }}">전문 보기</a>
-    <h3>개인정보처리방침 요약</h3><div class="policy-box">{{ (privacy.content[:800] ~ '...') if privacy else '' }}</div><a href="{{ url_for('privacy') }}">전문 보기</a>
-  </div>
 </div>
 {% endblock %}

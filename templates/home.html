@@ -2,23 +2,15 @@
 {% block content %}
 <div class="card">
   <h2>문서</h2>
-  <div class="columns">
-    <div>
-      <h3>상위 문서</h3>
-      <ul>
-        {% for r in root_nodes %}
-          <li><a href="{{ url_for('view_doc', doc_id=r.id) }}">{{ r.title }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div>
-      <h3>최근 변경</h3>
-      <ul>
-        {% for d in recents %}
-          <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a> <span class="muted">· {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+  <ul class="doc-tree">
+    {% for doc, depth in items %}
+      <li style="padding-left: {{ depth * 18 }}px">
+        <a href="{{ url_for('view_doc', doc_id=doc.id) }}">
+          {% if depth > 0 %}<span class="branch">└─</span>{% endif %}
+          {{ doc.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
 </div>
 {% endblock %}

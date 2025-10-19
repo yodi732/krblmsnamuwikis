@@ -1,17 +1,16 @@
 {% extends "_layout.html" %}
 {% block content %}
 <div class="card">
-  <div class="doc-head">
-    <h1>{{ d.title }}</h1>
-    {% if me and not d.is_system %}
-      <form method="post" action="{{ url_for('delete_doc', doc_id=d.id) }}" onsubmit="return confirm('정말 삭제하시겠습니까? 되돌릴 수 없습니다.');"><button class="danger">삭제</button></form>
-    {% endif %}
-  </div>
-  <div class="meta">{% if parent %}<span>상위: <a href="{{ url_for('view_doc', doc_id=parent.id) }}">{{ parent.title }}</a></span> · {% endif %}<span>수정: {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></div>
-  <div class="content">{{ d.content|e|replace('\n','<br>')|safe }}</div>
+  <h2>{{ doc.title }}</h2>
+  {% if parent %}<div class="muted">상위: <a href="{{ url_for('view_doc', doc_id=parent.id) }}">{{ parent.title }}</a></div>{% endif %}
+  <article class="content">{{ doc.content|safe }}</article>
   {% if children %}
-  <h3>하위 문서</h3>
-  <ul>{% for c in children %}<li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>{% endfor %}</ul>
+    <h3>하위 문서</h3>
+    <ul>
+      {% for c in children %}
+        <li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
+      {% endfor %}
+    </ul>
   {% endif %}
 </div>
 {% endblock %}
