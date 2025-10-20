@@ -1,18 +1,33 @@
-
-:root{--primary:#0d6efd;--primary-dark:#0b5ed7;--text:#111;--bg:#fff;--muted:#666;--card:#fff;--border:#e6e6e6}
-*{box-sizing:border-box}body{margin:0;font-family:"Malgun Gothic","맑은 고딕",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
-.container{max-width:1100px;margin:0 auto;padding:24px 16px}
-.nav{position:sticky;top:0;z-index:10;background:#ffffffcc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid var(--border)}
-.nav-inner{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1100px;margin:0 auto}
-.brand{display:flex;align-items:center;gap:8px;font-weight:700;color:#000;text-decoration:none}.brand-emoji{font-size:18px}
-.nav a{color:#000;text-decoration:none;padding:6px 10px;border-radius:8px}.nav a:hover{background:#f2f4f8}.nav .spacer{flex:1}
-.btn{display:inline-block;border:1px solid var(--primary);background:var(--primary);color:#fff;padding:8px 14px;border-radius:10px;font-weight:600;text-decoration:none}
-.btn:hover{background:var(--primary-dark);border-color:var(--primary-dark)}.btn.ghost{background:transparent;color:var(--primary)}.btn.ghost:hover{background:#eef4ff}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.03);padding:14px}.card + .card{margin-top:10px}
-.card-row{display:flex;gap:18px;align-items:flex-start}.card h3{margin:6px 0 12px 0}
-.list{display:flex;flex-direction:column;gap:8px}.list a{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:inherit;background:#fff}
-.list a:hover{background:#f7f9ff}.meta{color:var(--muted);font-size:12px}
-.input, textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text)}
-textarea{min-height:160px;resize:vertical}label{display:block;margin:8px 0 6px}.form-row{display:flex;gap:10px;align-items:center}
-.footer{border-top:1px solid var(--border);margin-top:40px}.footer-inner{max-width:1100px;margin:0 auto;padding:20px 16px;color:var(--muted);font-size:14px;display:flex;justify-content:space-between}
-.footer a{color:var(--primary);text-decoration:none}.footer a:hover{text-decoration:underline}.small{font-size:12px;color:var(--muted)}hr.sep{border:none;border-top:1px solid var(--border);margin:14px 0}
+:root{
+  --blue:#1976d2;
+  --border:#e5e7eb;
+  --bg:#f8fafc;
+  --text:#111827;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', Arial, Helvetica, sans-serif;color:var(--text);background:#fff}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.nav{display:flex;gap:14px;align-items:center;height:48px;border-bottom:1px solid var(--border);padding:0 14px}
+.nav .brand{display:flex;align-items:center;gap:6px;font-weight:700}
+.nav .right{margin-left:auto;display:flex;gap:8px}
+.btn{height:30px;padding:0 12px;border-radius:8px;background:#f3f4f6;border:1px solid var(--border);cursor:pointer}
+.btn-primary{height:32px;padding:0 14px;border:0;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer}
+.btn-link{background:transparent;border:0;color:var(--blue);cursor:pointer}
+.container{max-width:960px;margin:20px auto;padding:0 20px}
+.card{padding:18px;border:1px solid var(--border);border-radius:10px;background:#fff}
+.card h3{margin:0 0 12px}
+label{display:block;margin:10px 0 6px;font-weight:600}
+input[type="email"], input[type="password"], input[type="text"]{
+  width:100%;height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;
+}
+.agreements{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.agreement-item{border:1px solid var(--border);border-radius:8px;padding:10px;background:#fafafa}
+.agreement-header{display:flex;align-items:center;gap:8px}
+.agreement-header .link{margin-left:auto}
+.agreement-body{width:100%;height:110px;margin-top:8px;resize:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;line-height:1.5}
+.list{display:flex;gap:16px}
+.list .col{flex:1}
+.list .item{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:#fff;margin:8px 0}
+footer{display:flex;justify-content:space-between;margin-top:18px;color:#6b7280;font-size:13px}
+.flash{padding:10px 12px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:8px;margin-bottom:12px}

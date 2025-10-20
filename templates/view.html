@@ -1,18 +1,7 @@
-{% extends "_layout.html" %}
+{% extends 'base.html' %}
 {% block content %}
-<article class="doc">
-  <h1>{{ doc.title }}</h1>
-  <div class="meta">
-    {% if doc.parent %}<a href="{{ url_for('view_doc', doc_id=doc.parent.id) }}">상위 문서: {{ doc.parent.title }}</a>{% endif %}
+  <div class="card">
+    <h3>{{ doc.title }}</h3>
+    <pre style="white-space:pre-wrap">{{ doc.content }}</pre>
   </div>
-  <div class="content">{{ doc.content|safe }}</div>
-  {% if doc.children %}
-  <h3>하위 문서</h3>
-  <ul>
-    {% for c in doc.children %}
-      <li><a href="{{ url_for('view_doc', doc_id=c.id) }}">{{ c.title }}</a></li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-</article>
 {% endblock %}

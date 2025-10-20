@@ -1,48 +1,41 @@
-
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header class="topbar">
-  <div class="wrap">
-    <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
-    <nav class="actions">
-      <a class="btn" href="{{ url_for('create_doc') }}">문서 만들기</a>
-      <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-      {% if current_user %}
-        <form action="{{ url_for('delete_account') }}" method="post" style="display:inline">
-          <button class="btn danger" type="submit" onclick="return confirm('계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">회원탈퇴</button>
-        </form>
+  <div class="nav">
+    <div class="brand">🏛️ 별내위키</div>
+    <a href="{{ url_for('create') }}">문서 만들기</a>
+    <a href="{{ url_for('docs') }}">문서 목록</a>
+    <div class="right">
+      {% if g.user %}
+        <span>{{ g.user.email }}</span>
         <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
       {% else %}
         <a class="btn" href="{{ url_for('login') }}">로그인</a>
-        <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
+        <a class="btn btn-primary" href="{{ url_for('signup') }}">회원가입</a>
       {% endif %}
-    </nav>
+    </div>
   </div>
-</header>
 
-<main class="wrap content">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class="flash">
-        {% for cat,msg in messages %}
-          <li class="{{cat}}">{{ msg }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  {% block body %}{% endblock %}
-</main>
-
-<footer class="footer wrap">
-  <a href="{{ url_for('doc_view', slug='terms') }}">이용약관</a> ·
-  <a href="{{ url_for('doc_view', slug='privacy') }}">개인정보처리방침</a>
-</footer>
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer>
+      <div>
+        <a href="{{ url_for('view_doc', title='이용약관') }}">이용약관</a> ·
+        <a href="{{ url_for('view_doc', title='개인정보처리방침') }}">개인정보처리방침</a>
+      </div>
+      <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+    </footer>
+  </div>
 </body>
 </html>
