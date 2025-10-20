@@ -1,33 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="grid two">
-    <section class="card">
-      <h3>최근 문서</h3>
-      <ul class="list">
-        {% for d in docs %}
-          <li><a href="{{ url_for('view_doc', title=d.title) }}">{{ d.title }}</a>
-            <span class="muted">{{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span>
-          </li>
-        {% else %}
-          <li class="muted">아직 문서가 없습니다.</li>
-        {% endfor %}
-      </ul>
-    </section>
-    <aside class="card">
-      <h3>바로가기</h3>
-      <div class="quick">
-        {% for d in quick %}
-          <a class="pill" href="{{ url_for('view_doc', title=d.title) }}">{{ d.title }}</a>
-        {% endfor %}
-      </div>
-      {% if session.get('uid') %}
-        <div class="mt8">
-          <a class="link" href="{{ url_for('logs') }}">로그 보기</a>
-          <form class="inline" action="{{ url_for('delete_account') }}" method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까?')">
-            <button type="submit" class="btn danger">회원탈퇴</button>
-          </form>
-        </div>
-      {% endif %}
-    </aside>
-  </div>
+<section class="card">
+  <h2>최근 문서</h2>
+  <ul class="list">
+    {% for d in docs %}
+      <li><a href="{{ url_for('doc_view', title=d.title) }}">{{ d.title }}</a>
+        <span class="muted">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else '' }}</span>
+      </li>
+    {% else %}
+      <li class="muted">문서가 없습니다.</li>
+    {% endfor %}
+  </ul>
+</section>
 {% endblock %}

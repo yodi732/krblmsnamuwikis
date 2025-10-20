@@ -1,32 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="card wide">
-  <h3>회원가입</h3>
-  <form method="post" class="stack">
-    <label>이메일 (@bl-m.kr만 허용)</label>
-    <input name="email" type="email" required placeholder="id@bl-m.kr">
-    <label>비밀번호</label>
-    <input name="password" type="password" required>
-
-    <div class="agree">
-      <label class="chk">
-        <input type="checkbox" name="agree_tos">
-        이용약관에 동의합니다 (필수)
-        <a class="link" href="{{ url_for('view_doc', title='이용약관') }}" target="_blank">전문 보기</a>
+<section class="card narrow">
+  <h2>회원가입</h2>
+  <form method="post" class="form">
+    <label>이메일 (@bl-m.kr만 허용)
+      <input type="email" name="email" placeholder="id@bl-m.kr" required>
+    </label>
+    <label>비밀번호
+      <input type="password" name="password" required>
+    </label>
+    <div class="agreement">
+      <label class="check">
+        <input type="checkbox" name="agree_tos"> 이용약관에 동의합니다 (필수)
       </label>
-      <textarea class="policy-box" readonly>{{ tos_text }}</textarea>
+      <div class="box">
+        <pre>{{ tos.content }}</pre>
+      </div>
+      <div class="right"><a href="{{ url_for('terms_full') }}">전문 보기</a></div>
     </div>
-
-    <div class="agree">
-      <label class="chk">
-        <input type="checkbox" name="agree_priv">
-        개인정보처리방침에 동의합니다 (필수)
-        <a class="link" href="{{ url_for('view_doc', title='개인정보처리방침') }}" target="_blank">전문 보기</a>
+    <div class="agreement">
+      <label class="check">
+        <input type="checkbox" name="agree_privacy"> 개인정보처리방침에 동의합니다 (필수)
       </label>
-      <textarea class="policy-box" readonly>{{ privacy_text }}</textarea>
+      <div class="box">
+        <pre>{{ pp.content }}</pre>
+      </div>
+      <div class="right"><a href="{{ url_for('privacy_full') }}">전문 보기</a></div>
     </div>
-
-    <button class="btn primary" type="submit">가입</button>
+    <button class="button primary" type="submit">가입</button>
   </form>
 </section>
 {% endblock %}

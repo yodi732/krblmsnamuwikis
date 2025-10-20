@@ -1,9 +1,15 @@
-
-{% extends "_layout.html" %}{% block content %}
-<div class="card" style="max-width:900px;margin:0 auto">
-  <h3 style="margin-bottom:4px">{{ doc.title }}</h3>
-  {% if doc.parent %}<div class="small">상위 문서: <a href="{{ url_for('view_doc', doc_id=doc.parent.id) }}">{{ doc.parent.title }}</a></div>{% endif %}
-  <hr class="sep">
-  <div style="white-space:pre-wrap;line-height:1.6">{{ doc.content }}</div>
-</div>
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>{{ doc.title }}</h2>
+  <pre class="doc">{{ doc.content }}</pre>
+  {% if kids %}
+    <h3>하위 문서</h3>
+    <ul class="list children">
+      {% for c in kids %}
+        <li><a href="{{ url_for('doc_view', title=c.title) }}">{{ c.title }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
 {% endblock %}

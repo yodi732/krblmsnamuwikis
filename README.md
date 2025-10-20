@@ -1,15 +1,15 @@
-# 별내 위키 - 핫픽스 4
+# 별내위키 (Portable)
 
-- 트랜잭션 중단(`InFailedSqlTransaction`) 회피: 각 마이그레이션 단계를 개별 트랜잭션으로 실행
-- `user.pw_hash` / `document.content` 보강, `body` → `content` 이전(있는 경우만)
-- 로그인 케이스 불일치 방지, UI 개선, 약관/개인정보 링크 동작
-- 하위문서의 하위문서 생성 금지
-
-## 로컬 실행(Windows PowerShell)
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-$env:SECRET_KEY="dev"
-python .\app.py
+## 실행
 ```
+pip install -r requirements.txt
+python app.py
+```
+- 기본 DB는 SQLite(`byeollae.db`).
+- `DATABASE_URL`을 주면 PostgreSQL에 자동 연결됩니다. (`postgres://` 접두사는 자동 변환)
+
+## 기능
+- 회원가입(체크박스 필수: 이용약관/개인정보처리방침)
+- 로그인/로그아웃, 회원탈퇴(확인창)
+- 문서 만들기/보기, 하위문서 표시
+- 시스템 문서(약관/정책) 자동 시드 (ORM 사용, 충돌 오류 없음)

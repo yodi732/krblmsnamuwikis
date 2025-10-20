@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="card narrow">
-  <h3>로그인</h3>
-  <form method="post" class="stack">
-    <label>이메일</label>
-    <input name="email" type="email" required>
-    <label>비밀번호</label>
-    <input name="password" type="password" required>
-    <button class="btn primary" type="submit">로그인</button>
+  <h2>로그인</h2>
+  <form method="post" class="form">
+    <label>이메일
+      <input type="email" name="email" required>
+    </label>
+    <label>비밀번호
+      <input type="password" name="password" required>
+    </label>
+    <button class="button primary" type="submit">로그인</button>
   </form>
 </section>
 {% endblock %}
