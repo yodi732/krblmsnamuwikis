@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card" style="max-width:980px;">
+    <h3 style="margin:0 0 10px 0;">{{ doc.title }}</h3>
+    <pre style="white-space:pre-wrap;">{{ doc.content }}</pre>
+  </div>
+{% endblock %}

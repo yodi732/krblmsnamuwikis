@@ -1,47 +1,44 @@
 <!doctype html>
-<html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ title or "별내위키" }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head><body>
-<div class="nav">
-  <div class="left">
-    <div class="brand"><span class="emoji">🏛️</span>별내위키</div>
-    <a class="btn link" href="{{ url_for('home') }}">홈</a>
-    <a class="btn link" href="{{ url_for('create_document') }}">문서 만들기</a>
-    <a class="btn link" href="{{ url_for('list_documents') }}">문서 목록</a>
-  </div>
-  <div class="right">
-    {% if g.user %}
-      <a class="btn" href="{{ url_for('view_logs') }}">로그 보기</a>
-      <form action="{{ url_for('logout') }}" method="post" style="display:inline"><button class="btn" type="submit">로그아웃</button></form>
-      <button class="btn" onclick="if(confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')){window.location='{{ url_for('delete_account') }}'}">회원탈퇴</button>
-    {% else %}
-      <a class="btn" href="{{ url_for('login') }}">로그인</a>
-      <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
-    {% endif %}
-  </div>
-</div>
-<div class="container">
-  {% block content %}{% endblock %}
-  <div class="footer small">
-    <div><a href="{{ url_for('view_system_doc','terms') }}">이용약관</a> · <a href="{{ url_for('view_system_doc','privacy') }}">개인정보처리방침</a></div>
-    <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
-  </div>
-</div>
-
-<div id="modal-backdrop" class="modal-backdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <div id="modal-title" style="font-weight:700"></div>
-      <button class="btn" onclick="closeModal()">닫기</button>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{{ title or "별내위키" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="nav">
+      <div class="brand">🏛️ <a href="{{ url_for('index') }}" style="font-weight:700; color:inherit; text-decoration:none;">별내위키</a></div>
+      <a href="{{ url_for('new_document') }}">문서 만들기</a>
+      <a href="{{ url_for('list_documents') }}">문서 목록</a>
+      {% if g.user %}
+        <span class="badge">{{ g.user.email }}</span>
+        <a class="btn secondary" href="{{ url_for('logout') }}">로그아웃</a>
+      {% else %}
+        <a class="btn secondary" href="{{ url_for('login') }}">로그인</a>
+        <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
+      {% endif %}
     </div>
-    <div id="modal-content" class="small"></div>
-  </div>
-</div>
-<script>
-function openModal(title, html){document.getElementById('modal-title').innerText=title;document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-backdrop').style.display='flex';}
-function closeModal(){document.getElementById('modal-backdrop').style.display='none';}
-async function openPolicy(slug){const r=await fetch('/policy/'+slug);const j=await r.json();openModal(j.title,j.content_html);}
-</script>
-</body></html>
+    <div class="container">{% with messages = get_flashed_messages() %}
+      {% if messages %}<div class="card" style="margin-bottom:14px;">{% for m in messages %}<div>{{ m }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+    <div class="footer">
+      <div>
+        <a href="{{ url_for('doc_by_title', title='이용약관') }}">이용약관</a> ·
+        <a href="{{ url_for('doc_by_title', title='개인정보처리방침') }}">개인정보처리방침</a>
+      </div>
+      <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+    </div>
+    <script>
+      function confirmDeleteAccount(ev, url){
+        if(!confirm('정말 탈퇴하시겠습니까?')){ ev.preventDefault(); return false; }
+        // proceed
+        fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}})
+          .then(()=>{ window.location.href='{{ url_for('index') }}'; });
+        ev.preventDefault();
+        return false;
+      }
+    </script>
+  </body>
+</html>

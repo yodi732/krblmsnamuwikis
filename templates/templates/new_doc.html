@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card" style="max-width:840px;">
+    <h3 style="margin:0 0 10px 0;">문서 만들기</h3>
+    <form method="post" class="stack">
+      <label class="label">제목</label>
+      <input class="input" name="title" required>
+      <label class="label">내용</label>
+      <textarea class="terms" style="height:260px;" name="content"></textarea>
+      <button class="btn">저장</button>
+    </form>
+  </div>
+{% endblock %}

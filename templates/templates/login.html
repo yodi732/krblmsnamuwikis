@@ -1,13 +1,13 @@
-{% extends "base.html" %}{% block content %}
-<div class="card" style="max-width:560px;margin:0 auto">
-  <div style="font-weight:700;margin-bottom:8px">로그인</div>
-  <form method="post">
-    <div class="label">이메일 (@bl-m.kr만 허용)</div>
-    <input class="input" name="email" type="email" placeholder="id@bl-m.kr" required>
-    <div class="label mt-12">비밀번호</div>
-    <input class="input" name="password" type="password" required>
-    <button class="btn primary mt-16" type="submit">로그인</button>
-  </form>
-  {% if error %}<div class="small" style="color:#d00;margin-top:8px">{{ error }}</div>{% endif %}
-</div>
+{% extends "base.html" %}
+{% block content %}
+  <div class="card" style="max-width:680px; margin:0 auto;">
+    <h3 style="margin-top:0;">로그인</h3>
+    <form method="post" class="stack">
+      <label class="label">이메일</label>
+      <input class="input" name="email" placeholder="id@bl-m.kr" required>
+      <label class="label">비밀번호</label>
+      <input class="input" type="password" name="password" required>
+      <button class="btn" type="submit">로그인</button>
+    </form>
+  </div>
 {% endblock %}
