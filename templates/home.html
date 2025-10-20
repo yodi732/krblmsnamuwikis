@@ -1,22 +1,33 @@
-
-{% extends "_layout.html" %}{% block content %}
-<div class="card-row">
-  <div class="card" style="flex:2">
-    <h3>최근 문서</h3>
-    <div class="list">
-      {% for d in recent_docs %}
-        <a href="{{ url_for('view_doc', doc_id=d.id) }}"><span>{{ d.title }}</span><span class="meta">{{ d.updated_at.strftime("%Y-%m-%d %H:%M") if d.updated_at else "" }}</span></a>
-      {% else %}<div class="small">아직 문서가 없습니다. 오른쪽 상단의 ‘문서 만들기’를 눌러 시작하세요.</div>{% endfor %}
-    </div>
+{% extends "base.html" %}
+{% block content %}
+  <div class="grid two">
+    <section class="card">
+      <h3>최근 문서</h3>
+      <ul class="list">
+        {% for d in docs %}
+          <li><a href="{{ url_for('view_doc', title=d.title) }}">{{ d.title }}</a>
+            <span class="muted">{{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span>
+          </li>
+        {% else %}
+          <li class="muted">아직 문서가 없습니다.</li>
+        {% endfor %}
+      </ul>
+    </section>
+    <aside class="card">
+      <h3>바로가기</h3>
+      <div class="quick">
+        {% for d in quick %}
+          <a class="pill" href="{{ url_for('view_doc', title=d.title) }}">{{ d.title }}</a>
+        {% endfor %}
+      </div>
+      {% if session.get('uid') %}
+        <div class="mt8">
+          <a class="link" href="{{ url_for('logs') }}">로그 보기</a>
+          <form class="inline" action="{{ url_for('delete_account') }}" method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까?')">
+            <button type="submit" class="btn danger">회원탈퇴</button>
+          </form>
+        </div>
+      {% endif %}
+    </aside>
   </div>
-  <div class="card" style="flex:1">
-    <h3>바로가기</h3>
-    <div class="list">
-      <a href="{{ url_for('view_doc_by_title', title='이용약관') }}"><span>이용약관</span><span>↗</span></a>
-      <a href="{{ url_for('view_doc_by_title', title='개인정보처리방침') }}"><span>개인정보처리방침</span><span>↗</span></a>
-    </div>
-    <hr class="sep">
-    <div class="small">문서 구조<br>상위 문서 → (직속) 한 단계 하위 문서만 허용</div>
-  </div>
-</div>
 {% endblock %}

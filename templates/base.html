@@ -2,40 +2,48 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="nav">
-    <div class="brand">🏛️ 별내위키</div>
-    <a href="{{ url_for('create') }}">문서 만들기</a>
-    <a href="{{ url_for('docs') }}">문서 목록</a>
-    <div class="right">
-      {% if g.user %}
-        <span>{{ g.user.email }}</span>
-        <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
+  <header class="topbar">
+    <nav class="nav">
+      <a class="home" href="{{ url_for('home') }}">🏛️ 별내위키</a>
+      <a href="{{ url_for('create') }}">문서 만들기</a>
+      <a href="{{ url_for('docs') }}">문서 목록</a>
+      <div class="spacer"></div>
+      {% if session.get('uid') %}
+        <form action="{{ url_for('logout') }}" method="post">
+          <button type="submit" class="btn">로그아웃</button>
+        </form>
       {% else %}
-        <a class="btn" href="{{ url_for('login') }}">로그인</a>
-        <a class="btn btn-primary" href="{{ url_for('signup') }}">회원가입</a>
+        <a class="btn outline" href="{{ url_for('login') }}">로그인</a>
+        <a class="btn primary" href="{{ url_for('signup_form') }}">회원가입</a>
       {% endif %}
-    </div>
-  </div>
+    </nav>
+  </header>
 
-  <div class="container">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
-      {% endif %}
-    {% endwith %}
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+    <div class="flashwrap">
+      {% for cat, m in msgs %}
+        <div class="flash {{cat}}">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
+  <main class="container">
     {% block content %}{% endblock %}
-    <footer>
-      <div>
-        <a href="{{ url_for('view_doc', title='이용약관') }}">이용약관</a> ·
-        <a href="{{ url_for('view_doc', title='개인정보처리방침') }}">개인정보처리방침</a>
-      </div>
-      <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
-    </footer>
-  </div>
+  </main>
+
+  <footer class="foot">
+    <div class="links">
+      <a href="{{ url_for('view_doc', title='이용약관') }}">이용약관</a> ·
+      <a href="{{ url_for('view_doc', title='개인정보처리방침') }}">개인정보처리방침</a>
+    </div>
+    <div class="right">피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+  </footer>
 </body>
 </html>

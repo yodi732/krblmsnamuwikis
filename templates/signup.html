@@ -1,47 +1,32 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <form method="post" action="{{ url_for('signup') }}" class="card" style="max-width:680px">
-    <h3>회원가입</h3>
-
+<section class="card wide">
+  <h3>회원가입</h3>
+  <form method="post" class="stack">
     <label>이메일 (@bl-m.kr만 허용)</label>
-    <input type="email" name="email" placeholder="id@bl-m.kr" required>
-
+    <input name="email" type="email" required placeholder="id@bl-m.kr">
     <label>비밀번호</label>
-    <input type="password" name="password" required>
+    <input name="password" type="password" required>
 
-    <div class="agreements">
-      <div class="agreement-item">
-        <div class="agreement-header">
-          <input id="agree_terms" name="agree_terms" type="checkbox" required>
-          <label for="agree_terms">이용약관에 동의합니다 (필수)</label>
-          <a href="{{ url_for('view_doc', title='이용약관') }}" target="_blank" class="link">전문 보기</a>
-        </div>
-        <textarea class="agreement-body" readonly>
-본 서비스는 교육 목적의 위키입니다. 사용자는 다음을 준수합니다.
-1) 타인의 권리를 침해하지 않습니다.
-2) 법령과 학교 규정을 준수합니다.
-3) 관리자가 판단한 경우 문서를 수정/삭제할 수 있습니다.
-        </textarea>
-      </div>
-
-      <div class="agreement-item">
-        <div class="agreement-header">
-          <input id="agree_privacy" name="agree_privacy" type="checkbox" required>
-          <label for="agree_privacy">개인정보처리방침에 동의합니다 (필수)</label>
-          <a href="{{ url_for('view_doc', title='개인정보처리방침') }}" target="_blank" class="link">전문 보기</a>
-        </div>
-        <textarea class="agreement-body" readonly>
-개인정보처리방침(요약)
-1. 수집 항목: 학교 이메일(@bl-m.kr), 비밀번호(해시), 로그인/문서 활동 로그
-2. 이용 목적: 사용자 인증, 서비스 운영 기록 관리
-3. 보관/파기: 탈퇴 즉시 정보 삭제, 로그는 법령상 보관 기간 보관 후 파기
-4. 제3자 제공/국외이전: 하지 않음
-5. 열람·정정·삭제·처리정지 요구 및 동의 철회 가능
-6. 보호조치: 비밀번호는 해시로만 저장, 최소 권한 원칙으로 접근 통제
-        </textarea>
-      </div>
+    <div class="agree">
+      <label class="chk">
+        <input type="checkbox" name="agree_tos">
+        이용약관에 동의합니다 (필수)
+        <a class="link" href="{{ url_for('view_doc', title='이용약관') }}" target="_blank">전문 보기</a>
+      </label>
+      <textarea class="policy-box" readonly>{{ tos_text }}</textarea>
     </div>
 
-    <button type="submit" class="btn-primary">가입</button>
+    <div class="agree">
+      <label class="chk">
+        <input type="checkbox" name="agree_priv">
+        개인정보처리방침에 동의합니다 (필수)
+        <a class="link" href="{{ url_for('view_doc', title='개인정보처리방침') }}" target="_blank">전문 보기</a>
+      </label>
+      <textarea class="policy-box" readonly>{{ privacy_text }}</textarea>
+    </div>
+
+    <button class="btn primary" type="submit">가입</button>
   </form>
+</section>
 {% endblock %}

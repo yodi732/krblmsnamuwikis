@@ -1,11 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <form method="post" class="card" style="max-width:720px">
-    <h3>문서 만들기</h3>
+<section class="card">
+  <h3>문서 만들기</h3>
+  <form method="post" class="stack">
     <label>제목</label>
-    <input type="text" name="title" required>
+    <input name="title" required>
     <label>내용</label>
-    <textarea name="content" style="width:100%;height:260px;border:1px solid #e5e7eb;border-radius:8px;padding:10px"></textarea>
-    <button class="btn-primary" type="submit" style="margin-top:12px">저장</button>
+    <textarea name="content" rows="10"></textarea>
+    <button class="btn primary" type="submit">저장</button>
   </form>
+</section>
 {% endblock %}

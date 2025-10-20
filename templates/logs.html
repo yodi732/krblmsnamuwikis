@@ -1,11 +1,7 @@
-{% extends "_layout.html" %}
+{% extends "base.html" %}
 {% block content %}
 <section class="card">
-  <h1 class="card-title">최근 편집(최근 50개)</h1>
-  <ul class="doc-list">
-    {% for d in docs %}
-      <li><a href="{{ url_for('view_doc', doc_id=d.id) }}">{{ d.title }}</a> <span class="muted">· {{ d.updated_at.strftime("%Y-%m-%d %H:%M") }}</span></li>
-    {% endfor %}
-  </ul>
+  <h3>로그</h3>
+  <p class="muted">여기에 운영 로그/감사 로그를 노출할 수 있습니다.</p>
 </section>
 {% endblock %}
