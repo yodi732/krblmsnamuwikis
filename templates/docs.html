@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="card">
-  <h2>문서 목록</h2>
-  <ul class="list">
-  {% for d in docs %}
-    <li>
-      <a href="{{ url_for('doc_view', title=d.title) }}">{{ d.title }}</a>
-      {% if d.children %}
-        <ul class="list children">
-          {% for c in d.children|sort(attribute='title') %}
-            <li><a href="{{ url_for('doc_view', title=c.title) }}">{{ c.title }}</a></li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    </li>
-  {% endfor %}
+<div class="card">
+  <h3 style="margin-top:0">문서 목록</h3>
+  <ul>
+    {% for r in roots %}
+      <li>
+        <a href="/docs/{{ r.id }}">{{ r.title }}</a>
+        {% if r.children %}
+          <ul>
+            {% for c in r.children %}
+              <li><a href="/docs/{{ c.id }}">{{ c.title }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% else %}
+      <li class="muted">문서가 없습니다.</li>
+    {% endfor %}
   </ul>
-</section>
+</div>
 {% endblock %}

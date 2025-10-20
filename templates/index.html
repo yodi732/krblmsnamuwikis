@@ -1,39 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <div class="list">
-    <div class="col" style="flex:2">
-      <div class="card">
-        <h3>최근 문서</h3>
-        {% for d in recent %}
-          <div class="item">
-            <a href="{{ url_for('view_doc', title=d.title) }}">{{ d.title }}</a>
-            <small style="color:#6b7280">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else '' }}</small>
-          </div>
-        {% else %}
-          <p>아직 문서가 없습니다.</p>
-        {% endfor %}
-      </div>
-    </div>
-    <div class="col">
-      <div class="card">
-        <h3>바로가기</h3>
-        <div class="item"><a href="{{ url_for('view_doc', title='이용약관') }}">이용약관</a></div>
-        <div class="item"><a href="{{ url_for('view_doc', title='개인정보처리방침') }}">개인정보처리방침</a></div>
-      </div>
-    </div>
-  </div>
-
-  {% if g.user %}
-  <div style="margin-top:12px;display:flex;gap:8px">
-    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-    <button id="btn-delete" class="btn" style="border-color:#ef4444;color:#ef4444">회원탈퇴</button>
-  </div>
-  <script>
-    document.getElementById('btn-delete')?.addEventListener('click', async () => {
-      if (!confirm('정말 탈퇴하시겠습니까?')) return;
-      const res = await fetch('{{ url_for("delete_account") }}', { method:'POST', headers:{'X-Requested-With':'fetch'} });
-      if (res.ok) location.href = '/'; else alert('탈퇴 처리 중 오류가 발생했습니다.');
-    });
-  </script>
-  {% endif %}
+<div class="card">
+  <h3 style="margin-top:0">최근 문서</h3>
+  <ul>
+    {% for d in docs %}
+      <li><a href="/docs/{{ d.id }}">{{ d.title }}</a> <span class="muted">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+    {% else %}
+      <li class="muted">문서가 없습니다.</li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}

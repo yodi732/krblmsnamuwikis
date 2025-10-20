@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="card">
-  <h2>{{ doc.title }}</h2>
-  <pre class="doc">{{ doc.content }}</pre>
-  {% if kids %}
-    <h3>하위 문서</h3>
-    <ul class="list children">
-      {% for c in kids %}
-        <li><a href="{{ url_for('doc_view', title=c.title) }}">{{ c.title }}</a></li>
+<div class="card">
+  <h3 style="margin-top:0">{{ doc.title }}</h3>
+  <pre style="white-space:pre-wrap">{{ doc.content }}</pre>
+
+  {% if children %}
+    <h4>하위 문서</h4>
+    <ul>
+      {% for c in children %}
+        <li><a href="/docs/{{ c.id }}">{{ c.title }}</a></li>
       {% endfor %}
     </ul>
   {% endif %}
-</section>
+</div>
 {% endblock %}
