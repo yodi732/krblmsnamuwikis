@@ -1,0 +1,20 @@
+-- 2025-10-21 Minimal audit_log schema (idempotent)
+CREATE TABLE IF NOT EXISTS audit_log (
+  id BIGSERIAL PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  action TEXT NOT NULL,
+  doc_title TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE audit_log
+  ADD COLUMN IF NOT EXISTS user_email TEXT NOT NULL;
+
+ALTER TABLE audit_log
+  ADD COLUMN IF NOT EXISTS action TEXT NOT NULL;
+
+ALTER TABLE audit_log
+  ADD COLUMN IF NOT EXISTS doc_title TEXT;
+
+ALTER TABLE audit_log
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
