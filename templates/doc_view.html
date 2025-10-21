@@ -1,16 +1,28 @@
-{% extends "base.html" %}
+\
+{% extends "_base.html" %}
 {% block content %}
-<div class="card">
-  <h3 style="margin-top:0">{{ doc.title }}</h3>
-  <pre style="white-space:pre-wrap">{{ doc.content }}</pre>
+  <article class="doc">
+    <header class="doc-head">
+      <h1>{{ doc.title }}</h1>
+      <div class="muted">마지막 수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    </header>
+    <div class="doc-body">{{ doc.content|safe }}</div>
+    {% if cu %}
+      <div class="actions">
+        <a class="button" href="{{ url_for('doc_edit', doc_id=doc.id) }}">편집</a>
+        <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}" onsubmit="return confirm('문서를 삭제할까요?');">
+          <button class="danger" type="submit">삭제</button>
+        </form>
+      </div>
+    {% endif %}
+  </article>
 
-  {% if children %}
-    <h4>하위 문서</h4>
-    <ul>
-      {% for c in children %}
-        <li><a href="/docs/{{ c.id }}">{{ c.title }}</a></li>
+  {% if doc.parent_id is none and doc.children %}
+    <h2>하위 문서</h2>
+    <ul class="children">
+      {% for c in doc.children|sort(attribute='updated_at', reverse=True) %}
+        <li><a href="{{ url_for('doc_view', doc_id=c.id) }}">{{ c.title }}</a> <span class="muted">{{ c.updated_at.date() }}</span></li>
       {% endfor %}
     </ul>
   {% endif %}
-</div>
 {% endblock %}

@@ -1,14 +1,14 @@
+# 별내위키 (Render 배포용)
 
-# 별내위키 (개선판)
-- UI 개편(네이비 헤더/카드)
-- 푸터: 이용약관/개인정보처리방침 + "피드백 & 문의 -> 이메일"
-- 문서 목록: 상위/하위 문서 한눈에, 날짜/삭제 버튼 표시
-- 문서 생성: 상위 문서만 지정 가능(하위의 하위 금지)
-- 회원가입: 약관/개인정보 전문 표시, 비밀번호 재확인
-- 활동 로그: /logs (로그인 필요)
+## 실행
+- Build: `pip install -r requirements.txt`
+- Start: `gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120`
 
-## Render
-Start Command (권장)
-```
-gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
-```
+## 환경 변수
+- `DATABASE_URL`: Postgres URL (postgres://... 지원, 자동 변환)
+- `SECRET_KEY`: 세션 키
+
+## 주요 정책
+- 약관/개인정보처리방침은 /legal/* 라우트로 제공되며 위키 문서가 아님(수정/삭제 불가)
+- 문서 생성/편집/삭제/로그 보기: 로그인 필요
+- 하위문서 한 단계만 허용

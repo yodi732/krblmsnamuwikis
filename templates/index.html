@@ -1,42 +1,39 @@
-
+\
 {% extends "_base.html" %}
 {% block content %}
   <h1>문서 목록</h1>
   <div class="grid">
-    {% for p in parents %}
-      <div class="card">
-        <div class="card-header">
-          <div class="title-row">
-            <a class="doc-title" href="{{ url_for('doc_detail', doc_id=p.id) }}">{{ p.title }}</a>
-            <span class="date">{{ (p.updated_at or p.created_at).strftime('%Y-%m-%d') }}</span>
-          </div>
-          {% if current_user() %}
-          <form method="post" action="{{ url_for('doc_delete', doc_id=p.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
-            <button class="chip danger" type="submit">삭제</button>
-          </form>
-          {% endif %}
-        </div>
-        {% set kids = children_map.get(p.id, []) %}
-        {% if kids %}
-          <ul class="child-list">
-            {% for c in kids %}
-            <li class="child-item">
-              <a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a>
-              <span class="date">{{ (c.updated_at or c.created_at).strftime('%Y-%m-%d') }}</span>
-              {% if current_user() %}
-              <form method="post" action="{{ url_for('doc_delete', doc_id=c.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
-                <button class="chip danger" type="submit">삭제</button>
-              </form>
-              {% endif %}
-            </li>
+  {% for t in tops %}
+    <section class="card">
+      <header class="card-head">
+        <a class="title" href="{{ url_for('doc_view', doc_id=t.id) }}">{{ t.title }}</a>
+        <span class="muted">{{ t.updated_at.date() }}</span>
+        {% if cu %}
+        <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=t.id) }}" onsubmit="return confirm('문서 \"{{t.title}}\" 을(를) 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
+          <button class="pill danger small" type="submit">삭제</button>
+        </form>
+        {% endif %}
+      </header>
+      <div class="card-body">
+        {% if t.children %}
+          <ul class="children">
+            {% for c in t.children|sort(attribute='updated_at', reverse=True) %}
+              <li>
+                <a href="{{ url_for('doc_view', doc_id=c.id) }}">{{ c.title }}</a>
+                <span class="muted">{{ c.updated_at.date() }}</span>
+                {% if cu %}
+                <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=c.id) }}" onsubmit="return confirm('문서 \"{{c.title}}\" 을(를) 삭제할까요?');">
+                  <button class="pill danger xs" type="submit">삭제</button>
+                </form>
+                {% endif %}
+              </li>
             {% endfor %}
           </ul>
         {% else %}
           <div class="muted">하위 문서 없음</div>
         {% endif %}
       </div>
-    {% else %}
-      <div class="muted">아직 문서가 없습니다.</div>
-    {% endfor %}
+    </section>
+  {% endfor %}
   </div>
 {% endblock %}

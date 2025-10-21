@@ -1,60 +1,53 @@
-
+\
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <title>별내위키</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>별내위키</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header class="site-header">
-  <div class="container nav-row">
-    <a class="brand" href="{{ url_for('index') }}">별내위키</a>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}">홈</a>
-      {% if current_user() %}
-        <a href="{{ url_for('doc_new') }}">문서 만들기</a>
-        <a href="{{ url_for('view_logs') }}">로그 보기</a>
-      {% endif %}
-      <a href="{{ url_for('legal', slug='terms') }}">이용약관</a>
-      <a href="{{ url_for('legal', slug='privacy') }}">개인정보처리방침</a>
-      {% if current_user() %}
-        <a href="{{ url_for('logout') }}">로그아웃</a>
-        <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('정말 계정을 삭제하시겠습니까?');" class="inline-form">
-          <button type="submit" class="link danger">계정삭제</button>
-        </form>
-      {% else %}
-        <a href="{{ url_for('login') }}">로그인</a>
-        <a href="{{ url_for('signup') }}">회원가입</a>
-      {% endif %}
+  <header class="topbar">
+    <nav class="container nav">
+      <div class="left">
+        <a class="brand" href="{{ url_for('index') }}">별내위키</a>
+        <a href="{{ url_for('index') }}">홈</a>
+        {% if cu %}
+          <a href="{{ url_for('doc_new') }}">문서 만들기</a>
+          <a href="{{ url_for('view_logs') }}">로그 보기</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">로그인</a>
+        {% endif %}
+      </div>
+      <div class="right">
+        {% if cu %}
+          <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('정말 계정을 삭제하시겠어요? 이 작업은 되돌릴 수 없습니다.');">
+            <a class="link" href="{{ url_for('logout') }}">로그아웃</a>
+            <button class="danger small" type="submit">계정삭제</button>
+          </form>
+        {% else %}
+          <a class="link" href="{{ url_for('signup') }}">회원가입</a>
+        {% endif %}
+      </div>
     </nav>
-  </div>
-</header>
+  </header>
 
-<main class="container content">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="flash {{ category }}">{{ message }}</li>
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash">
+        {% for cat, msg in messages %}
+          <li class="{{cat}}">{{ msg }}</li>
         {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  {% block content %}{% endblock %}
-</main>
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
 
-<footer class="site-footer">
-  <div class="container footer-row">
-    <div class="left">
-      <a href="{{ url_for('legal', slug='terms') }}">이용약관</a>
-      <span class="sep">·</span>
-      <a href="{{ url_for('legal', slug='privacy') }}">개인정보처리방침</a>
-      <span class="sep">·</span>
-      <span>피드백 &amp; 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
-    </div>
-  </div>
-</footer>
+  <footer class="footer container">
+    <span><a href="{{ url_for('legal_terms') }}">이용약관</a> · <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a> · 피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+  </footer>
 </body>
 </html>
