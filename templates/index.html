@@ -1,39 +1,49 @@
-\
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
-  <h1>문서 목록</h1>
+  <h1 class="page-title">문서 목록</h1>
   <div class="grid">
-  {% for t in tops %}
-    <section class="card">
-      <header class="card-head">
-        <a class="title" href="{{ url_for('doc_view', doc_id=t.id) }}">{{ t.title }}</a>
-        <span class="muted">{{ t.updated_at.date() }}</span>
-        {% if cu %}
-        <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=t.id) }}" onsubmit="return confirm('문서 \"{{t.title}}\" 을(를) 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
-          <button class="pill danger small" type="submit">삭제</button>
-        </form>
-        {% endif %}
-      </header>
-      <div class="card-body">
-        {% if t.children %}
-          <ul class="children">
-            {% for c in t.children|sort(attribute='updated_at', reverse=True) %}
-              <li>
-                <a href="{{ url_for('doc_view', doc_id=c.id) }}">{{ c.title }}</a>
-                <span class="muted">{{ c.updated_at.date() }}</span>
-                {% if cu %}
-                <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=c.id) }}" onsubmit="return confirm('문서 \"{{c.title}}\" 을(를) 삭제할까요?');">
-                  <button class="pill danger xs" type="submit">삭제</button>
-                </form>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
+    {% for t in tops if not t.is_legal %}
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title"><a href="#">{{ t.title }}</a></div>
+          <div class="meta">{{ t.updated_at.date() }}</div>
+          <form action="{{ url_for('doc_delete', doc_id=t.id) }}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까? 하위 문서도 함께 삭제됩니다.');">
+            <input type="hidden" name="confirm" value="1">
+            <button class="pill danger" {% if not user %}disabled{% endif %}>삭제</button>
+          </form>
+        </div>
+        <div class="card-body">
+          {% if t.children %}
+            <ul class="child-list">
+              {% for c in t.children %}
+                <li>
+                  <span class="title"><a href="#">{{ c.title }}</a></span>
+                  <span class="date">{{ c.updated_at.date() }}</span>
+                  <form action="{{ url_for('doc_delete', doc_id=c.id) }}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <input type="hidden" name="confirm" value="1">
+                    <button class="pill danger xs" {% if not user %}disabled{% endif %}>삭제</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="muted">하위 문서 없음</div>
+          {% endif %}
+        </div>
+      </section>
+    {% endfor %}
+    <!-- Show immutable legal docs separately but without delete -->
+    {% for t in tops if t.is_legal %}
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title"><a href="{{ url_for('legal_terms' if t.title=='이용약관' else 'legal_privacy') }}">{{ t.title }}</a></div>
+          <div class="meta">{{ t.updated_at.date() }}</div>
+          <button class="pill" disabled>삭제불가</button>
+        </div>
+        <div class="card-body">
           <div class="muted">하위 문서 없음</div>
-        {% endif %}
-      </div>
-    </section>
-  {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
   </div>
 {% endblock %}

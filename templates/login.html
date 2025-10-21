@@ -1,8 +1,7 @@
-\
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
-<h1>로그인</h1>
-<form method="post" class="form narrow">
+<h1 class="page-title">로그인</h1>
+<form method="post" class="form">
   <label>이메일
     <input type="email" name="email" required>
   </label>
@@ -10,8 +9,8 @@
     <input type="password" name="password" required>
   </label>
   <div class="actions">
-    <button type="submit">로그인</button>
-    <a class="button ghost" href="{{ url_for('signup') }}">회원가입</a>
+    <button type="submit" class="btn primary">로그인</button>
+    <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
   </div>
 </form>
 {% endblock %}

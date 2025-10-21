@@ -1,9 +1,24 @@
-{% extends "_base.html" %}
+{% extends "base.html" %}
 {% block content %}
-<h2>새 문서</h2>
+<h1 class="page-title">새 문서</h1>
 <form method="post" class="form">
-  <label>제목 <input type="text" name="title" required></label>
-  <label>본문 <textarea name="content" required></textarea></label>
-  <button class="btn" type="submit">저장</button>
+  <label>제목
+    <input type="text" name="title" required>
+  </label>
+  <label>상위 문서(선택)
+    <select name="parent_id">
+      <option value="">(없음)</option>
+      {% for p in parents %}
+        <option value="{{ p.id }}">{{ p.title }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>내용
+    <textarea name="content" rows="10"></textarea>
+  </label>
+  <div class="actions">
+    <button type="submit" class="btn primary">생성</button>
+    <a class="btn" href="{{ url_for('index') }}">취소</a>
+  </div>
 </form>
 {% endblock %}

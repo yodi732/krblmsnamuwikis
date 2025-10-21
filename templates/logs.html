@@ -1,24 +1,17 @@
-{% extends "_base.html" %}
-{% block title %}로그 보기{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-<h2>로그 보기</h2>
-<p class="muted">문서 만들기/수정/삭제 내역 (최신 500개)</p>
+<h1 class="page-title">활동 로그</h1>
 <table class="table">
   <thead>
-    <tr>
-      <th>시간</th>
-      <th>사용자</th>
-      <th>동작</th>
-      <th>문서</th>
-    </tr>
+    <tr><th>이메일</th><th>작업</th><th>문서</th><th>일시</th></tr>
   </thead>
   <tbody>
-    {% for r in logs %}
+    {% for l in logs %}
     <tr>
-      <td>{{ r.created_at }}</td>
-      <td>{{ r.user_email }}</td>
-      <td>{{ r.action }}</td>
-      <td>{{ r.doc_title or '-' }}</td>
+      <td>{{ l.user_email }}</td>
+      <td>{{ l.action }}</td>
+      <td>{{ l.doc_title }}</td>
+      <td>{{ l.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
     </tr>
     {% endfor %}
   </tbody>

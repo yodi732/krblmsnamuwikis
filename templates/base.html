@@ -1,45 +1,54 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>별내위키</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; margin: 24px; color:#111; }
-    a { color:#0b57d0; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .nav { display:flex; gap:12px; align-items:center; margin-bottom:16px; }
-    .btn { padding:6px 10px; border-radius:8px; border:1px solid #d0d7de; background:#fff; cursor:pointer; }
-    .btn.primary { background:#0b57d0; color:#fff; border-color:#0b57d0; }
-    .card { border:1px solid #e5e7eb; border-radius:10px; padding:16px; }
-    .muted { color:#666; }
-    .flash { margin:8px 0; padding:8px 10px; border-radius:8px; background:#f1f5ff; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="nav">
-    <a href="/">별내위키</a>
-    <a href="/docs">문서 목록</a>
-    <div style="margin-left:auto"></div>
-    {% if session.uid %}
-      <a class="btn" href="/logout">로그아웃</a>
-    {% else %}
-      <a class="btn" href="/login">로그인</a>
-      <a class="btn primary" href="/signup">회원가입</a>
-    {% endif %}
-  </div>
+  <header class="topbar">
+    <div class="container nav">
+      <div class="brand">별내위키</div>
+      <nav class="menu">
+        <a href="{{ url_for('index') }}">홈</a>
+        {% if user %}
+          <a href="{{ url_for('doc_new') }}">문서 만들기</a>
+          <a href="{{ url_for('view_logs') }}">로그 보기</a>
+          <a href="{{ url_for('logout') }}">로그아웃</a>
+          <form action="{{ url_for('account_delete') }}" method="post" class="inline">
+            <button type="submit" class="link danger">계정삭제</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('login') }}">로그인</a>
+          <a href="{{ url_for('signup') }}">회원가입</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for cat, msg in messages %}
-        <div class="flash">{{ msg }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for cat, msg in messages %}
+            <div class="flash {{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
 
-  {% block content %}{% endblock %}
-  <div style="margin-top:24px" class="muted">
-    <a href="/docs">이용약관 · 개인정보처리방침</a>
-  </div>
+  <footer class="bottombar">
+    <div class="container foot">
+      <div class="links">
+        <a href="{{ url_for('legal_terms') }}">이용약관</a>
+        <span>·</span>
+        <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a>
+      </div>
+      <div class="right">피드백 &amp; 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+    </div>
+  </footer>
 </body>
 </html>
