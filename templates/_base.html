@@ -9,18 +9,21 @@
 </head>
 <body>
 <header class="site-header">
-  <div class="container">
+  <div class="container nav-row">
     <a class="brand" href="{{ url_for('index') }}">별내위키</a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">홈</a>
+      {% if current_user() %}
+        <a href="{{ url_for('doc_new') }}">문서 만들기</a>
+        <a href="{{ url_for('view_logs') }}">로그 보기</a>
+      {% endif %}
       <a href="{{ url_for('legal', slug='terms') }}">이용약관</a>
       <a href="{{ url_for('legal', slug='privacy') }}">개인정보처리방침</a>
-      {% if user %}
-        <span class="hello">안녕하세요, {{ user.email }}님</span>
-        <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('정말 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');" style="display:inline;">
+      {% if current_user() %}
+        <a href="{{ url_for('logout') }}">로그아웃</a>
+        <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('정말 계정을 삭제하시겠습니까?');" class="inline-form">
           <button type="submit" class="link danger">계정삭제</button>
         </form>
-        <a href="{{ url_for('logout') }}">로그아웃</a>
       {% else %}
         <a href="{{ url_for('login') }}">로그인</a>
         <a href="{{ url_for('signup') }}">회원가입</a>
@@ -29,7 +32,7 @@
   </div>
 </header>
 
-<main class="container">
+<main class="container content">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <ul class="flashes">
@@ -43,8 +46,14 @@
 </main>
 
 <footer class="site-footer">
-  <div class="container">
-    <span>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+  <div class="container footer-row">
+    <div class="left">
+      <a href="{{ url_for('legal', slug='terms') }}">이용약관</a>
+      <span class="sep">·</span>
+      <a href="{{ url_for('legal', slug='privacy') }}">개인정보처리방침</a>
+      <span class="sep">·</span>
+      <span>피드백 &amp; 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+    </div>
   </div>
 </footer>
 </body>

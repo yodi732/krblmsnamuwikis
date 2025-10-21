@@ -1,24 +1,43 @@
 
 {% extends "_base.html" %}
 {% block content %}
-  <h1>{{ doc.title }}</h1>
-  <article class="doc-content">{{ doc.content|safe|default("내용이 없습니다.") }}</article>
+  <div class="card">
+    <div class="card-header">
+      <div class="title-row">
+        <h1 class="doc-title">{{ doc.title }}</h1>
+        <span class="date">{{ (doc.updated_at or doc.created_at).strftime('%Y-%m-%d %H:%M') }}</span>
+      </div>
+      {% if current_user() %}
+      <div class="actions">
+        <a class="chip" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
+        <form method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
+          <button class="chip danger" type="submit">삭제</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    <article class="doc-content">{{ doc.content|safe|default("내용이 없습니다.") }}</article>
+  </div>
 
-  {% if children and children|length > 0 %}
-    <h3>하위 문서</h3>
-    <ul class="doc-list">
-      {% for c in children %}
-      <li><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  <div class="toolbar">
-    {% if user %}
-      <a class="btn" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
-      <form method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
-        <button class="btn danger" type="submit">삭제</button>
-      </form>
+  <div class="card">
+    <div class="card-header"><h3>하위 문서</h3></div>
+    {% if children %}
+      <ul class="child-list">
+        {% for c in children %}
+        <li class="child-item">
+          <a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a>
+          <span class="date">{{ (c.updated_at or c.created_at).strftime('%Y-%m-%d') }}</span>
+          {% if current_user() %}
+            <a class="chip" href="{{ url_for('doc_edit', doc_id=c.id) }}">수정</a>
+            <form method="post" action="{{ url_for('doc_delete', doc_id=c.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
+              <button class="chip danger" type="submit">삭제</button>
+            </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="muted">하위 문서 없음</div>
     {% endif %}
   </div>
 {% endblock %}

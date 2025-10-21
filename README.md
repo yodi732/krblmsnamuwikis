@@ -1,40 +1,14 @@
-# 별내위키 (Byeollae Wiki)
 
-Flask + PostgreSQL 기반의 간단한 위키. Render 배포에 최적화되어 있습니다.
+# 별내위키 (개선판)
+- UI 개편(네이비 헤더/카드)
+- 푸터: 이용약관/개인정보처리방침 + "피드백 & 문의 -> 이메일"
+- 문서 목록: 상위/하위 문서 한눈에, 날짜/삭제 버튼 표시
+- 문서 생성: 상위 문서만 지정 가능(하위의 하위 금지)
+- 회원가입: 약관/개인정보 전문 표시, 비밀번호 재확인
+- 활동 로그: /logs (로그인 필요)
 
-## 로컬 실행
-```bash
-python -m venv .venv && source .venv/bin/activate  # Windows는 .venv\Scripts\activate
-pip install -r requirements.txt
-export DATABASE_URL=sqlite:///local.db
-export SECRET_KEY=dev
-python app.py
+## Render
+Start Command (권장)
 ```
-
-## Render 배포
-
-- **Build Command**
-  ```
-  pip install -r requirements.txt
-  ```
-
-- **Start Command**
-  ```
-  gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
-  ```
-
-- **Environment Variables**
-  - `DATABASE_URL`: Render Postgres에서 발급된 URL (예: `postgres://user:pass@host:5432/db`)
-    - 앱에서 자동으로 `postgresql+psycopg://`로 변환됩니다.
-  - `SECRET_KEY`: 임의의 랜덤 문자열
-
-## 기능
-- 회원가입/로그인/로그아웃(해시 저장)
-- 약관/개인정보 처리방침 **자동 시드**
-- 문서 CRUD + 1단계 상하위 구조
-- 계정 삭제(탈퇴) 기능
-
-## 주의
-- 템플릿 공통 레이아웃 파일명은 `_base.html` 입니다.
-- `Document.title` 은 유니크 인덱스입니다(중복 생성 방지).
+gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
 ```

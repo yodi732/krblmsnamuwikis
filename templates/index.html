@@ -1,22 +1,42 @@
 
 {% extends "_base.html" %}
 {% block content %}
-  <div class="toolbar">
-    {% if user %}
-      <a class="btn" href="{{ url_for('doc_new') }}">+ 새 문서</a>
-    {% else %}
-      <a class="btn" href="{{ url_for('login') }}">로그인하고 문서 작성하기</a>
-    {% endif %}
-  </div>
   <h1>문서 목록</h1>
-  <ul class="doc-list">
-    {% for d in docs %}
-      <li>
-        <a href="{{ url_for('doc_detail', doc_id=d.id) }}">{{ d.title }}</a>
-        <span class="meta">{{ d.created_at.strftime('%Y-%m-%d') }}</span>
-      </li>
+  <div class="grid">
+    {% for p in parents %}
+      <div class="card">
+        <div class="card-header">
+          <div class="title-row">
+            <a class="doc-title" href="{{ url_for('doc_detail', doc_id=p.id) }}">{{ p.title }}</a>
+            <span class="date">{{ (p.updated_at or p.created_at).strftime('%Y-%m-%d') }}</span>
+          </div>
+          {% if current_user() %}
+          <form method="post" action="{{ url_for('doc_delete', doc_id=p.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
+            <button class="chip danger" type="submit">삭제</button>
+          </form>
+          {% endif %}
+        </div>
+        {% set kids = children_map.get(p.id, []) %}
+        {% if kids %}
+          <ul class="child-list">
+            {% for c in kids %}
+            <li class="child-item">
+              <a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a>
+              <span class="date">{{ (c.updated_at or c.created_at).strftime('%Y-%m-%d') }}</span>
+              {% if current_user() %}
+              <form method="post" action="{{ url_for('doc_delete', doc_id=c.id) }}" class="inline-form" onsubmit="return confirm('삭제하시겠습니까?');">
+                <button class="chip danger" type="submit">삭제</button>
+              </form>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="muted">하위 문서 없음</div>
+        {% endif %}
+      </div>
     {% else %}
-      <li>아직 문서가 없습니다. 첫 문서를 작성해보세요!</li>
+      <div class="muted">아직 문서가 없습니다.</div>
     {% endfor %}
-  </ul>
+  </div>
 {% endblock %}

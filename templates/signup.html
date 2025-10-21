@@ -1,25 +1,41 @@
 
 {% extends "_base.html" %}
 {% block content %}
-  <h1>회원가입</h1>
-  <form method="post" class="form">
-    <label>이메일
-      <input type="email" name="email" required>
-    </label>
-    <label>비밀번호
-      <input type="password" name="password" required minlength="6">
-    </label>
-    <label class="checkbox">
-      <input type="checkbox" name="agree_terms" required>
-      <span>이용약관에 동의합니다.</span>
-    </label>
-    <label class="checkbox">
-      <input type="checkbox" name="agree_privacy" required>
-      <span>개인정보처리방침에 동의합니다.</span>
-    </label>
-    <div class="toolbar">
-      <button class="btn" type="submit">가입하기</button>
-      <a class="btn ghost" href="{{ url_for('login') }}">이미 계정이 있나요?</a>
-    </div>
-  </form>
+  <div class="card">
+    <div class="card-header"><h1>회원가입</h1></div>
+    <form method="post" class="form">
+      <label>이메일
+        <input type="email" name="email" required>
+      </label>
+      <label>비밀번호
+        <input type="password" name="password" required minlength="6">
+      </label>
+      <label>비밀번호 재확인
+        <input type="password" name="password2" required minlength="6">
+      </label>
+
+      <details class="legal">
+        <summary>이용약관 전문 보기</summary>
+        <pre class="legal-box">{{ terms.content }}</pre>
+      </details>
+      <label class="checkbox">
+        <input type="checkbox" name="agree_terms" required>
+        <span>이용약관에 동의합니다.</span>
+      </label>
+
+      <details class="legal">
+        <summary>개인정보처리방침 전문 보기</summary>
+        <pre class="legal-box">{{ privacy.content }}</pre>
+      </details>
+      <label class="checkbox">
+        <input type="checkbox" name="agree_privacy" required>
+        <span>개인정보처리방침에 동의합니다.</span>
+      </label>
+
+      <div class="toolbar">
+        <button class="btn" type="submit">가입하기</button>
+        <a class="btn ghost" href="{{ url_for('login') }}">이미 계정이 있나요?</a>
+      </div>
+    </form>
+  </div>
 {% endblock %}
