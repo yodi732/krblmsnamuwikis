@@ -1,0 +1,28 @@
+
+{% extends "_base.html" %}
+{% block content %}
+  <h1>{{ '새 문서' if mode=='new' else '문서 편집' }}</h1>
+  <form method="post" class="form">
+    <label>제목
+      <input type="text" name="title" value="{{ doc.title if doc else '' }}" required>
+    </label>
+
+    <label>상위 문서(선택)
+      <select name="parent_id">
+        <option value="">(없음)</option>
+        {% for p in parents %}
+          <option value="{{ p.id }}" {% if doc and doc.parent_id==p.id %}selected{% endif %}>{{ p.title }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>내용
+      <textarea name="content" rows="12">{{ doc.content if doc else '' }}</textarea>
+    </label>
+
+    <div class="toolbar">
+      <button class="btn" type="submit">{{ '생성' if mode=='new' else '저장' }}</button>
+      <a class="btn ghost" href="{{ url_for('index') }}">취소</a>
+    </div>
+  </form>
+{% endblock %}

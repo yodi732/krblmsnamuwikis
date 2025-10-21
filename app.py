@@ -1,184 +1,272 @@
-import os
-from datetime import datetime
-from urllib.parse import urlparse
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from __future__ import annotations
+
+import os
+import re
+from datetime import datetime
+from typing import Optional
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-def _normalized_db_uri(raw: str) -> str:
-    if raw.startswith("postgres://"):
-        raw = raw.replace("postgres://", "postgresql+psycopg://", 1)
-    elif raw.startswith("postgresql://"):
-        raw = raw.replace("postgresql://", "postgresql+psycopg://", 1)
-    return raw
+# ---------- Helpers ----------
 
-def create_app():
-    app = Flask(__name__)
-    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+def _normalize_database_url(url: str) -> str:
+    """
+    Render often provides DATABASE_URL as 'postgres://'.
+    SQLAlchemy 2.x w/ psycopg3 expects 'postgresql+psycopg://'.
+    """
+    if not url:
+        return "sqlite:///local.db"
+    # only rewrite scheme if it starts with postgres://
+    if url.startswith("postgres://"):
+        # preserve credentials/host/path
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    # If already postgresql://, add +psycopg if missing
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return url
 
-    db_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
-    app.config["SQLALCHEMY_DATABASE_URI"] = _normalized_db_uri(db_url)
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+def ensure_schema_and_seed():
+    db.create_all()
+
+    # Ensure Terms/Privacy system docs exist
+    terms = Document.query.filter_by(title="이용약관").first()
+    privacy = Document.query.filter_by(title="개인정보처리방침").first()
+
+    if not terms:
+        terms = Document(
+            title="이용약관",
+            content="별내위키 이용약관입니다. 본 서비스는 학습/커뮤니티 용도로 제공되며, 불법/유해 게시물 금지.",
+            parent_id=None,
+        )
+        db.session.add(terms)
+    if not privacy:
+        privacy = Document(
+            title="개인정보처리방침",
+            content="별내위키는 계정 식별을 위해 이메일만 최소한으로 수집합니다. 요청 시 탈퇴/삭제를 보장합니다.",
+            parent_id=None,
+        )
+        db.session.add(privacy)
+    db.session.commit()
+
+# ---------- App Factory ----------
+
+def create_app() -> Flask:
+    app = Flask(__name__, template_folder="templates", static_folder="static")
+
+    # Secret key
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
+
+    # Database URL
+    raw_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = _normalize_database_url(raw_url)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
-    from models import User, Document  # noqa
+    with app.app_context():
+        ensure_schema_and_seed()
 
-    app._schema_seed_done = False
+    # ---------- Routes ----------
 
-    @app.before_request
-    def _run_once():
-        if getattr(app, "_schema_seed_done", False):
-            return
-        with app.app_context():
-            ensure_schema_and_seed()
-            app._schema_seed_done = True
+    @app.route("/")
+    def index():
+        docs = Document.query.order_by(Document.created_at.desc()).all()
+        return render_template("index.html", docs=docs, user=current_user())
 
-    @app.get("/")
-    def home():
-        docs = Document.query.order_by(Document.created_at.desc()).limit(20).all()
-        return render_template("index.html", docs=docs)
+    # ---- Auth ----
 
-    @app.get("/docs")
-    def docs_list():
-        roots = Document.query.filter_by(parent_id=None).order_by(Document.title.asc()).all()
-        return render_template("docs.html", roots=roots)
+    def current_user() -> Optional["User"]:
+        uid = session.get("user_id")
+        if not uid:
+            return None
+        return User.query.get(uid)
 
-    @app.get("/docs/<int:doc_id>")
-    def doc_view(doc_id: int):
-        doc = Document.query.get_or_404(doc_id)
-        children = Document.query.filter_by(parent_id=doc.id).order_by(Document.title.asc()).all()
-        return render_template("doc_view.html", doc=doc, children=children)
+    @app.route("/signup", methods=["GET", "POST"])
+    def signup():
+        if request.method == "POST":
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
+            agree_terms = request.form.get("agree_terms")
+            agree_privacy = request.form.get("agree_privacy")
 
-    @app.get("/login")
-    def login_form():
-        return render_template("login.html")
+            if not email or not password:
+                flash("이메일과 비밀번호를 입력하세요.", "error")
+                return redirect(url_for("signup"))
 
-    @app.post("/login")
+            if not agree_terms or not agree_privacy:
+                flash("이용약관과 개인정보 처리방침에 동의해야 가입할 수 있습니다.", "error")
+                return redirect(url_for("signup"))
+
+            if User.query.filter_by(email=email).first():
+                flash("이미 존재하는 이메일입니다.", "error")
+                return redirect(url_for("signup"))
+
+            user = User(
+                email=email,
+                password_hash=generate_password_hash(password),
+            )
+            db.session.add(user)
+            db.session.commit()
+            flash("회원가입이 완료되었습니다. 로그인 해주세요.", "success")
+            return redirect(url_for("login"))
+
+        return render_template("signup.html", user=current_user())
+
+    @app.route("/login", methods=["GET", "POST"])
     def login():
-        email = request.form.get("email", "").strip()
-        pw = request.form.get("password", "").strip()
+        if request.method == "POST":
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
 
-        row = db.session.execute(text('SELECT id, email, password_hash FROM "user" WHERE email=:e LIMIT 1'),
-                                 {"e": email}).mappings().first()
+            user = User.query.filter_by(email=email).first()
+            if not user or not check_password_hash(user.password_hash, password):
+                flash("이메일 또는 비밀번호가 올바르지 않습니다.", "error")
+                return redirect(url_for("login"))
 
-        if not row or not row["password_hash"] or not check_password_hash(row["password_hash"], pw):
-            flash("이메일 또는 비밀번호가 올바르지 않습니다.", "error")
-            return redirect(url_for("login_form"))
+            session["user_id"] = user.id
+            flash("로그인되었습니다.", "success")
+            return redirect(url_for("index"))
+        return render_template("login.html", user=current_user())
 
-        session["uid"] = row["id"]
-        flash("로그인되었습니다.", "ok")
-        return redirect(url_for("home"))
-
-    @app.get("/logout")
+    @app.route("/logout")
     def logout():
         session.clear()
-        flash("로그아웃되었습니다.", "ok")
-        return redirect(url_for("home"))
+        flash("로그아웃되었습니다.", "success")
+        return redirect(url_for("index"))
 
-    @app.get("/signup")
-    def signup_form():
-        return render_template("signup.html")
-
-    @app.post("/signup")
-    def signup():
-        email = request.form.get("email", "").strip()
-        pw = request.form.get("password", "").strip()
-        agree_tos = request.form.get("agree_tos") == "on"
-        agree_priv = request.form.get("agree_priv") == "on"
-
-        if not email.endswith("@bl-m.kr"):
-            flash("bl-m.kr 이메일만 가입할 수 있습니다.", "error")
-            return redirect(url_for("signup_form"))
-
-        if not agree_tos or not agree_priv:
-            flash("이용약관과 개인정보처리방침에 동의해야 가입할 수 있습니다.", "error")
-            return redirect(url_for("signup_form"))
-
-        if len(pw) < 4:
-            flash("비밀번호는 4자 이상 입력하세요.", "error")
-            return redirect(url_for("signup_form"))
-
-        exists = db.session.execute(text('SELECT 1 FROM "user" WHERE email=:e LIMIT 1'), {"e": email}).first()
-        if exists:
-            flash("이미 가입된 이메일입니다.", "error")
-            return redirect(url_for("signup_form"))
-
-        pw_hash = generate_password_hash(pw)
-        db.session.execute(text(
-            'INSERT INTO "user" (email, password_hash, created_at, is_admin) '
-            'VALUES (:e, :h, :now, :adm)'
-        ), {"e": email, "h": pw_hash, "now": datetime.utcnow(), "adm": False})
+    @app.route("/account/delete", methods=["POST"])
+    def account_delete():
+        user = current_user()
+        if not user:
+            abort(403)
+        # Remove user-owned documents or leave as is (wiki content is communal).
+        # For safety in school setting, we'll keep documents but anonymize owner field if existed.
+        db.session.delete(user)
         db.session.commit()
+        session.clear()
+        flash("계정이 삭제되었습니다.", "success")
+        return redirect(url_for("index"))
 
-        flash("회원가입 완료. 로그인 해주세요.", "ok")
-        return redirect(url_for("login_form"))
+    # ---- Documents ----
+
+    def login_required():
+        if not current_user():
+            flash("로그인이 필요합니다.", "error")
+            return False
+        return True
+
+    @app.route("/docs/<int:doc_id>")
+    def doc_detail(doc_id: int):
+        doc = Document.query.get_or_404(doc_id)
+        children = Document.query.filter_by(parent_id=doc.id).all()
+        return render_template("doc_detail.html", doc=doc, children=children, user=current_user())
+
+    @app.route("/docs/new", methods=["GET", "POST"])
+    def doc_new():
+        if request.method == "POST":
+            if not login_required():
+                return redirect(url_for("login"))
+            title = request.form.get("title", "").strip()
+            content = request.form.get("content", "").strip()
+            parent_id = request.form.get("parent_id") or None
+            parent_id = int(parent_id) if parent_id else None
+
+            if not title:
+                flash("제목을 입력하세요.", "error")
+                return redirect(url_for("doc_new"))
+
+            if Document.query.filter_by(title=title).first():
+                flash("동일한 제목의 문서가 이미 존재합니다.", "error")
+                return redirect(url_for("doc_new"))
+
+            doc = Document(title=title, content=content, parent_id=parent_id)
+            db.session.add(doc)
+            db.session.commit()
+            flash("문서가 생성되었습니다.", "success")
+            return redirect(url_for("doc_detail", doc_id=doc.id))
+        # GET
+        parents = Document.query.order_by(Document.title.asc()).all()
+        return render_template("doc_edit.html", mode="new", parents=parents, user=current_user())
+
+    @app.route("/docs/<int:doc_id>/edit", methods=["GET", "POST"])
+    def doc_edit(doc_id: int):
+        doc = Document.query.get_or_404(doc_id)
+        if request.method == "POST":
+            if not login_required():
+                return redirect(url_for("login"))
+
+            title = request.form.get("title", "").strip()
+            content = request.form.get("content", "").strip()
+            parent_id = request.form.get("parent_id") or None
+            parent_id = int(parent_id) if parent_id else None
+
+            if not title:
+                flash("제목을 입력하세요.", "error")
+                return redirect(url_for("doc_edit", doc_id=doc.id))
+
+            # check unique title (excluding current)
+            exists = Document.query.filter(Document.title == title, Document.id != doc.id).first()
+            if exists:
+                flash("동일한 제목의 문서가 이미 존재합니다.", "error")
+                return redirect(url_for("doc_edit", doc_id=doc.id))
+
+            doc.title = title
+            doc.content = content
+            doc.parent_id = parent_id
+            db.session.commit()
+            flash("문서가 수정되었습니다.", "success")
+            return redirect(url_for("doc_detail", doc_id=doc.id))
+        # GET
+        parents = Document.query.filter(Document.id != doc.id).order_by(Document.title.asc()).all()
+        return render_template("doc_edit.html", mode="edit", doc=doc, parents=parents, user=current_user())
+
+    @app.route("/docs/<int:doc_id>/delete", methods=["POST"])
+    def doc_delete(doc_id: int):
+        if not login_required():
+            return redirect(url_for("login"))
+        doc = Document.query.get_or_404(doc_id)
+        # Re-parent children to None
+        Document.query.filter_by(parent_id=doc.id).update({Document.parent_id: None})
+        db.session.delete(doc)
+        db.session.commit()
+        flash("문서가 삭제되었습니다.", "success")
+        return redirect(url_for("index"))
+
+    # simple page for Terms/Privacy
+    @app.route("/legal/<string:slug>")
+    def legal(slug: str):
+        title = "이용약관" if slug == "terms" else "개인정보처리방침"
+        doc = Document.query.filter_by(title=title).first_or_404()
+        return render_template("doc_detail.html", doc=doc, children=[], user=current_user())
 
     return app
 
 
-def ensure_schema_and_seed():
-    db.session.execute(text(r"""
-    CREATE TABLE IF NOT EXISTS "user" (
-        id SERIAL PRIMARY KEY,
-        email VARCHAR UNIQUE NOT NULL,
-        password_hash VARCHAR NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-        is_admin BOOLEAN NOT NULL DEFAULT FALSE
-    );
-    """))
+# ---------- Models ----------
 
-    db.session.execute(text(r"""
-    CREATE TABLE IF NOT EXISTS document (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR NOT NULL,
-        content TEXT NOT NULL,
-        is_system BOOLEAN NOT NULL DEFAULT FALSE,
-        parent_id INTEGER REFERENCES document(id) ON DELETE SET NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
-    );
-    """))
-
-    db.session.execute(text(r"""
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_document_title ON document (title);
-    """))
-
-    db.session.execute(text(r"""
-    INSERT INTO document (title, content, is_system)
-    VALUES
-    ('이용약관',
-    '본 서비스는 교육 목적의 위키입니다. 사용자는 다음을 준수합니다.
-1) 타인의 권리를 침해하지 않습니다.
-2) 법령과 학교 규정을 준수합니다.
-3) 관리자가 판단한 경우 문서를 수정/삭제할 수 있습니다.',
-     TRUE)
-    ON CONFLICT (title) DO NOTHING;
-    """))
-
-    db.session.execute(text(r"""
-    INSERT INTO document (title, content, is_system)
-    VALUES
-    ('개인정보처리방침',
-    '개인정보처리방침(요약)
-1. 수집 항목: 학교 이메일, 비밀번호(해시), 로그인/문서 활동 로그
-2. 이용 목적: 사용자 인증, 서비스 운영 기록 관리
-3. 보관/파기: 탈퇴 즉시 정보 삭제, 법령상 보관 로그는 기간 보관 후 파기
-4. 제3자 제공/국외 이전: 하지 않음
-5. 정보주체 권리: 열람·정정·삭제·처리정지 요구 가능
-6. 보호 조치: 최소 권한 접근 통제 및 해시 저장',
-     TRUE)
-    ON CONFLICT (title) DO NOTHING;
-    """))
-
-    db.session.commit()
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(254), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
-app = create_app()
+class Document(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(180), unique=True, nullable=False, index=True)
+    content = db.Column(db.Text, default="", nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+# ---------- Dev entry ----------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app = create_app()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)

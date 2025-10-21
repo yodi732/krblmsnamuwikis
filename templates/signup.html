@@ -1,40 +1,25 @@
-{% extends "base.html" %}
+
+{% extends "_base.html" %}
 {% block content %}
-<form method="post" class="card" action="/signup">
-  <h3 style="margin-top:0">회원가입</h3>
-  <div>
-    <div class="muted">이메일 (@bl-m.kr만 허용)</div>
-    <input name="email" type="email" placeholder="id@bl-m.kr"
-           style="width:420px;padding:8px;border:1px solid #e5e7eb;border-radius:8px" required />
-  </div>
-  <div style="margin-top:8px">
-    <div class="muted">비밀번호</div>
-    <input name="password" type="password"
-           style="width:420px;padding:8px;border:1px solid #e5e7eb;border-radius:8px" required />
-  </div>
-
-  <div style="margin-top:12px" class="card">
-    <label><input type="checkbox" name="agree_tos" /> 이용약관에 동의합니다 (필수)</label>
-    <div style="max-height:120px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;margin-top:6px">
-      본 서비스는 교육 목적의 위키입니다. 사용자는 다음을 준수합니다.
-      1) 타인의 권리를 침해하지 않습니다.
-      2) 법령과 학교 규정을 준수합니다.
-      3) 관리자가 판단한 경우 문서를 수정/삭제할 수 있습니다.
+  <h1>회원가입</h1>
+  <form method="post" class="form">
+    <label>이메일
+      <input type="email" name="email" required>
+    </label>
+    <label>비밀번호
+      <input type="password" name="password" required minlength="6">
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="agree_terms" required>
+      <span>이용약관에 동의합니다.</span>
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="agree_privacy" required>
+      <span>개인정보처리방침에 동의합니다.</span>
+    </label>
+    <div class="toolbar">
+      <button class="btn" type="submit">가입하기</button>
+      <a class="btn ghost" href="{{ url_for('login') }}">이미 계정이 있나요?</a>
     </div>
-    <a href="{{ url_for('docs_list') }}">전문 보기</a>
-  </div>
-
-  <div style="margin-top:12px" class="card">
-    <label><input type="checkbox" name="agree_priv" /> 개인정보처리방침에 동의합니다 (필수)</label>
-    <div style="max-height:120px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;margin-top:6px">
-      개인정보처리방침 요약: 수집 항목(학교 이메일, 비밀번호 해시, 활동 로그), 이용 목적(인증 및 운영),
-      보관/파기(법령상 보관기간 종료 후 파기), 제3자 제공 없음, 권리 행사 가능 등.
-    </div>
-    <a href="{{ url_for('docs_list') }}">전문 보기</a>
-  </div>
-
-  <div style="margin-top:12px">
-    <button class="btn primary" type="submit">가입</button>
-  </div>
-</form>
+  </form>
 {% endblock %}

@@ -1,17 +1,17 @@
-{% extends "base.html" %}
+
+{% extends "_base.html" %}
 {% block content %}
-<form method="post" class="card" action="/login">
-  <h3 style="margin-top:0">로그인</h3>
-  <div>
-    <div class="muted">이메일</div>
-    <input name="email" type="email" style="width:320px;padding:8px;border:1px solid #e5e7eb;border-radius:8px" required />
-  </div>
-  <div style="margin-top:8px">
-    <div class="muted">비밀번호</div>
-    <input name="password" type="password" style="width:320px;padding:8px;border:1px solid #e5e7eb;border-radius:8px" required />
-  </div>
-  <div style="margin-top:12px">
-    <button class="btn primary" type="submit">로그인</button>
-  </div>
-</form>
+  <h1>로그인</h1>
+  <form method="post" class="form">
+    <label>이메일
+      <input type="email" name="email" required>
+    </label>
+    <label>비밀번호
+      <input type="password" name="password" required>
+    </label>
+    <div class="toolbar">
+      <button class="btn" type="submit">로그인</button>
+      <a class="btn ghost" href="{{ url_for('signup') }}">회원가입</a>
+    </div>
+  </form>
 {% endblock %}

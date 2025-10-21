@@ -1,13 +1,22 @@
-{% extends "base.html" %}
+
+{% extends "_base.html" %}
 {% block content %}
-<div class="card">
-  <h3 style="margin-top:0">최근 문서</h3>
-  <ul>
-    {% for d in docs %}
-      <li><a href="/docs/{{ d.id }}">{{ d.title }}</a> <span class="muted">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+  <div class="toolbar">
+    {% if user %}
+      <a class="btn" href="{{ url_for('doc_new') }}">+ 새 문서</a>
     {% else %}
-      <li class="muted">문서가 없습니다.</li>
+      <a class="btn" href="{{ url_for('login') }}">로그인하고 문서 작성하기</a>
+    {% endif %}
+  </div>
+  <h1>문서 목록</h1>
+  <ul class="doc-list">
+    {% for d in docs %}
+      <li>
+        <a href="{{ url_for('doc_detail', doc_id=d.id) }}">{{ d.title }}</a>
+        <span class="meta">{{ d.created_at.strftime('%Y-%m-%d') }}</span>
+      </li>
+    {% else %}
+      <li>아직 문서가 없습니다. 첫 문서를 작성해보세요!</li>
     {% endfor %}
   </ul>
-</div>
 {% endblock %}
