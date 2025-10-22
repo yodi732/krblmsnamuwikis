@@ -1,0 +1,11 @@
+패치 설명 (app.py 교체 전용)
+
+에러 원인: ORM이 document.body 컬럼을 질의했지만 실제 DB 컬럼명은 content입니다.
+
+수정: Document 모델에서
+  body = db.Column("content", db.Text, nullable=False)
+로 고정 매핑했습니다. 코드/템플릿은 기존처럼 doc.body 사용 가능하며 SQL은 document.content 로 나갑니다.
+
+또한 회원가입 시 password_hash(NOT NULL)에 해시를 저장하도록 보장했습니다.
+
+적용: 이 zip의 app.py로 교체 후 재배포하세요. DB 변경은 필요 없습니다.
