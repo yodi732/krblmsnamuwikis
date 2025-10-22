@@ -1,42 +1,24 @@
-{% extends "base.html" %}
-{% block title %}회원가입 - 별내위키{% endblock %}
+{% extends 'base.html' %}
 {% block content %}
-  <h1>회원가입</h1>
-  <form method="post">
-    <div class="row">
-      <label>이메일</label><br>
-      <input type="email" name="email" required>
+  <h2>회원가입</h2>
+  <form method="post" class="card">
+    <label>이메일</label>
+    <input name="email" class="input" type="email" required>
+    <label>비밀번호</label>
+    <input name="pw" class="input" type="password" required minlength="6">
+    <label>비밀번호 재확인</label>
+    <input name="pw2" class="input" type="password" required minlength="6">
+    <div class="card" style="margin:10px 0">
+      <div class="sub" style="margin-bottom:6px"><a href="{{ url_for('legal_terms') }}" target="_blank">이용약관 전문</a></div>
+      <label><input type="checkbox" name="agree_terms" required> 이용약관에 동의합니다.</label>
     </div>
-    <div class="row">
-      <label>비밀번호</label><br>
-      <input type="password" name="password" required>
+    <div class="card" style="margin-bottom:10px">
+      <div class="sub" style="margin-bottom:6px"><a href="{{ url_for('legal_privacy') }}" target="_blank">개인정보처리방침 전문</a></div>
+      <label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침에 동의합니다.</label>
     </div>
-
-    <div class="agreements">
-      <label class="chk">
-        <input type="checkbox" id="agreeTerms" required>
-        [필수] 별내위키 이용약관을 읽고 동의합니다.
-        <a href="{{ url_for('legal_terms') }}" target="_blank">전문 보기</a>
-      </label>
-      <label class="chk">
-        <input type="checkbox" id="agreePrivacy" required>
-        [필수] 개인정보처리방침을 읽고 동의합니다.
-        <a href="{{ url_for('legal_privacy') }}" target="_blank">전문 보기</a>
-      </label>
+    <div style="display:flex;gap:8px">
+      <button class="btn" type="submit">가입하기</button>
+      <a class="btn btn-muted" href="{{ url_for('login') }}">이미 계정이 있나요?</a>
     </div>
-
-    <button id="signupBtn" class="btn primary" type="submit" disabled>회원가입</button>
   </form>
-
-  <script>
-    (function () {
-      const t = document.getElementById('agreeTerms');
-      const p = document.getElementById('agreePrivacy');
-      const btn = document.getElementById('signupBtn');
-      function toggle(){ btn.disabled = !(t.checked && p.checked); }
-      t.addEventListener('change', toggle);
-      p.addEventListener('change', toggle);
-      toggle();
-    })();
-  </script>
 {% endblock %}

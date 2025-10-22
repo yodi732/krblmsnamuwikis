@@ -231,13 +231,14 @@ PRIVACY_CONTENT = """{{ privacy }}"""
 
 @app.route('/legal/terms')
 def legal_terms():
-    # 보기 전용 정적 문서 (문서 목록에 노출되지 않음)
-    return render_template('legal/terms.html')
+    # load from Document where is_legal True
+    d = Document.query.filter_by(is_legal=True, title="이용약관").first()
+    return render_template('legal.html', title="이용약관", content=d.content if d else "약관이 준비되지 않았습니다.")
 
 @app.route('/legal/privacy')
 def legal_privacy():
-    # 보기 전용 정적 문서 (문서 목록에 노출되지 않음)
-    return render_template('legal/privacy.html')
+    d = Document.query.filter_by(is_legal=True, title="개인정보처리방침").first()
+    return render_template('legal.html', title="개인정보처리방침", content=d.content if d else "정책이 준비되지 않았습니다.")
 
 if __name__ == "__main__":
     app.run(debug=True)

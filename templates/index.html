@@ -1,25 +1,25 @@
-{% extends "base.html" %}
-{% block title %}별내위키{% endblock %}
+{% extends 'base.html' %}
 {% block content %}
-  <h1>문서 목록</h1>
-  <ul class="docs">
-    {% for doc in docs %}
-      <li>
-        <span><a href="{{ url_for('doc_view', doc_id=doc.id) }}">{{ doc.title }}</a></span>
-        <span>
-          {% if g.user and not doc.is_legal %}
-            <a class="btn" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
-            <form class="inline" method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}">
-              <button class="btn danger" onclick="return confirm('정말 삭제할까요?')">삭제</button>
-            </form>
-          {% endif %}
-        </span>
-      </li>
-    {% else %}
-      <li>아직 문서가 없습니다.</li>
+  <h2>문서 목록</h2>
+  <div class="grid">
+    {% for top in tops %}
+    <div class="card">
+      <div class="row">
+        <h3 style="margin:0"><a href="{{ url_for('doc_detail', doc_id=top.id) }}">{{ top.title }}</a></h3>
+        <div class="date">{{ top.updated_at.date() }}</div>
+        {% if g.user and not top.is_legal %}
+          <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=top.id) }}','{{ top.title }}')">삭제</a>
+        {% endif %}
+      </div>
+      <div class="sub">하위 문서 {% if not top.children %}없음{% endif %}</div>
+      {% for c in top.children %}
+      <div class="row">
+        <div><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></div>
+        <div class="right date">{{ c.updated_at.date() }}</div>
+        {% if g.user %}<a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=c.id) }}','{{ c.title }}')">삭제</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endfor %}
-  </ul>
-  {% if g.user %}
-    <p><a class="btn primary" href="{{ url_for('doc_new') }}">새 문서</a></p>
-  {% endif %}
+  </div>
 {% endblock %}

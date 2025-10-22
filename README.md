@@ -1,19 +1,14 @@
-# 별내위키 (배포용 패치)
-
-- 보기 전용 **이용약관/개인정보처리방침** 제공 (`/legal/terms`, `/legal/privacy`)
-- 문서 목록/편집/삭제에서 **법정 문서 제외**
-- 회원가입 화면에서 **필수 2체크**(마케팅 없음)
-- DB 스키마 보호: `user.pw`, `audit_log.doc_title`, `document.is_legal` 자동 보강
-- `wsgi:app`로 구동 (Render/Heroku 대응)
+# 별내위키 (Render 배포용)
 
 ## 실행
-```bash
-pip install -r requirements.txt
-export FLASK_ENV=production
-export SECRET_KEY=change-me
-# 로컬 SQLite 사용 시 그대로. Postgres 사용 시 DATABASE_URL 환경변수 설정
-gunicorn wsgi:app --bind 0.0.0.0:8000
-```
+- Build: `pip install -r requirements.txt`
+- Start: `gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120`
 
-## 참고
-- 기존 테이블이 있을 때도 안전하게 동작하도록 `ALTER TABLE IF NOT EXISTS`를 사용합니다.
+## 환경 변수
+- `DATABASE_URL`: Postgres URL (postgres://... 지원, 자동 변환)
+- `SECRET_KEY`: 세션 키
+
+## 주요 정책
+- 약관/개인정보처리방침은 /legal/* 라우트로 제공되며 위키 문서가 아님(수정/삭제 불가)
+- 문서 생성/편집/삭제/로그 보기: 로그인 필요
+- 하위문서 한 단계만 허용
