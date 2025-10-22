@@ -1,14 +1,43 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1 class="page-title">문서 목록</h1>
-<div class="cards">
-  {% for d in docs %}
-  <div class="card">
-    <div class="card-title"><a href="#">{{ d.title }}</a></div>
-    <div class="card-meta">{{ d.created_at.date() }}</div>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">별내위키</div>
+  <nav>
+    {% if g.user %}
+      <a href="{{ url_for('logout') }}">로그아웃</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">로그인</a>
+      <a href="{{ url_for('signup') }}">회원가입</a>
+    {% endif %}
+  </nav>
+</header>
+
+<main class="container">
+  <h1>문서 목록</h1>
+  <div class="cards">
+    {% for d in docs %}
+    <a class="card" href="{{ url_for('doc_view', doc_id=d.id) }}">
+      <div class="card-title">{{ d.title }}</div>
+      <div class="card-meta">{{ d.created_at.date() }}</div>
+    </a>
+    {% else %}
+    <p>아직 문서가 없습니다.</p>
+    {% endfor %}
   </div>
-  {% else %}
-  <p class="muted">아직 문서가 없습니다.</p>
-  {% endfor %}
-</div>
-{% endblock %}
+</main>
+
+<footer class="footer">
+  <small>
+    ※ 아래 글씨를 클릭하면 보기 전용 문서를 열 수 있습니다:
+    <a href="{{ url_for('terms') }}">이용약관</a> ·
+    <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+  </small>
+</footer>
+</body>
+</html>

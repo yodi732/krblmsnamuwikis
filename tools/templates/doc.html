@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><title>{{ doc.title }} - 별내위키</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<main class="doc">
+  <h1>{{ doc.title }}</h1>
+  <article>{{ doc.body|safe }}</article>
+  {% if g.user %}<p><a href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a></p>{% endif %}
+</main>

@@ -1,17 +1,25 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1>회원가입</h1>
-<form method="post" class="auth-form">
-  <label>이메일
-    <input type="email" name="email" required>
-  </label>
-  <label>비밀번호
-    <input type="password" name="password" required minlength="8">
-  </label>
-  <div class="legal-links">
-    <a href="{{ url_for('legal_terms') }}" target="_blank">이용약관 전문 보기</a> ·
-    <a href="{{ url_for('legal_privacy') }}" target="_blank">개인정보처리방침 전문 보기</a>
-  </div>
-  <button type="submit">가입하기</button>
-</form>
-{% endblock %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>회원가입 - 별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="auth">
+  <h1>회원가입</h1>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post">
+    <label>이메일 <input type="email" name="email" required></label>
+    <label>비밀번호 <input type="password" name="password" required></label>
+    <label><input type="checkbox" name="agree_terms" value="1" required> 이용약관에 동의합니다.</label>
+    <label><input type="checkbox" name="agree_privacy" value="1" required> 개인정보처리방침에 동의합니다.</label>
+    <button type="submit">가입</button>
+  </form>
+  <p class="legal-links">
+    <a href="{{ url_for('terms') }}" target="_blank">이용약관 전문 보기</a> ·
+    <a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침 전문 보기</a>
+  </p>
+</main>
+</body>
+</html>
