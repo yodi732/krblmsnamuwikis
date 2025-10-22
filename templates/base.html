@@ -3,38 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>별내위키</title>
+  <title>{% block title %}별내위키{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="{{ url_for('index') }}">별내위키</a>
-    <a href="{{ url_for('index') }}">홈</a>
+<header>
+  <strong><a href="{{ url_for('index') }}">별내위키</a></strong>
+  <span style="float:right;">
     {% if g.user %}
-      <a href="{{ url_for('doc_new') }}">문서 만들기</a>
-      <a href="{{ url_for('view_logs') }}">로그 보기</a>
-      <a href="{{ url_for('logout') }}">로그아웃</a>
-      <a href="{{ url_for('delete_account') }}" class="btn btn-danger small" style="padding:6px 10px">계정삭제</a>
+      {{ g.user.email }}
+      <form class="inline" method="post" action="{{ url_for('logout') }}"><button class="btn">로그아웃</button></form>
     {% else %}
-      <a href="{{ url_for('login') }}">로그인</a>
-      <a href="{{ url_for('signup') }}">회원가입</a>
+      <a class="btn" href="{{ url_for('login') }}">로그인</a>
+      <a class="btn primary" href="{{ url_for('signup') }}">회원가입</a>
     {% endif %}
-  </nav>
-
-  <div class="container">
-    {% with m=get_flashed_messages() %}{% if m %}
-      <div class="card" style="background:#ecffe9;border:1px solid #c7f5be">{{ m[0] }}</div>
-    {% endif %}{% endwith %}
-    {% block content %}{% endblock %}
-    <div class="footer sub">
-      <a href="{{ url_for('legal_terms') }}">이용약관</a> ·
-      <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a> ·
-      피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a>
-      <span class="right">© {{ now.year }}</span>
-    </div>
+  </span>
+</header>
+<main>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash">{{ messages|join(' / ') }}</div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  <div class="legal-links">
+    ※ 아래 글씨를 클릭하면 보기 전용 문서를 열 수 있습니다:
+    <a href="{{ url_for('legal_terms') }}">이용약관</a> ·
+    <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a>
   </div>
-  <script>
-    function confirmDel(url, title){ if(confirm(`'${title}' 문서를 삭제할까요?`)){ location.href=url; } }
-  </script>
+</footer>
 </body>
 </html>
