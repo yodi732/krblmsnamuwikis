@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -7,48 +8,54 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header class="topbar">
-    <div class="container nav">
-      <div class="brand">별내위키</div>
-      <nav class="menu">
-        <a href="{{ url_for('index') }}">홈</a>
-        {% if user %}
-          <a href="{{ url_for('doc_new') }}">문서 만들기</a>
-          <a href="{{ url_for('view_logs') }}">로그 보기</a>
-          <a href="{{ url_for('logout') }}">로그아웃</a>
-          <form action="{{ url_for('account_delete') }}" method="post" class="inline">
-            <button type="submit" class="link danger">계정삭제</button>
-          </form>
-        {% else %}
-          <a href="{{ url_for('login') }}">로그인</a>
-          <a href="{{ url_for('signup') }}">회원가입</a>
-        {% endif %}
-      </nav>
-    </div>
-  </header>
+<nav>
+  <div class="container">
+    <div class="brand"><a href="{{ url_for('index') }}" style="color:#fff;text-decoration:none;">별내위키</a></div>
+    <a href="{{ url_for('index') }}">홈</a>
+    {% if not user %}
+      <a href="{{ url_for('login') }}">로그인</a>
+      <a href="{{ url_for('signup') }}">회원가입</a>
+    {% else %}
+      <a href="{{ url_for('doc_new') }}">문서 만들기</a>
+      <a href="{{ url_for('view_logs') }}">로그 보기</a>
+      <a href="{{ url_for('logout') }}">로그아웃</a>
+      <form class="right" action="{{ url_for('account_delete') }}" method="post" onsubmit="return confirm('정말 계정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.');">
+        <button class="btn danger" type="submit">계정삭제</button>
+      </form>
+    {% endif %}
+  </div>
+</nav>
 
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-wrap">
-          {% for cat, msg in messages %}
-            <div class="flash {{cat}}">{{ msg }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </main>
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat,msg in messages %}
+        <div class="{{ 'warn' if cat=='warn' else 'notice' }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
-  <footer class="bottombar">
-    <div class="container foot">
-      <div class="links">
-        <a href="{{ url_for('legal_terms') }}">이용약관</a>
-        <span>·</span>
-        <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a>
-      </div>
-      <div class="right">피드백 &amp; 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
+  {% block content %}{% endblock %}
+</div>
+
+<footer>
+  <div class="container">
+    <div class="meta">
+      <a href="{{ url_for('terms') }}">이용약관</a>
+      ·
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+      ·
+      <span>피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+      <span class="right small">© {{year}}</span>
     </div>
-  </footer>
+  </div>
+</footer>
+
+<script>
+function confirmDelete(form, title){
+  if(!confirm('['+title+'] 문서를 삭제할까요? 하위 문서도 함께 삭제됩니다.')) return false;
+  return true;
+}
+</script>
 </body>
 </html>
