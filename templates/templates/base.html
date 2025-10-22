@@ -1,44 +1,40 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>{{ title or "별내위키" }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  </head>
-  <body>
-    <div class="nav">
-      <div class="brand">🏛️ <a href="{{ url_for('index') }}" style="font-weight:700; color:inherit; text-decoration:none;">별내위키</a></div>
-      <a href="{{ url_for('new_document') }}">문서 만들기</a>
-      <a href="{{ url_for('list_documents') }}">문서 목록</a>
-      {% if g.user %}
-        <span class="badge">{{ g.user.email }}</span>
-        <a class="btn secondary" href="{{ url_for('logout') }}">로그아웃</a>
-      {% else %}
-        <a class="btn secondary" href="{{ url_for('login') }}">로그인</a>
-        <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
-      {% endif %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="{{ url_for('index') }}">별내위키</a>
+    <a href="{{ url_for('index') }}">홈</a>
+    {% if g.user %}
+      <a href="{{ url_for('doc_new') }}">문서 만들기</a>
+      <a href="{{ url_for('view_logs') }}">로그 보기</a>
+      <a href="{{ url_for('logout') }}">로그아웃</a>
+      <a href="{{ url_for('delete_account') }}" class="btn btn-danger small" style="padding:6px 10px">계정삭제</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">로그인</a>
+      <a href="{{ url_for('signup') }}">회원가입</a>
+    {% endif %}
+  </nav>
+
+  <div class="container">
+    {% with m=get_flashed_messages() %}{% if m %}
+      <div class="card" style="background:#ecffe9;border:1px solid #c7f5be">{{ m[0] }}</div>
+    {% endif %}{% endwith %}
+    {% block content %}{% endblock %}
+    <div class="footer sub">
+      <a href="{{ url_for('legal_terms') }}">이용약관</a> ·
+      <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a> ·
+      피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a>
+      <span class="right">© {{ now.year }}</span>
     </div>
-    <div class="container">{% with messages = get_flashed_messages() %}
-      {% if messages %}<div class="card" style="margin-bottom:14px;">{% for m in messages %}<div>{{ m }}</div>{% endfor %}</div>{% endif %}{% endwith %}
-      {% block content %}{% endblock %}
-    </div>
-    <div class="footer">
-      <div>
-        <a href="{{ url_for('doc_by_title', title='이용약관') }}">이용약관</a> ·
-        <a href="{{ url_for('doc_by_title', title='개인정보처리방침') }}">개인정보처리방침</a>
-      </div>
-      <div>피드백 문의 → <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></div>
-    </div>
-    <script>
-      function confirmDeleteAccount(ev, url){
-        if(!confirm('정말 탈퇴하시겠습니까?')){ ev.preventDefault(); return false; }
-        // proceed
-        fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}})
-          .then(()=>{ window.location.href='{{ url_for('index') }}'; });
-        ev.preventDefault();
-        return false;
-      }
-    </script>
-  </body>
+  </div>
+  <script>
+    function confirmDel(url, title){ if(confirm(`'${title}' 문서를 삭제할까요?`)){ location.href=url; } }
+  </script>
+</body>
 </html>

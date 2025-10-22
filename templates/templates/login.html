@@ -1,13 +1,14 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-  <div class="card" style="max-width:680px; margin:0 auto;">
-    <h3 style="margin-top:0;">로그인</h3>
-    <form method="post" class="stack">
-      <label class="label">이메일</label>
-      <input class="input" name="email" placeholder="id@bl-m.kr" required>
-      <label class="label">비밀번호</label>
-      <input class="input" type="password" name="password" required>
+  <h2>로그인</h2>
+  <form method="post" class="card">
+    <label>이메일</label>
+    <input name="email" class="input" type="email" required>
+    <label>비밀번호</label>
+    <input name="pw" class="input" type="password" required>
+    <div style="display:flex;gap:8px;margin-top:10px">
       <button class="btn" type="submit">로그인</button>
-    </form>
-  </div>
+      <a class="btn btn-muted" href="{{ url_for('signup') }}">회원가입</a>
+    </div>
+  </form>
 {% endblock %}

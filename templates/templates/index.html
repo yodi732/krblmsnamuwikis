@@ -1,26 +1,25 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
+  <h2>문서 목록</h2>
   <div class="grid">
+    {% for top in tops %}
     <div class="card">
-      <h3 style="margin:0 0 10px 0;">최근 문서</h3>
-      <ul class="compact">
-        {% for d in recent %}
-          <li><a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a><small class="help">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</small></li>
-        {% else %}
-          <li><small class="help">아직 문서가 없습니다.</small></li>
-        {% endfor %}
-      </ul>
+      <div class="row">
+        <h3 style="margin:0"><a href="{{ url_for('doc_detail', doc_id=top.id) }}">{{ top.title }}</a></h3>
+        <div class="date">{{ top.updated_at.date() }}</div>
+        {% if g.user and not top.is_legal %}
+          <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=top.id) }}','{{ top.title }}')">삭제</a>
+        {% endif %}
+      </div>
+      <div class="sub">하위 문서 {% if not top.children %}없음{% endif %}</div>
+      {% for c in top.children %}
+      <div class="row">
+        <div><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></div>
+        <div class="right date">{{ c.updated_at.date() }}</div>
+        {% if g.user %}<a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=c.id) }}','{{ c.title }}')">삭제</a>{% endif %}
+      </div>
+      {% endfor %}
     </div>
-    <div class="card">
-      <h3 style="margin:0 0 10px 0;">바로가기</h3>
-      <ul class="compact">
-        <li><a href="{{ url_for('doc_by_title', title='이용약관') }}">이용약관</a> <span>↗</span></li>
-        <li><a href="{{ url_for('doc_by_title', title='개인정보처리방침') }}">개인정보처리방침</a> <span>↗</span></li>
-      </ul>
-      <hr class="sep">
-      {% if g.user %}
-      <a class="btn secondary" href="#" onclick="return confirmDeleteAccount(event, '{{ url_for('delete_account') }}')">회원탈퇴</a>
-      {% endif %}
-    </div>
+    {% endfor %}
   </div>
 {% endblock %}
