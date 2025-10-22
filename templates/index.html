@@ -1,38 +1,25 @@
-
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
   <h2>문서 목록</h2>
-  <div class="cards">
-    {% for doc in top_docs %}
-      <div class="card">
-        <div class="head">
-          <a href="{{ url_for('doc_detail', doc_id=doc.id) }}">{{ doc.title }}</a>
-          <div class="flex">
-            <span class="small">{{ doc.updated_at.date() }}</span>
-            {% if user %}
-            <form action="{{ url_for('doc_delete', doc_id=doc.id) }}" method="post" onsubmit="return confirmDelete(this,'{{doc.title}}');">
-              <button class="confirm-btn" type="submit">삭제</button>
-            </form>
-            {% endif %}
-          </div>
-        </div>
-        <div class="body small">
-          {% if not doc.children %}
-            하위 문서 없음
-          {% else %}
-            {% for child in doc.children|sort(attribute='updated_at', reverse=True) %}
-              <div class="list-row">
-                <div><a href="{{ url_for('doc_detail', doc_id=child.id) }}">{{ child.title }}</a></div>
-                <div class="small">{{ child.updated_at.date() }}{% if user %}
-                  <form style="display:inline" action="{{ url_for('doc_delete', doc_id=child.id) }}" method="post" onsubmit="return confirmDelete(this,'{{child.title}}');">
-                    <button class="confirm-btn" type="submit">삭제</button>
-                  </form>
-                {% endif %}</div>
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
+  <div class="grid">
+    {% for top in tops %}
+    <div class="card">
+      <div class="row">
+        <h3 style="margin:0"><a href="{{ url_for('doc_detail', doc_id=top.id) }}">{{ top.title }}</a></h3>
+        <div class="date">{{ top.updated_at.date() }}</div>
+        {% if g.user and not top.is_legal %}
+          <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=top.id) }}','{{ top.title }}')">삭제</a>
+        {% endif %}
       </div>
+      <div class="sub">하위 문서 {% if not top.children %}없음{% endif %}</div>
+      {% for c in top.children %}
+      <div class="row">
+        <div><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></div>
+        <div class="right date">{{ c.updated_at.date() }}</div>
+        {% if g.user %}<a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=c.id) }}','{{ c.title }}')">삭제</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endfor %}
   </div>
 {% endblock %}

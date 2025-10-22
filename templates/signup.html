@@ -1,13 +1,24 @@
-
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
   <h2>회원가입</h2>
-  <form method="post" style="max-width:600px">
-    <div class="form-row"><label>이메일</label><input name="email" type="email" required></div>
-    <div class="form-row"><label>비밀번호</label><input name="password" type="password" required></div>
-    <div class="form-row"><label>비밀번호 재확인</label><input name="password2" type="password" required></div>
-    <div class="form-row"><input type="checkbox" name="agree1" required> 이용약관에 동의합니다. (<a href="{{ url_for('terms') }}" target="_blank">전문 보기</a>)</div>
-    <div class="form-row"><input type="checkbox" name="agree2" required> 개인정보처리방침에 동의합니다. (<a href="{{ url_for('privacy') }}" target="_blank">전문 보기</a>)</div>
-    <button class="btn" type="submit">가입하기</button>
+  <form method="post" class="card">
+    <label>이메일</label>
+    <input name="email" class="input" type="email" required>
+    <label>비밀번호</label>
+    <input name="pw" class="input" type="password" required minlength="6">
+    <label>비밀번호 재확인</label>
+    <input name="pw2" class="input" type="password" required minlength="6">
+    <div class="card" style="margin:10px 0">
+      <div class="sub" style="margin-bottom:6px"><a href="{{ url_for('legal_terms') }}" target="_blank">이용약관 전문</a></div>
+      <label><input type="checkbox" name="agree_terms" required> 이용약관에 동의합니다.</label>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div class="sub" style="margin-bottom:6px"><a href="{{ url_for('legal_privacy') }}" target="_blank">개인정보처리방침 전문</a></div>
+      <label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침에 동의합니다.</label>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" type="submit">가입하기</button>
+      <a class="btn btn-muted" href="{{ url_for('login') }}">이미 계정이 있나요?</a>
+    </div>
   </form>
 {% endblock %}

@@ -1,10 +1,14 @@
-
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
   <h2>로그인</h2>
-  <form method="post" style="max-width:480px">
-    <div class="form-row"><label>이메일</label><input name="email" type="email" required></div>
-    <div class="form-row"><label>비밀번호</label><input name="password" type="password" required></div>
-    <button class="btn" type="submit">로그인</button>
+  <form method="post" class="card">
+    <label>이메일</label>
+    <input name="email" class="input" type="email" required>
+    <label>비밀번호</label>
+    <input name="pw" class="input" type="password" required>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" type="submit">로그인</button>
+      <a class="btn btn-muted" href="{{ url_for('signup') }}">회원가입</a>
+    </div>
   </form>
 {% endblock %}
