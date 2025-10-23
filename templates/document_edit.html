@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1 class="page-title">{{ '문서 수정' if doc else '새 문서' }}</h1>
-  <form method="post" class="form">
-    <label>제목
-      <input name="title" type="text" required value="{{ (title if title is defined else (doc.title if doc else '')) }}">
-    </label>
-    <label>내용
-      <textarea name="content" rows="14" required>{{ (content if content is defined else (doc.content if doc else '')) }}</textarea>
-    </label>
-    <button class="btn primary" type="submit">저장</button>
-    <a class="btn" href="{{ url_for('index') }}">취소</a>
-  </form>
+<h2>{{ '문서 수정' if doc else '새 문서' }}</h2>
+<form method="post">
+  <div class="form-row">
+    <label>제목</label>
+    <input class="input" name="title" value="{{ doc.title if doc else '' }}" required>
+  </div>
+  <div class="form-row">
+    <label>내용</label>
+    <textarea class="input" name="content" required>{{ doc.content if doc else '' }}</textarea>
+  </div>
+  <button class="btn primary">저장</button>
+</form>
 {% endblock %}

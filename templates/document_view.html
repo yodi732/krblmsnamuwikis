@@ -1,16 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-  <article class="doc">
-    <h1 class="page-title">{{ doc.title }}</h1>
-    <div class="doc-meta">최종 수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') if doc.updated_at else doc.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-    <div class="doc-body">{{ doc.content | e | replace('\n','<br>') | safe }}</div>
-    {% if g.user %}
-      <div class="doc-actions">
-        <a class="btn" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
-        <form id="del{{ doc.id }}" method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}" style="display:inline;">
-          <button class="btn danger" onclick="return confirmDelete('del{{ doc.id }}')">삭제</button>
-        </form>
-      </div>
-    {% endif %}
-  </article>
+<h2>{{ doc.title }}</h2>
+<div style="white-space:pre-wrap;line-height:1.6;border:1px solid #eee;padding:14px;border-radius:8px">{{ doc.content }}</div>
+{% if g.user %}
+  <p style="margin-top:16px">
+    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
+    <a class="btn" href="{{ url_for('delete_document', doc_id=doc.id) }}" onclick="return confirm('삭제하시겠습니까?')">삭제</a>
+  </p>
+{% endif %}
 {% endblock %}

@@ -1,26 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1 class="page-title">회원가입</h1>
-  <form method="post" class="form">
-    <label>이메일
-      <input name="email" type="email" required>
-    </label>
-    <label>비밀번호
-      <input name="password" type="password" required>
-    </label>
-    <label>비밀번호 확인
-      <input name="password2" type="password" required>
-    </label>
+<h2>회원가입</h2>
+<form method="post" style="max-width:520px">
+  <div class="form-row">
+    <label>이메일</label>
+    <input name="email" type="email" class="input" required>
+  </div>
+  <div class="form-row">
+    <label>비밀번호</label>
+    <input name="password" type="password" class="input" minlength="8" required>
+  </div>
 
-    <label class="agree-line">
-      <input type="checkbox" name="agree" required>
-      <span>
-        <strong>이용약관</strong> 및 <strong>개인정보처리방침</strong>에 동의합니다.
-        (<a href="{{ url_for('legal_terms') }}" target="_blank" rel="noopener">약관 전문 보기</a> /
-         <a href="{{ url_for('legal_privacy') }}" target="_blank" rel="noopener">개인정보 전문 보기</a>)
-      </span>
-    </label>
+  <div class="form-row">
+    <label><input type="checkbox" name="agree_terms" required> 이용약관과 개인정보처리방침에 동의합니다.</label>
+    <div class="notice">아래 “전문 보기”에서 내용을 확인하실 수 있습니다.</div>
+  </div>
 
-    <button type="submit" class="btn primary">가입하기</button>
-  </form>
+  <details class="details">
+    <summary>이용약관 전문 보기</summary>
+    <div class="legal-body">{% include "legal_terms_body.html" %}</div>
+  </details>
+  <details class="details">
+    <summary>개인정보처리방침 전문 보기</summary>
+    <div class="legal-body">{% include "legal_privacy_body.html" %}</div>
+  </details>
+
+  <button class="btn primary">회원가입</button>
+</form>
 {% endblock %}

@@ -1,60 +1,42 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>별내위키</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별내위키</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header class="topbar">
-  <div class="container nav">
-    <a class="brand" href="{{ url_for('index') }}">별내위키</a>
-    <nav>
-      {% if g.user %}
-        <a href="{{ url_for('doc_new') }}">새 문서</a>
-        <a href="{{ url_for('logout') }}">로그아웃</a>
-      {% else %}
-        <a href="{{ url_for('login') }}">로그인</a>
-        <a href="{{ url_for('signup') }}">회원가입</a>
-      {% endif %}
-    </nav>
-  </div>
-</header>
-
-<main class="container">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flashwrap">
-        {% for cat, msg in messages %}
-          <div class="flash {{ cat }}">{{ msg }}</div>
-        {% endfor %}
+  <div class="nav">
+    <div class="container">
+      <h1><a href="{{ url_for('index') }}" style="color:#fff;text-decoration:none">별내위키</a></h1>
+      <div>
+        {% if not session.get('user_id') %}
+          <a href="{{ url_for('login') }}" style="color:#fff">로그인</a>
+          &nbsp;&nbsp;
+          <a href="{{ url_for('signup') }}" style="color:#fff">회원가입</a>
+        {% else %}
+          <small style="color:#dbeafe">{{ g.user.email }}</small>
+          &nbsp;&nbsp;
+          <a href="{{ url_for('logout') }}" style="color:#fff">로그아웃</a>
+        {% endif %}
       </div>
-    {% endif %}
-  {% endwith %}
-  {% block content %}{% endblock %}
-</main>
-
-<footer class="footer">
-  <div class="container">
-    <div class="foot-links">
-      <a href="{{ url_for('legal_terms') }}">이용약관</a>
-      <span> | </span>
-      <a href="{{ url_for('legal_privacy') }}">개인정보처리방침</a>
-      <span> | </span>
-      <a href="mailto:lyhjs1115@gmail.com">피드백 &amp; 문의</a>
     </div>
-    <div class="foot-copy">© 2025 별내위키</div>
   </div>
-</footer>
 
-<script>
-  function confirmDelete(formId) {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      document.getElementById(formId).submit();
-    }
-    return false;
-  }
-</script>
+  <div class="container main">
+    {% block content %}{% endblock %}
+  </div>
+
+  <div class="footer">
+    <div class="container">
+      <div>
+        <a href="{{ url_for('terms') }}">이용약관</a> ·
+        <a href="{{ url_for('privacy') }}">개인정보처리방침</a> ·
+        <span>피드백 &amp; 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+      </div>
+      <div style="margin-top:6px">© {{ now.year }} 별내위키</div>
+    </div>
+  </div>
 </body>
 </html>
