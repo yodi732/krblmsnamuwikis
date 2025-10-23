@@ -1,17 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>회원가입</h1>
-<form method="post" class="auth-form">
-  <label>이메일
-    <input type="email" name="email" required>
-  </label>
-  <label>비밀번호
-    <input type="password" name="password" required minlength="8">
-  </label>
-  <div class="legal-links">
-    <a href="{{ url_for('legal_terms') }}" target="_blank">이용약관 전문 보기</a> ·
-    <a href="{{ url_for('legal_privacy') }}" target="_blank">개인정보처리방침 전문 보기</a>
-  </div>
-  <button type="submit">가입하기</button>
-</form>
+  <h2>회원가입</h2>
+  <form method="post">
+    <label>이메일</label>
+    <input class="input" name="email" type="email" required>
+    <label style="margin-top:8px;display:block">비밀번호</label>
+    <input class="input" name="password" type="password" required>
+    <div style="margin:10px 0;font-size:13px">
+      가입하면 <a href="{{ url_for('terms') }}" target="_blank">이용약관</a> 및
+      <a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침</a>에 동의한 것으로 간주됩니다.
+    </div>
+    <div class="actions"><button class="btn">회원가입</button></div>
+  </form>
 {% endblock %}

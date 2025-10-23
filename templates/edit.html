@@ -1,8 +1,14 @@
-{% extends "_layout.html" %}{% block content %}
-<div class="card"><h1>문서 수정</h1><form method="post">
-<label>제목</label><input class="input" name="title" value="{{ doc.title }}" required {% if doc.is_system %}readonly{% endif %}>
-<label>상위 문서 (선택)</label><select name="parent_id" class="input" {% if doc.is_system %}disabled{% endif %}>
-<option value="">(없음)</option>{% for d in all_docs if d.id != doc.id %}<option value="{{ d.id }}" {% if doc.parent_id==d.id %}selected{% endif %}>{{ d.title }}</option>{% endfor %}
-</select><label>내용</label><textarea name="content" rows="12" required>{{ doc.content }}</textarea>
-<div class="actions"><button class="btn" type="submit">저장</button></div></form></div>
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{{ '새 문서' if not doc else '문서 수정' }}</h2>
+  <form method="post">
+    <label>제목</label>
+    <input class="input" name="title" required value="{{ doc.title if doc else '' }}">
+    <label style="margin-top:8px;display:block">내용</label>
+    <textarea name="content" rows="12">{{ doc.content if doc else '' }}</textarea>
+    <div class="actions">
+      <button class="btn" type="submit">저장</button>
+      <a class="btn secondary" href="{{ url_for('index') }}">목록</a>
+    </div>
+  </form>
 {% endblock %}

@@ -1,14 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1 class="page-title">문서 목록</h1>
-<div class="cards">
-  {% for d in docs %}
-  <div class="card">
-    <div class="card-title"><a href="#">{{ d.title }}</a></div>
-    <div class="card-meta">{{ d.created_at.date() }}</div>
+  <h2>문서 목록</h2>
+  <div class="grid">
+    {% for group in groups %}
+    <div class="card">
+      <div class="row">
+        <h3 style="margin:0"><a href="{{ url_for('doc_detail', doc_id=group.top.id) }}">{{ group.top.title }}</a></h3>
+        <div class="date">{{ group.top.updated_at.date() }}</div>
+        {% if g.user and not group.top.is_legal %}
+          <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=group.top.id) }}','{{ group.top.title }}')">삭제</a>
+        {% endif %}
+      </div>
+      <div class="sub">하위 문서 {% if not group.children %}없음{% endif %}</div>
+      {% for c in group.children %}
+      <div class="row">
+        <div><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></div>
+        <div class="date">{{ c.updated_at.date() }}</div>
+        {% if g.user %}<a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=c.id) }}','{{ c.title }}')">삭제</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
   </div>
-  {% else %}
-  <p class="muted">아직 문서가 없습니다.</p>
-  {% endfor %}
-</div>
 {% endblock %}

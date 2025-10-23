@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="meta">
+    <div class="date">최종 수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    {% if g.user and not doc.is_legal %}
+      <a class="btn secondary" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
+      <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=doc.id) }}','{{ doc.title }}')">삭제</a>
+    {% endif %}
+  </div>
+  <h2>{{ doc.title }}</h2>
+  <div class="content">{{ doc.content }}</div>
+{% endblock %}
