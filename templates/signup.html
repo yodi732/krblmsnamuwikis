@@ -1,15 +1,26 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <h2>회원가입</h2>
-  <form method="post">
-    <label>이메일</label>
-    <input class="input" name="email" type="email" required>
-    <label style="margin-top:8px;display:block">비밀번호</label>
-    <input class="input" name="password" type="password" required>
-    <div style="margin:10px 0;font-size:13px">
-      가입하면 <a href="{{ url_for('terms') }}" target="_blank">이용약관</a> 및
-      <a href="{{ url_for('privacy') }}" target="_blank">개인정보처리방침</a>에 동의한 것으로 간주됩니다.
-    </div>
-    <div class="actions"><button class="btn">회원가입</button></div>
+  <h1 class="page-title">회원가입</h1>
+  <form method="post" class="form">
+    <label>이메일
+      <input name="email" type="email" required>
+    </label>
+    <label>비밀번호
+      <input name="password" type="password" required>
+    </label>
+    <label>비밀번호 확인
+      <input name="password2" type="password" required>
+    </label>
+
+    <label class="agree-line">
+      <input type="checkbox" name="agree" required>
+      <span>
+        <strong>이용약관</strong> 및 <strong>개인정보처리방침</strong>에 동의합니다.
+        (<a href="{{ url_for('legal_terms') }}" target="_blank" rel="noopener">약관 전문 보기</a> /
+         <a href="{{ url_for('legal_privacy') }}" target="_blank" rel="noopener">개인정보 전문 보기</a>)
+      </span>
+    </label>
+
+    <button type="submit" class="btn primary">가입하기</button>
   </form>
 {% endblock %}

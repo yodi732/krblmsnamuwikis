@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>{{ doc.title }}</h2>
-  <div class="small">작성 {{ doc.created_at.strftime('%Y-%m-%d %H:%M') }}{% if doc.author %} · {{ doc.author.email }}{% endif %}</div>
-  <hr>
-  <div style="white-space:pre-wrap">{{ doc.content }}</div>
-  <hr>
-  {% if current_user.is_authenticated and current_user.email_verified %}
-    <a class="btn" href="{{ url_for('create_document', parent_id=doc.id) }}">하위 문서 만들기</a>
-    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
-    <form method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" style="display:inline">
-      <button class="btn btn-danger" onclick="return confirm('삭제할까요?')" type="submit">삭제</button>
-    </form>
-  {% endif %}
+  <article class="doc">
+    <h1 class="page-title">{{ doc.title }}</h1>
+    <div class="doc-meta">최종 수정: {{ doc.updated_at.strftime('%Y-%m-%d %H:%M') if doc.updated_at else doc.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    <div class="doc-body">{{ doc.content | e | replace('\n','<br>') | safe }}</div>
+    {% if g.user %}
+      <div class="doc-actions">
+        <a class="btn" href="{{ url_for('doc_edit', doc_id=doc.id) }}">수정</a>
+        <form id="del{{ doc.id }}" method="post" action="{{ url_for('doc_delete', doc_id=doc.id) }}" style="display:inline;">
+          <button class="btn danger" onclick="return confirmDelete('del{{ doc.id }}')">삭제</button>
+        </form>
+      </div>
+    {% endif %}
+  </article>
 {% endblock %}

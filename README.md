@@ -1,14 +1,24 @@
 # 별내위키 (Render 배포용)
 
+## 핵심
+- 디자인 원본 유지 (남색 상단바 + 흰 배경)
+- 이용약관 / 개인정보처리방침: 보기 전용, 문서목록 비노출, 하단/회원가입에서만 접근
+- DB 필드: `Document.content`만 사용 (기존 `body` 없음)
+- 회원가입 시 필수 동의 체크만 (마케팅 동의 없음)
+
+## 환경변수
+- `DATABASE_URL` (Render Postgres) — 예: `postgresql://...`
+  - 내부에서 `postgresql+psycopg://`로 자동 변환
+- `SECRET_KEY` — 세션 키
+- `PORT` — Render가 지정 (10000)
+
 ## 실행
-- Build: `pip install -r requirements.txt`
-- Start: `gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120`
+```
+gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+```
 
-## 환경 변수
-- `DATABASE_URL`: Postgres URL (postgres://... 지원, 자동 변환)
-- `SECRET_KEY`: 세션 키
-
-## 주요 정책
-- 약관/개인정보처리방침은 /legal/* 라우트로 제공되며 위키 문서가 아님(수정/삭제 불가)
-- 문서 생성/편집/삭제/로그 보기: 로그인 필요
-- 하위문서 한 단계만 허용
+## 초기화/마이그레이션
+- 앱 시작 시 `db.create_all()`로 테이블 생성
+- 기존에 `document` 테이블이 있고 열 구성이 다르면 수동 마이그레이션 필요
+  - (예) `ALTER TABLE document RENAME COLUMN body TO content;`
+  - 또는 테이블을 백업 후 삭제/재생성

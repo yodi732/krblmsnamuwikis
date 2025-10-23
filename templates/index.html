@@ -1,25 +1,16 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <h2>문서 목록</h2>
-  <div class="grid">
-    {% for group in groups %}
-    <div class="card">
-      <div class="row">
-        <h3 style="margin:0"><a href="{{ url_for('doc_detail', doc_id=group.top.id) }}">{{ group.top.title }}</a></h3>
-        <div class="date">{{ group.top.updated_at.date() }}</div>
-        {% if g.user and not group.top.is_legal %}
-          <a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=group.top.id) }}','{{ group.top.title }}')">삭제</a>
-        {% endif %}
-      </div>
-      <div class="sub">하위 문서 {% if not group.children %}없음{% endif %}</div>
-      {% for c in group.children %}
-      <div class="row">
-        <div><a href="{{ url_for('doc_detail', doc_id=c.id) }}">{{ c.title }}</a></div>
-        <div class="date">{{ c.updated_at.date() }}</div>
-        {% if g.user %}<a class="badge" onclick="confirmDel('{{ url_for('doc_delete', doc_id=c.id) }}','{{ c.title }}')">삭제</a>{% endif %}
-      </div>
+  <h1 class="page-title">문서 목록</h1>
+  {% if docs|length == 0 %}
+    <div class="empty">아직 문서가 없습니다.</div>
+  {% else %}
+    <ul class="doc-list">
+      {% for d in docs %}
+        <li>
+          <a class="doc-title" href="{{ url_for('doc_view', doc_id=d.id) }}">{{ d.title }}</a>
+          <span class="doc-date">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else d.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </li>
       {% endfor %}
-    </div>
-    {% endfor %}
-  </div>
+    </ul>
+  {% endif %}
 {% endblock %}
