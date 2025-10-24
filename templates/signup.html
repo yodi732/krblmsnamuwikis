@@ -1,32 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>회원가입</h2>
-<p>학교 계정(@bl-m.kr)만 가입할 수 있습니다.</p>
-<form method="post" class="form">
-  <div><input name="email" type="email" placeholder="1234@bl-m.kr" required></div>
-  <div><input name="password" type="password" placeholder="비밀번호" required></div>
-  <div><input name="password2" type="password" placeholder="비밀번호 재확인" required></div>
+  <h2>회원가입</h2>
 
-  <div style="display:flex; gap:12px; margin:10px 0;">
-    <label><input type="checkbox" name="agree_terms" required> 이용약관 동의</label>
-    <label><input type="checkbox" name="agree_privacy" required> 개인정보처리방침 동의</label>
-  </div>
+  <p class="muted">학교 계정(@bl-m.kr)만 가입 할 수 있습니다.</p>
 
-  <details style="margin:8px 0;">
-    <summary>이용약관 전문 보기</summary>
-    <div style="max-height:180px; overflow:auto; border:1px solid #eee; padding:8px; white-space:pre-wrap;">
-      {% include "legal_terms.html" %}
+  <form method="post" action="{{ url_for('signup') }}">
+    <div style="margin:8px 0;">
+      <label>이메일</label><br>
+      <input type="email" name="email" placeholder="1234@bl-m.kr" required style="width:280px;">
     </div>
-  </details>
 
-  <details style="margin:8px 0;">
-    <summary>개인정보처리방침 전문 보기</summary>
-    <div style="max-height:180px; overflow:auto; border:1px solid #eee; padding:8px; white-space:pre-wrap;">
-      {% include "legal_privacy.html" %}
+    <div style="margin:8px 0;">
+      <label>비밀번호</label><br>
+      <input type="password" name="password" required style="width:280px;">
     </div>
-  </details>
 
-  {% if error %}<div class="error">{{ error }}</div>{% endif %}
-  <button class="btn" type="submit">가입하기</button>
-</form>
+    <div style="margin:8px 0;">
+      <label>비밀번호 재확인</label><br>
+      <input type="password" name="password2" required style="width:280px;">
+    </div>
+
+    <div style="margin:10px 0;">
+      <label><input type="checkbox" name="agree_terms" value="1"> 이용약관(전문 보기: <a href="{{ url_for('terms') }}" target="_blank">이동</a>)에 동의합니다.</label>
+    </div>
+    <div style="margin:6px 0;">
+      <label><input type="checkbox" name="agree_privacy" value="1"> 개인정보처리방침(전문 보기: <a href="{{ url_for('privacy') }}" target="_blank">이동</a>)에 동의합니다.</label>
+    </div>
+
+    {% if error %}<div class="error" style="color:#c00; margin-top:6px;">{{ error }}</div>{% endif %}
+
+    <p style="margin-top:12px;">
+      <button class="btn" type="submit">가입하기</button>
+    </p>
+  </form>
 {% endblock %}

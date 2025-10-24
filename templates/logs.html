@@ -1,28 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>활동 로그</h2>
-<table class="table" style="width:100%; border-collapse:collapse;">
-  <thead>
-    <tr>
-      <th style="text-align:left; padding:6px; border-bottom:1px solid #eee;">시간(UTC)</th>
-      <th style="text-align:left; padding:6px; border-bottom:1px solid #eee;">사용자</th>
-      <th style="text-align:left; padding:6px; border-bottom:1px solid #eee;">작업</th>
-      <th style="text-align:left; padding:6px; border-bottom:1px solid #eee;">대상 문서</th>
-      <th style="text-align:left; padding:6px; border-bottom:1px solid #eee;">제목</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in rows %}
-    <tr>
-      <td style="padding:6px; border-bottom:1px solid #f3f3f3;">{{ r.ts }}</td>
-      <td style="padding:6px; border-bottom:1px solid #f3f3f3;">{{ r.user }}</td>
-      <td style="padding:6px; border-bottom:1px solid #f3f3f3;">{{ r.action }}</td>
-      <td style="padding:6px; border-bottom:1px solid #f3f3f3;">#{{ r.doc_id }}</td>
-      <td style="padding:6px; border-bottom:1px solid #f3f3f3;">{{ r.title }}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="5" style="padding:10px;">표시할 로그가 없습니다.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <h2>활동 로그</h2>
+
+  {% if rows %}
+    <table class="table" style="width:100%; max-width:980px;">
+      <thead>
+        <tr>
+          <th style="width:180px;">시간(UTC)</th>
+          <th style="width:260px;">사용자</th>
+          <th style="width:120px;">작업</th>
+          <th>대상 문서</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.ts }}</td>
+            <td>{{ r.user }}</td>
+            <td>{{ r.action }}</td>
+            <td>{% if r.doc_id %}#{{ r.doc_id }}{% endif %}{% if r.title %} {{ r.title }}{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="row">로그가 없습니다.</div>
+  {% endif %}
 {% endblock %}

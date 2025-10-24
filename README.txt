@@ -1,16 +1,12 @@
-# byeollae-wiki DB 핫픽스 (v2)
+별내위키 - 최소 패치 (디자인 유지)
 
-## 하는 일
-1) `document.title`에 UNIQUE 인덱스 생성 — 앱 시드 쿼리 `ON CONFLICT (title) DO NOTHING` 정상화.
-2) 사용자 테이블 컬럼명이 앱 코드(`pw_hash`)와 다를 경우, `password_hash`를 `pw_hash`로 안전히 변경.
-3) `user.email`에 UNIQUE 인덱스 추가 — 중복 가입 방지.
+1) 이 압축의 templates/ 파일들을 기존 프로젝트의 templates/에 덮어쓰기(추가)하세요.
+   - base.html은 건드리지 않습니다. 다만 푸터에 회원탈퇴 링크를 원하면 다음 한 줄만 직접 추가하세요:
+     · <a href="{{ url_for('account_delete') }}">회원 탈퇴</a>
 
-## 실행 방법
-### Render 대시보드에서
-PostgreSQL 콘솔(psql)에서 `db_hotfix.sql` 내용을 그대로 붙여넣고 실행.
+2) app.py 측에서 다음이 필요합니다.
+   - /home 뷰에서 render_template('home.html', roots=roots, doc_model=Document) 처럼 doc_model=Document 전달
+   - /logs, /account/delete 라우트는 이미 구현되어 있어야 합니다(기능 유지).
+   - 삭제 라우트는 @app.post('/document/<int:doc_id>/delete') 형태(이미 적용되어 있으면 OK).
 
-### CLI
-psql "$DATABASE_URL" -f db_hotfix.sql
-
-## 적용 후
-서비스를 재시작(리디플로이)하세요.
+3) 디자인은 기존 CSS/구조를 그대로 사용합니다.

@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>홈</h2>
+  <h2>홈</h2>
 
-<div style="display:flex; gap:8px; justify-content:flex-end; margin-bottom:8px;">
-  <a class="btn" href="{{ url_for('index') }}">문서 목록</a>
-  <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
-  <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-</div>
-
-{% macro render_node(n, depth) -%}
-  <div style="margin-left: {{ depth * 16 }}px; line-height:1.9;">
-    <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
+  <div style="text-align:right; margin-bottom:8px;">
+    <a class="btn" href="{{ url_for('index') }}">문서 목록</a>
+    <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
+    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
   </div>
-  {%- for c in n.children.order_by(doc_model.created_at.desc()) %}
-    {{ render_node(c, depth+1) }}
-  {%- endfor %}
-{%- endmacro %}
 
-{% for r in roots %}
-  {{ render_node(r, 0) }}
-{% else %}
-  <div>상위 문서가 없습니다.</div>
-{% endfor %}
+  {% macro render_node(n) %}
+    <li style="margin:6px 0;">
+      <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
+      {% set kids = n.children.order_by(doc_model.created_at.desc()).all() %}
+      {% if kids %}
+        <ul style="margin-left:18px;">
+          {% for c in kids %}
+            {{ render_node(c) }}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </li>
+  {% endmacro %}
+
+  {% if roots %}
+    <ul>
+      {% for r in roots %}
+        {{ render_node(r) }}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="row">루트 문서가 없습니다.</div>
+  {% endif %}
 {% endblock %}
