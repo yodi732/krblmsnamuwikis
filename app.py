@@ -4,11 +4,21 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, inspect
 import os, datetime, json
+from datetime import datetime, timezone, timedelta
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///local.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = os.getenv("SECRET_KEY", "dev-key")
+
+KST = timezone(timedelta(hours=9))
+
+@app.context_processor
+def inject_now():
+    # footer에서 {{ now.year }} 쓰기 위함
+    return {"now": datetime.now(KST)}
+
+db = SQLAlchemy(app)
 
 db = SQLAlchemy(app)
 
