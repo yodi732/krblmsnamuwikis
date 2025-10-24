@@ -3,19 +3,13 @@
   <h2>문서 목록</h2>
   <div class="list">
     {% for d in docs %}
-      <div class="row" style="display:flex; align-items:center; justify-content:space-between;">
-        <div>
-          <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
-          <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
-        </div>
-        {% if g.user and (not d.is_system) %}
-          <form action="{{ url_for('delete_document', doc_id=d.id) }}" method="post"
-                onsubmit="return confirm('정말 삭제하시겠습니까? 복구할 수 없습니다.');"
-                style="margin:0; padding:0;">
-            <button type="submit" class="link-danger" style="background:none;border:0;color:#d33;cursor:pointer">
-              삭제
-            </button>
-          </form>
+      <div class="row" style="display:flex; align-items:center; gap:12px;">
+        <a href="{{ url_for('view_document', doc_id=d.id) }}" style="flex:1 1 auto;">{{ d.title }}</a>
+        <small class="muted" style="margin-right:8px;">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        {% if g.user and not d.is_system %}
+        <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');" style="margin:0;">
+          <button type="submit" class="btn btn-danger" style="padding:4px 8px;">삭제</button>
+        </form>
         {% endif %}
       </div>
     {% else %}
@@ -27,4 +21,13 @@
     <a class="btn" href="{{ url_for('create_document') }}">새 문서</a>
   </p>
   {% endif %}
+
+  <script>
+    // 버튼 클릭이 행 링크 클릭으로 버블링되는 것을 방지
+    document.addEventListener('click', function(e){
+      if (e.target.closest('form')) {
+        e.stopPropagation();
+      }
+    }, {capture:true});
+  </script>
 {% endblock %}

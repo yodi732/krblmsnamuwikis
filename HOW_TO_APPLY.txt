@@ -1,14 +1,22 @@
-HOW TO APPLY (미니 패치 적용 방법)
+[미니 패치] 홈 목록 행 우측에 삭제 버튼(POST + 확인창) 추가
 
-1) 이 zip 파일을 풀고, 프로젝트 루트에 그대로 덮어씌우세요.
-   - 포함 파일:
-     templates/index.html  (홈 목록에 오른쪽 '삭제' 버튼 추가 / 재확인 창 포함)
+변경 파일
+- templates/index.html  (기존 디자인 유지, 각 문서 행 오른쪽에 삭제 버튼 표시)
 
-2) 서버를 재시작하거나 Render에서 재배포하면 끝입니다.
+무엇이 달라졌나
+- 삭제는 반드시 POST로 전송합니다. GET로 /document/<id>/delete에 접근하면 405가 뜨는데,
+  이제 템플릿이 <form method="post">로 전송하여 405를 피합니다.
+- 클릭 버블링을 막아 목록 행 전체 링크가 눌리는 것을 방지했습니다.
 
-변경 사항 요약
-- Jinja에서 current_user가 없어 500 나는 문제를 제거했습니다.
-  (Flask-Login을 사용하지 않는 환경에서 g.user로 체크)
-- 홈 목록 각 문서 오른쪽에 삭제 버튼 노출 (로그인 & 시스템문서 아님 조건)
-- 클릭 시 confirm() 재확인 후 POST로 삭제 엔드포인트 호출
-  (엔드포인트 이름: delete_document, URL: url_for('delete_document', doc_id=d.id))
+적용 방법
+1) 이 zip을 프로젝트 루트에 풀어 기존 파일을 덮어씌웁니다.
+2) Render에서 재배포(또는 서버 재시작)합니다.
+
+요구 사항
+- 서버 라우트 이름은 delete_document 이고, URL은 /document/<int:doc_id>/delete 로 가정합니다.
+- 라우트 메서드는 반드시 POST여야 합니다. 예시:
+    @app.post('/document/<int:doc_id>/delete')
+    def delete_document(doc_id):
+        # 권한 / 시스템문서 여부 체크 후 삭제
+        ...
+        return redirect(url_for('index'))
