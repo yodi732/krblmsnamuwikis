@@ -1,10 +1,8 @@
-.inline-delete-form .btn-delete{
+.inline-delete-form .btn-delete {
   background: transparent;
   border: 0;
   color: #d33;
   cursor: pointer;
   text-decoration: underline;
   font-size: 12px;
-  padding: 0;
 }
-.inline-delete-form { line-height: 1; }

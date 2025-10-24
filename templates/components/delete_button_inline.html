@@ -1,8 +1,9 @@
 {% set _doc = d if d is defined else (doc if doc is defined else None) %}
 {% if _doc and current_user.is_authenticated and (not _doc.is_system) %}
 <form action="{{ url_for('delete_document', doc_id=_doc.id) }}" method="post"
-      class="inline-delete-form" onsubmit="return confirm('정말 삭제하시겠어요? 복구할 수 없습니다.');"
-      style="display:inline; float:right; margin-left:8px;">
+      class="inline-delete-form"
+      onsubmit="return confirm('정말 삭제하시겠습니까? 복구할 수 없습니다.');"
+      style="display:inline;">
   <button type="submit" class="btn-delete" aria-label="삭제">삭제</button>
 </form>
 {% endif %}
