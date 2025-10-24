@@ -1,24 +1,32 @@
-{% extends "base.html" %}{% block content %}
-<div class="toolbar">
-  <a class="btn" href="{{ url_for('home') }}">홈</a>
-  {% if g.user %}<a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>{% endif %}
-  {% if g.user %}<a class="btn" href="{{ url_for('logs') }}">로그 보기</a>{% endif %}
-</div>
-<h2>문서 목록</h2>
-<div class="list">
-{% for d in docs %}
-  <div class="row">
-    <div><a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
-      <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small></div>
-    <div>
-      <a class="btn" href="{{ url_for('create_document', parent_id=d.id) }}">하위 문서</a>
-      {% if g.user %}
-      <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" style="display:inline" onsubmit="return confirm('정말 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
-        <button class="btn" type="submit">삭제</button>
-      </form>
-      {% endif %}
-    </div>
+{% extends "base.html" %}
+{% block content %}
+  <h2>문서 목록</h2>
+  <div style="display:flex; gap:8px; justify-content:flex-end; margin-bottom:8px;">
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+    <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
+    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
   </div>
-{% else %}<div class="row">문서가 없습니다.</div>{% endfor %}
-</div>
+  <div class="list">
+    {% for d in docs %}
+      <div class="row" style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
+          <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <a class="btn" href="{{ url_for('create_document') }}?parent_id={{ d.id }}">하위 문서</a>
+          <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" onsubmit="return confirm('정말 이 문서를 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
+            <button class="btn" type="submit">삭제</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="row">문서가 없습니다.</div>
+    {% endfor %}
+  </div>
+  {% if g.user %}
+  <p style="margin-top:16px">
+    <a class="btn" href="{{ url_for('create_document') }}">새 문서</a>
+  </p>
+  {% endif %}
 {% endblock %}

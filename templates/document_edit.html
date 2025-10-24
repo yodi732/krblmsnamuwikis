@@ -1,24 +1,26 @@
-{% extends "base.html" %}{% block content %}
-<div class="toolbar">
-  <a class="btn" href="{{ url_for('home') }}">홈</a>
-  <a class="btn" href="{{ url_for('index') }}">문서 목록</a>
-</div>
+{% extends "base.html" %}
+{% block content %}
 <h2>{{ '문서 수정' if doc else '새 문서' }}</h2>
-{% if error %}<div class="pill danger">{{ error }}</div>{% endif %}
-<form method="post">
-  <div class="field">
-    <label>문서 종류</label><br>
-    <label><input type="radio" name="mode" value="parent" {% if mode!='child' %}checked{% endif %}> 상위 문서</label>
-    <label style="margin-left:12px"><input type="radio" name="mode" value="child" {% if mode=='child' %}checked{% endif %}> 하위 문서</label>
-    <select name="parent_id" class="text" style="max-width:320px;margin-left:8px">
+
+<form method="post" class="form">
+  <div style="margin-bottom:8px;">
+    <strong>문서 종류</strong><br>
+    <label><input type="radio" name="mode" value="parent" {{ 'checked' if mode == 'parent' else '' }}> 상위 문서</label>
+    <label style="margin-left:12px;"><input type="radio" name="mode" value="child" {{ 'checked' if mode == 'child' else '' }}> 하위 문서</label>
+    <select name="parent_id" style="margin-left:6px;">
       <option value="">(상위 문서 선택)</option>
       {% for p in parents %}
-        <option value="{{ p.id }}" {% if doc and doc.parent_id==p.id %}selected{% elif parent and parent.id==p.id %}selected{% endif %}>{{ p.title }}</option>
+      <option value="{{ p.id }}" {% if doc and doc.parent_id==p.id %}selected{% endif %}>{{ p.title }}</option>
       {% endfor %}
     </select>
   </div>
-  <div class="field"><label>제목</label><br><input class="text" name="title" value="{{ doc.title if doc else '' }}"></div>
-  <div class="field"><label>내용</label><br><textarea class="text" name="content" style="height:360px">{{ doc.content if doc else '' }}</textarea></div>
-  <button class="btn" type="submit">{{ '저장' if doc else '만들기' }}</button>
+
+  <div><input name="title" value="{{ doc.title if doc else '' }}" placeholder="제목" style="width:640px;" required></div>
+  <div><textarea name="content" placeholder="내용" rows="16" style="width:80%; min-width:640px;" required>{{ doc.content if doc else '' }}</textarea></div>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <div style="display:flex; gap:8px;">
+    <button class="btn" type="submit">{{ '저장' if doc else '만들기' }}</button>
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+  </div>
 </form>
 {% endblock %}
