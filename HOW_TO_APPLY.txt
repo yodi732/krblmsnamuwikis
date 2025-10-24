@@ -1,22 +1,44 @@
-[미니 패치] 홈 목록 행 우측에 삭제 버튼(POST + 확인창) 추가
 
-변경 파일
-- templates/index.html  (기존 디자인 유지, 각 문서 행 오른쪽에 삭제 버튼 표시)
+🔧 삭제 405 해결용 서버 패치 (app.py 수정)
 
-무엇이 달라졌나
-- 삭제는 반드시 POST로 전송합니다. GET로 /document/<id>/delete에 접근하면 405가 뜨는데,
-  이제 템플릿이 <form method="post">로 전송하여 405를 피합니다.
-- 클릭 버블링을 막아 목록 행 전체 링크가 눌리는 것을 방지했습니다.
+문제: /document/<id>/delete 엔드포인트가 GET만 받고 있어 POST로 요청하면 405가 발생합니다.
+해결: 동일 경로에 POST 핸들러를 추가하여 실제 삭제를 수행합니다.
 
-적용 방법
-1) 이 zip을 프로젝트 루트에 풀어 기존 파일을 덮어씌웁니다.
-2) Render에서 재배포(또는 서버 재시작)합니다.
+1) app.py(또는 라우트 정의 파일)에 아래 코드를 추가하세요.
+   (이미 유사 라우트가 있으면 methods=['POST']가 포함되어 있는지 확인해주세요.)
 
-요구 사항
-- 서버 라우트 이름은 delete_document 이고, URL은 /document/<int:doc_id>/delete 로 가정합니다.
-- 라우트 메서드는 반드시 POST여야 합니다. 예시:
-    @app.post('/document/<int:doc_id>/delete')
-    def delete_document(doc_id):
-        # 권한 / 시스템문서 여부 체크 후 삭제
-        ...
-        return redirect(url_for('index'))
+-------------------------------------------------------------------
+from flask import redirect, url_for, abort, g, flash
+# db, Document는 기존 import 그대로 사용
+
+@app.post('/document/<int:doc_id>/delete')
+def delete_document(doc_id):
+    # 로그인 필수라면 적절히 체크
+    if not getattr(g, 'user', None):
+        return redirect(url_for('login'))
+    doc = Document.query.get_or_404(doc_id)
+
+    # 시스템 문서 보호 (필요 없으면 제거)
+    if getattr(doc, 'is_system', False):
+        abort(403)
+
+    db.session.delete(doc)
+    db.session.commit()
+    # 플래시 메시지를 쓰고 있다면:
+    try:
+        flash('문서를 삭제했습니다.', 'success')
+    except Exception:
+        pass
+    return redirect(url_for('index'))
+-------------------------------------------------------------------
+
+2) templates/index.html을 본 패치의 파일로 교체합니다.
+   - 각 문서 오른쪽에 삭제 버튼(POST)이 표시됩니다.
+   - 확인 대화상자 후 서버로 POST 전송합니다.
+
+3) 서버 재시작/재배포 후 홈 목록에서 삭제 버튼을 눌러 동작을 확인하세요.
+
+참고:
+- 이미 '/document/<int:doc_id>/delete'의 GET 라우트가 있다면 그대로 두고,
+  위 POST 라우트를 추가로 선언해도 문제 없습니다(엔드포인트 이름만 다르면 됨).
+- CSRF 미사용 환경 기준입니다. CSRF를 쓰신다면 토큰 필드를 템플릿에 추가하세요.

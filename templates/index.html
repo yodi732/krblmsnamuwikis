@@ -4,13 +4,13 @@
   <div class="list">
     {% for d in docs %}
       <div class="row" style="display:flex; align-items:center; gap:12px;">
-        <a href="{{ url_for('view_document', doc_id=d.id) }}" style="flex:1 1 auto;">{{ d.title }}</a>
-        <small class="muted" style="margin-right:8px;">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
-        {% if g.user and not d.is_system %}
-        <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');" style="margin:0;">
-          <button type="submit" class="btn btn-danger" style="padding:4px 8px;">삭제</button>
+        <a href="{{ url_for('view_document', doc_id=d.id) }}" style="flex:1 1 auto">{{ d.title }}</a>
+        <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+
+        {# 삭제 버튼 (POST + confirm). 행 링크 클릭과 분리되도록 버튼쪽은 버블링 막음 #}
+        <form method="post" action="/document/{{ d.id }}/delete" onsubmit="event.stopPropagation(); return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+          <button type="submit" class="btn btn-danger" style="margin-left:8px">삭제</button>
         </form>
-        {% endif %}
       </div>
     {% else %}
       <div class="row">문서가 없습니다.</div>
@@ -21,13 +21,4 @@
     <a class="btn" href="{{ url_for('create_document') }}">새 문서</a>
   </p>
   {% endif %}
-
-  <script>
-    // 버튼 클릭이 행 링크 클릭으로 버블링되는 것을 방지
-    document.addEventListener('click', function(e){
-      if (e.target.closest('form')) {
-        e.stopPropagation();
-      }
-    }, {capture:true});
-  </script>
 {% endblock %}
