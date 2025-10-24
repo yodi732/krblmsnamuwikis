@@ -1,0 +1,41 @@
+[PATCH INSTRUCTIONS — apply to your existing app.py]
+
+(1) Add near the imports:
+from datetime import datetime, timezone, timedelta
+
+(2) Add once (avoid duplicates) after Flask app creation:
+KST = timezone(timedelta(hours=9))
+
+@app.context_processor
+def inject_now():
+    return {"now": datetime.now(KST)}
+
+(3) Fix /home to pass doc_model to the template:
+@app.route("/home")
+def home():
+    roots = Document.query.filter_by(parent_id=None, is_system=False) \                          .order_by(Document.created_at.desc()).all()
+    return render_template("home.html", roots=roots, doc_model=Document)
+
+(4) In signup(), require agree_terms and agree_privacy and @bl-m.kr check.
+
+(5) Account deletion route:
+@app.route("/account/delete", methods=["GET","POST"])
+def account_delete():
+    if not g.user:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        pw = request.form.get("password","")
+        if not check_password_hash(g.user.password_hash, pw):
+            return render_template("account_delete.html", error="비밀번호가 일치하지 않습니다.")
+        u = g.user
+        session.clear()
+        db.session.delete(u)
+        db.session.commit()
+        flash("회원 탈퇴가 완료되었습니다. 계정 정보는 즉시 파기되었습니다.", "success")
+        return redirect(url_for("index"))
+    return render_template("account_delete.html")
+
+(6) base.html footer (피드백 메일 오른쪽)에 로그인 상태일 때만 보이는 링크 추가:
+{% if g.user %} · <a href="{{ url_for('account_delete') }}" onclick="return confirm('정말 회원을 탈퇴하시겠습니까?');">회원탈퇴</a>{% endif %}
+
+(7) Ensure SQLAlchemy(app) is only created once (remove duplicates).

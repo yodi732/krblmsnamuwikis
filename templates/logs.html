@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>활동 로그</h2>
+<h2>활동 로그</h2>
 
-  {% if rows %}
-    <table class="table" style="width:100%; max-width:980px;">
-      <thead>
-        <tr>
-          <th style="width:180px;">시간(UTC)</th>
-          <th style="width:260px;">사용자</th>
-          <th style="width:120px;">작업</th>
-          <th>대상 문서</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in rows %}
-          <tr>
-            <td>{{ r.ts }}</td>
-            <td>{{ r.user }}</td>
-            <td>{{ r.action }}</td>
-            <td>{% if r.doc_id %}#{{ r.doc_id }}{% endif %}{% if r.title %} {{ r.title }}{% endif %}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="row">로그가 없습니다.</div>
-  {% endif %}
+{% include "_top_actions.html" %}
+
+<table class="table" style="width:100%; max-width:960px;">
+  <thead>
+    <tr>
+      <th style="width:180px">시간(UTC)</th>
+      <th style="width:260px">사용자</th>
+      <th style="width:120px">작업</th>
+      <th>대상 문서</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.ts }}</td>
+        <td>{{ r.user }}</td>
+        <td>{{ r.action }}</td>
+        <td>{% if r.doc_id %}#{{ r.doc_id }} · {{ r.title }}{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" class="muted">기록이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

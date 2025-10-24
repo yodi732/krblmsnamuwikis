@@ -1,12 +1,10 @@
-별내위키 - 최소 패치 (디자인 유지)
+별내위키 — 덧씌우기(overlay) 패치
 
-1) 이 압축의 templates/ 파일들을 기존 프로젝트의 templates/에 덮어쓰기(추가)하세요.
-   - base.html은 건드리지 않습니다. 다만 푸터에 회원탈퇴 링크를 원하면 다음 한 줄만 직접 추가하세요:
-     · <a href="{{ url_for('account_delete') }}">회원 탈퇴</a>
+이 압축은 기존 템플릿을 바꾸지 않고, 기존 스타일을 유지한 채 필요한 조각만 추가합니다.
 
-2) app.py 측에서 다음이 필요합니다.
-   - /home 뷰에서 render_template('home.html', roots=roots, doc_model=Document) 처럼 doc_model=Document 전달
-   - /logs, /account/delete 라우트는 이미 구현되어 있어야 합니다(기능 유지).
-   - 삭제 라우트는 @app.post('/document/<int:doc_id>/delete') 형태(이미 적용되어 있으면 OK).
+1) templates/ 폴더를 프로젝트의 templates/에 복사(덮어쓰기).
+2) APP_PATCH_INSTRUCTIONS.txt대로 app.py 최소 변경 적용.
+3) base.html 푸터에 회원탈퇴 링크 조건부 추가.
 
-3) 디자인은 기존 CSS/구조를 그대로 사용합니다.
+파란 상단 배너/로그인/회원가입/로그아웃 버튼 마크업은 기존 템플릿을 그대로 두고,
+여기 제공된 _top_actions.html만 필요 화면에 include 하도록 했습니다.

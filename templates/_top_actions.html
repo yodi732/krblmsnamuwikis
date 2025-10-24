@@ -1,0 +1,7 @@
+<div style="display:flex; gap:8px; justify-content:flex-end; margin:8px 0 16px;">
+  <a class="btn" href="{{ url_for('home') }}">홈</a>
+  {% if g.user %}
+    <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
+    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+  {% endif %}
+</div>

@@ -1,21 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>회원 탈퇴</h2>
-
-  <form method="post">
-    <div style="margin:8px 0;">
-      <label>비밀번호</label><br>
-      <input type="password" name="password" required style="width:280px;">
-    </div>
-
-    <div style="margin:8px 0;">
-      <label><input type="checkbox" name="confirm_delete" value="1" required> 정말로 회원 탈퇴하겠습니다.</label>
-    </div>
-
-    {% if error %}<div class="error" style="color:#c00; margin-top:6px;">{{ error }}</div>{% endif %}
-
-    <p style="margin-top:12px;">
-      <button class="btn" type="submit" onclick="return confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">탈퇴하기</button>
-    </p>
-  </form>
+<h2>회원 탈퇴</h2>
+<p>탈퇴 즉시 계정 정보는 파기되며, 복구할 수 없습니다.</p>
+<form method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');" style="max-width:420px">
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <label>비밀번호 확인</label><br>
+  <input type="password" name="password" style="width:100%"><br><br>
+  <button class="btn" type="submit">탈퇴하기</button>
+</form>
 {% endblock %}
