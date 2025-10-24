@@ -3,12 +3,20 @@
   <h2>문서 목록</h2>
   <div class="list">
     {% for d in docs %}
-      <div class="row" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="row" style="display:flex; align-items:center; justify-content:space-between;">
         <div>
           <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
           <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
         </div>
-        {% include "components/delete_button_inline.html" with context %}
+        {% if g.user and (not d.is_system) %}
+          <form action="{{ url_for('delete_document', doc_id=d.id) }}" method="post"
+                onsubmit="return confirm('정말 삭제하시겠습니까? 복구할 수 없습니다.');"
+                style="margin:0; padding:0;">
+            <button type="submit" class="link-danger" style="background:none;border:0;color:#d33;cursor:pointer">
+              삭제
+            </button>
+          </form>
+        {% endif %}
       </div>
     {% else %}
       <div class="row">문서가 없습니다.</div>

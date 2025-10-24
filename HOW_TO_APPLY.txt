@@ -1,15 +1,14 @@
-[패치 내용 요약]
-- 홈(문서 목록) 화면에 각 문서 오른쪽에 '삭제' 버튼이 표시됨.
-- 클릭 시 confirm()으로 재확인 팝업이 뜨며, 확인하면 해당 문서가 삭제됩니다.
-- 시스템 문서(이용약관, 개인정보처리방침)는 버튼이 숨겨집니다.
+HOW TO APPLY (미니 패치 적용 방법)
 
-[적용 방법]
-1. templates/index.html을 프로젝트의 templates 폴더에 덮어쓰기
-2. templates/components/delete_button_inline.html 파일 추가
-3. static/delete-inline.css 파일을 static 폴더에 추가 (선택 사항)
-4. base.html <head>에 아래 한 줄을 추가해 스타일 로드:
-   <link rel="stylesheet" href="{{ url_for('static', filename='delete-inline.css') }}">
-5. 서버 재시작 후 확인
+1) 이 zip 파일을 풀고, 프로젝트 루트에 그대로 덮어씌우세요.
+   - 포함 파일:
+     templates/index.html  (홈 목록에 오른쪽 '삭제' 버튼 추가 / 재확인 창 포함)
 
-[결과]
-- 목록 오른쪽 끝에 빨간 '삭제' 링크가 뜨며, confirm 후 삭제됩니다.
+2) 서버를 재시작하거나 Render에서 재배포하면 끝입니다.
+
+변경 사항 요약
+- Jinja에서 current_user가 없어 500 나는 문제를 제거했습니다.
+  (Flask-Login을 사용하지 않는 환경에서 g.user로 체크)
+- 홈 목록 각 문서 오른쪽에 삭제 버튼 노출 (로그인 & 시스템문서 아님 조건)
+- 클릭 시 confirm() 재확인 후 POST로 삭제 엔드포인트 호출
+  (엔드포인트 이름: delete_document, URL: url_for('delete_document', doc_id=d.id))
