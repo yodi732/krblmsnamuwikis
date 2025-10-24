@@ -1,0 +1,9 @@
+
+from datetime import datetime, timezone, timedelta
+
+KST = timezone(timedelta(hours=9))
+
+@app.context_processor
+def inject_now():
+    # 모든 템플릿에서 now.year 사용 가능 (한국 시간 기준)
+    return {"now": datetime.now(KST)}
