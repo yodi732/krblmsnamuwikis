@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h2>회원 탈퇴</h2>
+<p>정말 탈퇴하시겠습니까? 아래에 <code>DELETE</code> 를 입력한 뒤 확인을 누르세요.</p>
+<form method="post">
+  <input type="text" name="confirm" placeholder="DELETE" required>
+  <button type="submit" class="btn btn-danger">탈퇴하기</button>
+</form>
+{% endblock %}

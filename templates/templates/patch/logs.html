@@ -1,0 +1,7 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h2>최근 로그 (500줄)</h2>
+<p><small>파일: {{ log_path }}</small></p>
+<pre style="white-space:pre-wrap; background:#111; color:#ddd; padding:12px; border-radius:6px; max-height:70vh; overflow:auto">{{ tail }}</pre>
+{% endblock %}

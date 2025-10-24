@@ -1,0 +1,12 @@
+
+{# 간단한 재귀 트리 렌더링. 루트 문서 리스트를 넘겨 사용. #}
+<ul class="doc-tree">
+  {% for node in nodes %}
+    <li>
+      <a href="{{ url_for('view_document', doc_id=node.id) }}">{{ node.title }}</a>
+      {% if node.children %}
+        {% include "components/doc_tree.html" with context %}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
