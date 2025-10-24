@@ -1,65 +1,83 @@
 
-# Mini Patch — Document Delete (no design change)
+# byeollae_wiki_feature_patch_v2
 
-이 패치는 **문서 삭제 기능**만 추가합니다. 디자인은 변경하지 않고, 목록의 각 문서 **오른쪽**에 '삭제' 버튼이 보입니다.
-삭제 버튼을 누르면 **브라우저 확인 대화상자**가 한 번 더 뜹니다.
+이 패치는 기존 디자인을 **수정하지 않고 쌓아올리는 방식**으로 다음을 제공합니다.
 
-## 1) app.py에 라우트 추가
-아래 코드를 `app.py`의 라우트 섹션 아무 곳에 추가하세요. (가급적 파일 하단 쪽)
-중복 import가 보이면 제거해도 됩니다.
+- 문서 삭제(홈/상세 인라인 버튼, 재확인 팝업)
+- 문서 생성시 상위/하위 선택 + 부모 문서 선택 드롭다운 (템플릿 partial)
+- 홈 버튼 partial, 트리 렌더링 partial
+- 회원탈퇴 화면/라우트
+- **로그 보기**(로그인한 사용자 누구나 접근 가능) + **감사 로그 기록**(문서 생성/수정/삭제 시 `email, action, title, id, timestamp` 기록)
+- 회원가입 화면: `@bl-m.kr` 안내 문구 + `1234@bl-m.kr` placeholder + 비밀번호 재입력 필드
 
+## 0) app.py에 꼭 2줄 추가 (반드시 필요)
 ```python
-# --- 문서 삭제 ---
-from sqlalchemy.exc import IntegrityError
-from flask import request, abort, flash, redirect, url_for
-from flask_login import login_required
-
-@app.route("/documents/<int:doc_id>/delete", methods=["POST"])
-@login_required
-def delete_document(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-
-    # 시스템 문서는 삭제 금지 (이용약관/개인정보처리방침 등)
-    if getattr(doc, "is_system", False):
-        abort(403)
-
-    try:
-        db.session.delete(doc)
-        db.session.commit()
-        flash("문서를 삭제했습니다.", "success")
-    except IntegrityError:
-        db.session.rollback()
-        flash("문서를 삭제할 수 없습니다. 관련 데이터가 남아 있을 수 있어요.", "danger")
-
-    return redirect(url_for("index"))
+from patch_feature import patch_bp
+app.register_blueprint(patch_bp)
 ```
+> 기존 코드 어느 위치든 Flask 앱 `app` 생성 뒤, 다른 등록들 옆에 추가하세요.
 
-## 2) 템플릿에 버튼 포함시키기 (목록 화면)
-문서 목록을 뿌리는 반복문(예: `{% for d in docs %}`) **안에서**, 각 문서 행의 **오른쪽 끝**에 다음 한 줄을 추가하세요.
+---
 
+## 1) 템플릿에 붙이는 법 (쌓아올리기)
+- **홈 삭제 버튼**(문서 제목 옆):
 ```jinja2
-{% include "components/delete_button.html" with context %}
+{% set _doc = d %}
+{% include "components/delete_button_inline.html" %}
 ```
-
-> 위 한 줄은 **반드시** 각 문서 `d`를 참조할 수 있는 영역(반복문 내부)에 넣어주세요.
-
-### 버튼이 오른쪽에 붙도록 하는 방법
-컴포넌트 내부에 `style="float:right"` 를 넣어둬서 별도 CSS 변경이 필요 없습니다.
-만약 flex 레이아웃을 쓰고 있으면, 그 컨테이너 오른쪽 영역(예: 액션 칼럼) 쪽에 include 하시면 됩니다.
-
-## 3) 템플릿(상세 화면)에 버튼 추가(선택)
-상세 보기 페이지에서도 삭제를 노출하려면, 문서 객체 이름이 `doc`일 때 아래 한 줄만 넣으면 됩니다.
-
+- **문서 상세 상단(삭제 버튼)**:
 ```jinja2
-{% with d=doc %}{% include "components/delete_button.html" %}{% endwith %}
+{% set _doc = doc %}
+{% include "components/delete_button_inline.html" %}
+```
+- **문서 생성 폼 추가 필드**(제출버튼 위):
+```jinja2
+{% include "patch/create_document_extra.html" %}
+```
+- **회원가입 폼 추가 필드**(이메일/비밀번호 묶음 근처):
+```jinja2
+{% include "patch/signup_extra_fields.html" %}
+```
+- **홈 버튼**(네비게이션 영역 등 원하시는 곳):
+```jinja2
+{% include "components/navbar_home.html" %}
+```
+- (선택) **트리 뷰**:
+```jinja2
+{% include "components/home_tree.html" %}
 ```
 
-## 4) 확인
-1. 로그인 후 일반 문서에만 '삭제' 버튼이 보이는지
-2. 버튼 클릭 → 확인창 → 삭제 완료 플래시 후 목록으로 이동
-3. 시스템 문서(약관/정책)는 버튼 미노출, 직접 POST 시 403
+## 2) 정적 스크립트 로딩 (선택)
+`base.html`의 `</body>` 바로 위에:
+```html
+<script src="{{ url_for('static', filename='patch/patch.js') }}"></script>
+```
 
-## 파일 설명
-- `app_patch_snippet.py` : 1)에서 복붙할 라우트 코드 원문
-- `templates/components/delete_button.html` : 삭제 버튼 컴포넌트(확인창 포함)
-- 이외 파일/디자인은 그대로 둡니다.
+## 3) 접근 권한
+- `/logs` : **로그인**만 되어 있으면 접근 가능(관리자 한정 아님).
+- 삭제/회원탈퇴 라우트는 POST만 허용. 프론트에서 confirm 1번 더.
+
+## 4) 감사 로그 파일
+- 경로: 환경변수 `APP_AUDIT_LOG`가 있으면 그 경로, 없으면 `audit.log` (앱 루트).
+- 포맷: `2025-10-24T07:12:34Z | user@example.com | create|update|delete | doc_id=1 | title=문서제목`
+
+> 기존 앱에 `db`, `Document` 모델이 있으면 자동 SQLAlchemy 이벤트 후킹으로 `insert/update/delete`를 기록합니다.
+> 모델 경로가 다르면 `patch_feature.py` 상단의 `try import` 부분을 적절히 고쳐 쓰시면 됩니다.
+
+## 5) 회원탈퇴
+- GET `/account/delete` : 안내 및 `DELETE` 확인 입력
+- POST 동일 경로: 세션 종료 + 사용자를 비활성화/삭제(프로젝트에 맞게 수정 Hook 제공)
+
+## 6) 배포 이슈 405(DELETE) 방지
+- 모든 삭제/탈퇴는 **POST** 폼 전송으로 처리합니다.
+
+---
+
+### 파일 구성
+- `patch_feature.py` : Blueprint + 감사로그 + 로그뷰 + 탈퇴 라우트
+- `templates/components/delete_button_inline.html`
+- `templates/components/navbar_home.html`
+- `templates/components/home_tree.html`
+- `templates/patch/create_document_extra.html`
+- `templates/patch/signup_extra_fields.html`
+- `static/patch/patch.js`
