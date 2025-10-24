@@ -1,19 +1,41 @@
-미니 패치 v2 — 문서 삭제 버튼(오른쪽) + 재확인 팝업
+[목적]
+- 홈(문서 목록) 화면 각 문서 오른쪽에 '삭제' 버튼을 표시하고, 클릭 시 한 번 더 확인 창 후 삭제합니다.
+- 시스템 문서(이용약관/개인정보처리방침)는 버튼이 보이지 않으며, 서버에서도 삭제 금지입니다.
+- 디자인 변형 없음(오른쪽 끝에 작은 '삭제' 링크), 기존 템플릿 위에 쌓아 올리는 방식.
 
-1) app.py에 라우트 추가
-   - app_patch_snippet.py 내용 전체를 app.py 하단에 붙여넣기
-   - 이미 동일 import가 있으면 중복 제거 OK
+[구성]
+- templates/components/delete_button_inline.html : 목록행 우측에 뜨는 삭제버튼 include
+- static/delete-inline.css : 아주 얇은 CSS (선택적, 원치 않으면 미적용 가능)
 
-2) 목록 템플릿 수정 (문서 루프 내부)
-   - 각 문서 항목을 출력하는 루프(예: `{% for d in docs %}`) 안에서
-     제목 링크 오른쪽 영역에 다음 한 줄 추가:
-       `{% include "components/delete_button.html" with context %}`
+[서버 라우트]
+- 이미 `delete_document`(POST: /documents/<doc_id>/delete) 라우트가 있다면 그대로 사용하세요.
+- 없다면 기존에 드린 app_patch_snippet.py의 delete_document 함수를 app.py에 추가하세요.
 
-   - 루프 변수 이름이 doc인 경우에도 위 한 줄 그대로 쓰면 됩니다.
-     (include 파일에서 d/doc 모두 자동 인식)
+[템플릿 연결]
+1) (선택) CSS를 불러오려면 base 레이아웃 head에 아래 한 줄 추가:
+   <link rel="stylesheet" href="{{ url_for('static', filename='delete-inline.css') }}">
 
-3) 시스템 문서(이용약관/개인정보처리방침)는 버튼이 보이지 않으며,
-   직접 POST해도 403이 납니다.
+2) 홈 목록 템플릿(예: templates/index.html)에서 문서 목록을 출력하는 반복문 안에 아래 include를 추가하세요.
+   (문서 객체명이 d 이든 doc 이든 자동으로 잡도록 만들어둠)
 
-4) 디자인 변경 없음
-   - float:right; 로 오른쪽에 붙고, confirm()으로 한 번 더 되묻습니다.
+   예)
+   {% for d in docs %}
+     <li class="list-row">
+       <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
+       {% include "components/delete_button_inline.html" with context %}
+       <span class="date">{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+     </li>
+   {% endfor %}
+
+   만약 ul/li가 아니라 div 테이블 스타일이라면, '제목 링크'가 있는 같은 블록 안에 위 include 한 줄을 넣으면 됩니다.
+   버튼은 float:right로 오른쪽 끝에 붙습니다.
+
+[권한]
+- current_user.is_authenticated 조건에서만 버튼이 보입니다.
+- 시스템 문서(d.is_system True)는 버튼 숨김 + 서버에서도 403 처리.
+
+[되묻기]
+- onsubmit confirm('정말 삭제하시겠어요? 복구할 수 없습니다.') 적용.
+
+[주의]
+- 템플릿 캐시가 있다면 서버 재시작 또는 강력 새로고침(Ctrl+F5)이 필요할 수 있습니다.
