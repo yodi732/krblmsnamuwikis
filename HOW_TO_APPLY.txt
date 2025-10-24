@@ -1,0 +1,19 @@
+미니 패치 v2 — 문서 삭제 버튼(오른쪽) + 재확인 팝업
+
+1) app.py에 라우트 추가
+   - app_patch_snippet.py 내용 전체를 app.py 하단에 붙여넣기
+   - 이미 동일 import가 있으면 중복 제거 OK
+
+2) 목록 템플릿 수정 (문서 루프 내부)
+   - 각 문서 항목을 출력하는 루프(예: `{% for d in docs %}`) 안에서
+     제목 링크 오른쪽 영역에 다음 한 줄 추가:
+       `{% include "components/delete_button.html" with context %}`
+
+   - 루프 변수 이름이 doc인 경우에도 위 한 줄 그대로 쓰면 됩니다.
+     (include 파일에서 d/doc 모두 자동 인식)
+
+3) 시스템 문서(이용약관/개인정보처리방침)는 버튼이 보이지 않으며,
+   직접 POST해도 403이 납니다.
+
+4) 디자인 변경 없음
+   - float:right; 로 오른쪽에 붙고, confirm()으로 한 번 더 되묻습니다.

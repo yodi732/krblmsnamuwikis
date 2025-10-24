@@ -1,15 +1,14 @@
-
-# --- 문서 삭제 ---
-from sqlalchemy.exc import IntegrityError
-from flask import request, abort, flash, redirect, url_for
+# --- 문서 삭제 라우트 패치 (붙여넣기) ---
+from flask import abort, flash, redirect, url_for
 from flask_login import login_required
+from sqlalchemy.exc import IntegrityError
 
 @app.route("/documents/<int:doc_id>/delete", methods=["POST"])
 @login_required
 def delete_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
 
-    # 시스템 문서는 삭제 금지 (이용약관/개인정보처리방침 등)
+    # 시스템 문서는 삭제 금지
     if getattr(doc, "is_system", False):
         abort(403)
 
