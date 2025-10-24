@@ -1,16 +1,22 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <h2>활동 로그</h2>
-  <div class="card">
-    {% for l in logs %}
-      <div class="row">
-        <div class="sub">{{ l.user_email }}</div>
-        <div>{{ l.action }}</div>
-        <div class="sub">{{ l.doc_title or '' }}</div>
-        <div class="date">{{ l.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-      </div>
-    {% else %}
-      <div class="sub">로그가 없습니다.</div>
-    {% endfor %}
+<h2>작업 로그</h2>
+<div class="list">
+  <div class="row" style="font-weight:600">
+    <div style="width:220px">시간(UTC)</div>
+    <div style="width:260px">이메일</div>
+    <div style="width:120px">작업</div>
+    <div style="flex:1">문서</div>
   </div>
+  {% for r in logs %}
+  <div class="row">
+    <div style="width:220px">{{ r.ts }}</div>
+    <div style="width:260px">{{ r.user }}</div>
+    <div style="width:120px">{{ r.action }}</div>
+    <div style="flex:1">#{{ r.doc_id }} {{ r.title }}</div>
+  </div>
+  {% else %}
+  <div class="row">로그가 없습니다.</div>
+  {% endfor %}
+</div>
 {% endblock %}
