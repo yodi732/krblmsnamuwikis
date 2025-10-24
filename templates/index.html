@@ -3,14 +3,16 @@
   <h2>문서 목록</h2>
   <div class="list">
     {% for d in docs %}
-      <div class="row" style="display:flex; align-items:center; gap:12px;">
-        <a href="{{ url_for('view_document', doc_id=d.id) }}" style="flex:1 1 auto">{{ d.title }}</a>
-        <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
-
-        {# 삭제 버튼 (POST + confirm). 행 링크 클릭과 분리되도록 버튼쪽은 버블링 막음 #}
-        <form method="post" action="/document/{{ d.id }}/delete" onsubmit="event.stopPropagation(); return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-          <button type="submit" class="btn btn-danger" style="margin-left:8px">삭제</button>
+      <div class="row" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <div style="flex:1;min-width:0">
+          <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
+          <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        </div>
+        {% if g.user %}
+        <form action="{{ url_for('delete_document', doc_id=d.id) }}" method="post" onsubmit="return confirm('정말 삭제하시겠어요? 이 작업은 되돌릴 수 없습니다.');">
+          <button type="submit" class="btn btn-danger" style="padding:4px 10px">삭제</button>
         </form>
+        {% endif %}
       </div>
     {% else %}
       <div class="row">문서가 없습니다.</div>

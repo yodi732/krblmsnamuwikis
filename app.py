@@ -98,7 +98,8 @@ def edit_document(doc_id):
         return redirect(url_for("view_document", doc_id=doc.id))
     return render_template("document_edit.html", doc=doc)
 
-@app.route("/document/<int:doc_id>/delete")
+# IMPORTANT: Allow POST for deletion to avoid 405 and protect via confirm prompt in the form.
+@app.route("/document/<int:doc_id>/delete", methods=["POST"])
 def delete_document(doc_id):
     if not g.user: return redirect(url_for("login"))
     doc = db.session.get(Document, doc_id) or abort(404)
