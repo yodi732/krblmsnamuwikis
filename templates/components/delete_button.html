@@ -1,0 +1,12 @@
+
+{# components/delete_button.html
+   반복문 내부에서 d가 현재 문서 객체라고 가정합니다.
+   오른쪽에 붙도록 float 사용. 디자인 파일은 수정하지 않습니다. #}
+{% if d and (not d.is_system) %}
+<form method="post"
+      action="{{ url_for('delete_document', doc_id=d.id) }}"
+      style="display:inline; float:right; margin-left:8px;"
+      onsubmit="return confirm('정말 이 문서를 삭제할까요?\n삭제 후 되돌릴 수 없습니다.');">
+  <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
+</form>
+{% endif %}
