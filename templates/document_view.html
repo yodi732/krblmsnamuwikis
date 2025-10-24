@@ -1,11 +1,33 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ doc.title }}</h2>
-<div style="white-space:pre-wrap;line-height:1.6;border:1px solid #eee;padding:14px;border-radius:8px">{{ doc.content }}</div>
-{% if g.user %}
-  <p style="margin-top:16px">
-    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
-    <a class="btn" href="{{ url_for('delete_document', doc_id=doc.id) }}" onclick="return confirm('삭제하시겠습니까?')">삭제</a>
-  </p>
-{% endif %}
+  <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
+    <h2>{{ doc.title }}</h2>
+    <div>
+      <a class="btn" href="{{ url_for('home') }}">홈</a>
+      {% if g.user %}
+        <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">편집</a>
+        <a class="btn" href="{{ url_for('create_document', parent_id=doc.id) }}">하위 문서</a>
+        {% if not doc.is_system %}
+        <form method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" style="display:inline"
+              onsubmit="return confirm('삭제하면 복구할 수 없습니다. 진행할까요?');">
+          <button type="submit" class="btn">삭제</button>
+        </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  <div class="doc-body">{{ doc.content|safe }}</div>
+
+  {% if children and children|length > 0 %}
+  <h3 style="margin-top:20px;">하위 문서</h3>
+  <div class="list">
+    {% for c in children %}
+      <div class="row">
+        <a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a>
+        <small class="muted">{{ c.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 {% endblock %}

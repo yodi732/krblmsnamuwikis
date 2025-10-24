@@ -1,18 +1,31 @@
+
 {% extends "base.html" %}
 {% block content %}
-  <h2>문서 목록</h2>
+  <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
+    <h2>문서 목록</h2>
+    <div>
+      <a class="btn" href="{{ url_for('home') }}">홈</a>
+      {% if g.user %}<a class="btn" href="{{ url_for('logs') }}">로그 보기</a>{% endif %}
+    </div>
+  </div>
   <div class="list">
     {% for d in docs %}
-      <div class="row" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
-        <div style="flex:1;min-width:0">
+      <div class="row" style="display:flex; align-items:center; gap:12px; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
           <a href="{{ url_for('view_document', doc_id=d.id) }}">{{ d.title }}</a>
           <small class="muted">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
         </div>
-        {% if g.user %}
-        <form action="{{ url_for('delete_document', doc_id=d.id) }}" method="post" onsubmit="return confirm('정말 삭제하시겠어요? 이 작업은 되돌릴 수 없습니다.');">
-          <button type="submit" class="btn btn-danger" style="padding:4px 10px">삭제</button>
-        </form>
-        {% endif %}
+        <div style="display:flex; gap:8px;">
+          {% if g.user %}
+          <a class="btn btn-sm" href="{{ url_for('create_document', parent_id=d.id) }}">하위 문서</a>
+          {% endif %}
+          {% if g.user and not d.is_system %}
+          <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}"
+                onsubmit="return confirm('정말 이 문서를 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
+            <button type="submit" class="btn btn-sm">삭제</button>
+          </form>
+          {% endif %}
+        </div>
       </div>
     {% else %}
       <div class="row">문서가 없습니다.</div>

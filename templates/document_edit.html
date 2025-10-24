@@ -1,15 +1,43 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ '문서 수정' if doc else '새 문서' }}</h2>
-<form method="post">
-  <div class="form-row">
-    <label>제목</label>
-    <input class="input" name="title" value="{{ doc.title if doc else '' }}" required>
-  </div>
-  <div class="form-row">
-    <label>내용</label>
-    <textarea class="input" name="content" required>{{ doc.content if doc else '' }}</textarea>
-  </div>
-  <button class="btn primary">저장</button>
-</form>
+  <h2>{{ '문서 편집' if doc else '새 문서' }}</h2>
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <form method="post" class="form">
+    <div class="field">
+      <label>문서 종류</label>
+      <div>
+        <label><input type="radio" name="mode" value="parent" {% if mode!='child' %}checked{% endif %}> 상위 문서</label>
+        <label style="margin-left:12px;"><input type="radio" name="mode" value="child" {% if mode=='child' %}checked{% endif %}> 하위 문서</label>
+      </div>
+    </div>
+    <div class="field" id="parent-select" {% if mode!='child' %}style="display:none"{% endif %}>
+      <label>상위 문서 선택</label>
+      <select name="parent_id">
+        <option value="">(선택)</option>
+        {% for p in parents %}
+          <option value="{{ p.id }}" {% if parent and parent.id==p.id %}selected{% endif %}>
+            {{ p.title }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label>제목</label>
+      <input type="text" name="title" required value="{{ doc.title if doc else '' }}">
+    </div>
+    <div class="field">
+      <label>내용</label>
+      <textarea name="content" rows="10" required>{{ doc.content if doc else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn">{{ '저장' if doc else '만들기' }}</button>
+  </form>
+
+  <script>
+    const radios = document.querySelectorAll('input[name="mode"]');
+    const parentBox = document.getElementById('parent-select');
+    radios.forEach(r => r.addEventListener('change', () => {
+      parentBox.style.display = (document.querySelector('input[name="mode"]:checked').value === 'child') ? '' : 'none';
+    }));
+  </script>
 {% endblock %}

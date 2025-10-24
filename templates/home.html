@@ -1,15 +1,33 @@
+
 {% extends "base.html" %}
 {% block content %}
-<section class="card">
-  <h2>최근 문서</h2>
-  <ul class="list">
-    {% for d in docs %}
-      <li><a href="{{ url_for('doc_view', title=d.title) }}">{{ d.title }}</a>
-        <span class="muted">{{ d.updated_at.strftime('%Y-%m-%d %H:%M') if d.updated_at else '' }}</span>
-      </li>
+  <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
+    <h2>홈</h2>
+    <div>
+      <a class="btn" href="{{ url_for('index') }}">최근 문서</a>
+      {% if g.user %}<a class="btn" href="{{ url_for('create_document') }}">새 문서</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="list">
+    {% macro render_node(n, depth=0) -%}
+      <div class="row" style="padding-left: {{ depth*16 }}px">
+        <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
+        <small class="muted">{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        {% if g.user %}
+          <a class="btn btn-sm" href="{{ url_for('create_document', parent_id=n.id) }}">하위 문서</a>
+        {% endif %}
+      </div>
+      {%- for c in n.children.order_by(doc_model.created_at.desc()) %}
+        {{ render_node(c, depth+1) }}
+      {%- endfor %}
+    {%- endmacro %}
+
+    {% set doc_model = namespace(created_at=None) %}
+    {% for r in roots %}
+      {{ render_node(r, 0) }}
     {% else %}
-      <li class="muted">문서가 없습니다.</li>
+      <div class="row">아직 상위 문서가 없습니다.</div>
     {% endfor %}
-  </ul>
-</section>
+  </div>
 {% endblock %}

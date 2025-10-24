@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h2>회원 탈퇴</h2>
+<p class="muted">계정은 즉시 삭제되며 되돌릴 수 없습니다.</p>
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form">
+  <div class="field">
+    <label>비밀번호 확인</label>
+    <input type="password" name="password" required>
+  </div>
+  <button type="submit" class="btn">회원 탈퇴</button>
+</form>
+{% endblock %}

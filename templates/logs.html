@@ -1,22 +1,23 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>작업 로그</h2>
+<h2>활동 로그</h2>
 <div class="list">
-  <div class="row" style="font-weight:600">
-    <div style="width:220px">시간(UTC)</div>
-    <div style="width:260px">이메일</div>
-    <div style="width:120px">작업</div>
-    <div style="flex:1">문서</div>
+  <div class="row" style="font-weight:600;">
+    <div style="width:170px;">시간(UTC)</div>
+    <div style="width:220px;">사용자</div>
+    <div style="width:110px;">작업</div>
+    <div>대상 문서</div>
   </div>
-  {% for r in logs %}
-  <div class="row">
-    <div style="width:220px">{{ r.ts }}</div>
-    <div style="width:260px">{{ r.user }}</div>
-    <div style="width:120px">{{ r.action }}</div>
-    <div style="flex:1">#{{ r.doc_id }} {{ r.title }}</div>
-  </div>
+  {% for r in rows %}
+    <div class="row">
+      <div style="width:170px;">{{ r.ts }}</div>
+      <div style="width:220px;">{{ r.user }}</div>
+      <div style="width:110px;">{{ r.action }}</div>
+      <div>#{{ r.doc_id }} &nbsp; {{ r.title }}</div>
+    </div>
   {% else %}
-  <div class="row">로그가 없습니다.</div>
+    <div class="row">로그가 없습니다.</div>
   {% endfor %}
 </div>
 {% endblock %}
