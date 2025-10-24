@@ -1,23 +1,20 @@
-
-{% extends "base.html" %}
-{% block content %}
-<h2>활동 로그</h2>
-<div class="list">
-  <div class="row" style="font-weight:600;">
-    <div style="width:170px;">시간(UTC)</div>
-    <div style="width:220px;">사용자</div>
-    <div style="width:110px;">작업</div>
-    <div>대상 문서</div>
-  </div>
-  {% for r in rows %}
-    <div class="row">
-      <div style="width:170px;">{{ r.ts }}</div>
-      <div style="width:220px;">{{ r.user }}</div>
-      <div style="width:110px;">{{ r.action }}</div>
-      <div>#{{ r.doc_id }} &nbsp; {{ r.title }}</div>
-    </div>
-  {% else %}
-    <div class="row">로그가 없습니다.</div>
-  {% endfor %}
+{% extends "base.html" %}{% block content %}
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('home') }}">홈</a>
+  <a class="btn" href="{{ url_for('index') }}">문서 목록</a>
 </div>
+<h2>활동 로그</h2>
+<table>
+  <thead><tr><th style="width:220px">시간(UTC)</th><th style="width:280px">사용자</th><th style="width:120px">작업</th><th>대상 문서</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td class="muted">{{ r.ts }}</td>
+      <td>{{ r.user }}</td>
+      <td><span class="pill">{{ r.action }}</span></td>
+      <td>{% if r.doc_id %}#{{ r.doc_id }} — {{ r.title }}{% endif %}</td>
+    </tr>
+  {% else %}<tr><td colspan="4" class="muted">기록이 없습니다.</td></tr>{% endfor %}
+  </tbody>
+</table>
 {% endblock %}

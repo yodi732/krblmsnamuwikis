@@ -1,15 +1,9 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %}{% block content %}
 <h2>로그인</h2>
-<form method="post" style="max-width:420px">
-  <div class="form-row">
-    <label>이메일</label>
-    <input name="email" type="email" class="input" required>
-  </div>
-  <div class="form-row">
-    <label>비밀번호</label>
-    <input name="password" type="password" class="input" required>
-  </div>
-  <button class="btn primary">로그인</button>
+{% if error %}<div class="pill danger">{{ error }}</div>{% endif %}
+<form method="post">
+  <div class="field"><label>이메일</label><br><input class="text" name="email" placeholder="1234@bl-m.kr"></div>
+  <div class="field"><label>비밀번호</label><br><input class="text" type="password" name="password"></div>
+  <button class="btn" type="submit">로그인</button>
 </form>
 {% endblock %}

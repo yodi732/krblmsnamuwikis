@@ -1,33 +1,20 @@
-
-{% extends "base.html" %}
-{% block content %}
-  <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
-    <h2>홈</h2>
-    <div>
-      <a class="btn" href="{{ url_for('index') }}">최근 문서</a>
-      {% if g.user %}<a class="btn" href="{{ url_for('create_document') }}">새 문서</a>{% endif %}
-    </div>
-  </div>
-
-  <div class="list">
-    {% macro render_node(n, depth=0) -%}
-      <div class="row" style="padding-left: {{ depth*16 }}px">
-        <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
-        <small class="muted">{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
-        {% if g.user %}
-          <a class="btn btn-sm" href="{{ url_for('create_document', parent_id=n.id) }}">하위 문서</a>
-        {% endif %}
-      </div>
-      {%- for c in n.children.order_by(doc_model.created_at.desc()) %}
-        {{ render_node(c, depth+1) }}
-      {%- endfor %}
-    {%- endmacro %}
-
-    {% set doc_model = namespace(created_at=None) %}
-    {% for r in roots %}
-      {{ render_node(r, 0) }}
-    {% else %}
-      <div class="row">아직 상위 문서가 없습니다.</div>
-    {% endfor %}
-  </div>
+{% extends "base.html" %}{% block content %}
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('index') }}">문서 목록</a>
+  {% if g.user %}<a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>{% endif %}
+  {% if g.user %}<a class="btn" href="{{ url_for('logs') }}">로그 보기</a>{% endif %}
+</div>
+<h2>홈</h2>
+<div class="tree">
+{% macro render_node(n) -%}
+  <li>
+    <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
+    {% set kids = n.children.order_by(doc_model.created_at.desc()).all() %}
+    {% if kids %}<ul>{% for c in kids %}{{ render_node(c) }}{% endfor %}</ul>{% endif %}
+  </li>
+{%- endmacro %}
+<ul>
+  {% for r in roots %}{{ render_node(r) }}{% endfor %}
+</ul>
+</div>
 {% endblock %}

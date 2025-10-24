@@ -1,14 +1,9 @@
-
-{% extends "base.html" %}
-{% block content %}
-<h2>회원 탈퇴</h2>
-<p class="muted">계정은 즉시 삭제되며 되돌릴 수 없습니다.</p>
-{% if error %}<div class="alert">{{ error }}</div>{% endif %}
-<form method="post" class="form">
-  <div class="field">
-    <label>비밀번호 확인</label>
-    <input type="password" name="password" required>
-  </div>
-  <button type="submit" class="btn">회원 탈퇴</button>
+{% extends "base.html" %}{% block content %}
+<h2 class="danger">회원 탈퇴</h2>
+{% if error %}<div class="pill danger">{{ error }}</div>{% endif %}
+<p>정말로 회원을 탈퇴하시겠습니까? 탈퇴 즉시 계정 정보는 즉시 파기됩니다.</p>
+<form method="post" onsubmit="return confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+  <div class="field"><label>비밀번호 확인</label><br><input class="text" type="password" name="password" autofocus></div>
+  <button class="btn danger" type="submit">정말로 탈퇴하기</button>
 </form>
 {% endblock %}
