@@ -1,0 +1,7 @@
+/* byeollae wiki nav/button patch */
+.topbar{background:#1f3696;color:#fff;}
+.topbar-inner{max-width:1024px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;}
+.topbar .brand{color:#fff;text-decoration:none;font-weight:700}
+.nav-pill{display:inline-block;background:#fff;border:1px solid #e6e8f5;color:#172a88 !important;font-weight:600;font-size:14px;padding:6px 12px;border-radius:10px;text-decoration:none;line-height:1;margin-left:8px}
+.nav-pill:hover{background:#f4f6ff;border-color:#d7dbf8}
+.nav-user{margin:0 8px;color:#cbd3ff;font-size:13px}
