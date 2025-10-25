@@ -1,1 +1,34 @@
-{% extends 'base.html' %}{% block header_actions %}{% if g.user %}<a class='btn' href='{{ url_for('home') }}'>홈</a><a class='btn' href='{{ url_for('create_document') }}'>문서 만들기</a><a class='btn' href='{{ url_for('logs') }}'>로그 보기</a><a class='btn' href='{{ url_for('logout') }}'>로그아웃</a>{% else %}<a class='btn' href='{{ url_for('home') }}'>홈</a><a class='btn' href='{{ url_for('login') }}'>로그인</a><a class='btn' href='{{ url_for('signup') }}'>회원가입</a>{% endif %}{% endblock %}{% block content %}<h2>홈</h2>{% macro render_node(n) -%}<li><a href='{{ url_for('view_document', doc_id=n.id) }}'>{{ n.title }}</a>{% set kids = n.children.order_by(doc_model.created_at.desc()).all() %}{% if kids %}<ul>{% for c in kids %}{{ render_node(c) }}{% endfor %}</ul>{% endif %}</li>{%- endmacro %}<div class='columns'><div class='col'><div class='card'><div class='card-title'>목차</div><ul>{% for r in roots %}<li>{{ render_node(r) }}</li>{% else %}<li class='muted'>목차가 없습니다.</li>{% endfor %}</ul></div></div><div class='col'><div class='card'><div class='card-title'>문서 목록</div><ul>{% for r in roots %}<li><a href='{{ url_for('view_document', doc_id=r.id) }}'>{{ r.title }}</a></li>{% else %}<li class='muted'>문서가 없습니다.</li>{% endfor %}</ul></div></div></div>{% endblock %}
+
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">홈</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>목차</h3>
+    <ul class="tree">
+      {% for r, children in tree %}
+        <li>
+          <a href="{{ url_for('view_document', doc_id=r.id) }}">{{ r.title }}</a>
+          {% if children %}
+            <ul>
+              {% for c in children %}
+                <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>문서 목록</h3>
+    <ul>
+      {% for r, children in tree %}
+        <li><a href="{{ url_for('view_document', doc_id=r.id) }}">{{ r.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,36 +1,50 @@
-{% set _ = g %}<!doctype html>
-<html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>별내위키</title>
-<style>
-.container{max-width:980px;margin:48px auto;padding:0 16px}
-.toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
-.btn{display:inline-block;border:1px solid #d0d3da;background:#fff;padding:6px 10px;border-radius:4px;font-size:13px}
-.btn:hover{background:#f6f7fb}
-.list .row{display:flex;align-items:center;justify-content:space-between;border:1px solid #eee;padding:10px 12px;margin:8px 0;border-radius:6px}
-.muted{color:#777;font-size:12px;margin-left:8px}
-table{width:100%;border-collapse:collapse}
-th,td{border-bottom:1px solid #eee;padding:10px 8px;text-align:left;font-size:14px}
-.pill{font-size:12px;border:1px solid #e0e3ea;border-radius:999px;padding:2px 8px;background:#fafbff}
-.footer{margin-top:36px;padding:18px 0;border-top:1px solid #efefef;color:#666;font-size:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.footer a{color:#666}
-.tree ul{list-style:none;margin:0;padding-left:18px}
-.tree li{margin:4px 0}
-.field{margin:12px 0}
-.text{width:100%;max-width:640px;padding:8px;border:1px solid #dcdfe7;border-radius:6px}
-textarea.text{height:240px}
-.danger{color:#b30000}
-</style></head>
-<body><div class="container">
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}<div>{% for cat, msg in messages %}<div class="pill">{{ msg }}</div>{% endfor %}</div>{% endif %}
-{% endwith %}
-{% block content %}{% endblock %}
-<div class="footer">
-  <a href="{{ url_for('terms') }}">이용약관</a> ·
-  <a href="{{ url_for('privacy') }}">개인정보처리방침</a> ·
-  <span>피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
-  {% if g.user %} · <a class="danger" href="{{ url_for('account_delete') }}">회원탈퇴</a>{% endif %}
-  <div style="margin-top:6px">© {{ now.year }} 별내위키</div>
-</div>
-</div></body></html>
+
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>별내위키</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand"><a href="{{ url_for('index') }}">별내위키</a></div>
+      <nav class="nav">
+        {% if g.user %}
+          <a class="btn" href="{{ url_for('home') }}">홈</a>
+          <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
+          <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+          <span class="sep"></span>
+          <span class="muted">{{ g.user.email }}</span>
+          <a class="btn outline" href="{{ url_for('logout') }}">로그아웃</a>
+        {% else %}
+          <a class="btn" href="{{ url_for('index') }}">홈</a>
+          <a class="btn outline" href="{{ url_for('login') }}">로그인</a>
+          <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a href="{{ url_for('terms') }}">이용약관</a>
+        ·
+        <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+        {% if g.user %}
+        ·
+        <a href="{{ url_for('account_delete') }}" class="danger">회원탈퇴</a>
+        {% endif %}
+      </div>
+      <div>피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a> · © {{ now.year }} 별내위키</div>
+    </div>
+  </footer>
+</body>
+</html>

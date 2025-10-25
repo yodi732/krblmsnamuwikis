@@ -1,1 +1,30 @@
-{% extends 'base.html' %}{% block header_actions %}<a class='btn' href='{{ url_for('home') }}'>홈</a>{% if g.user %}<a class='btn' href='{{ url_for('create_document') }}'>문서 만들기</a><a class='btn' href='{{ url_for('logs') }}'>로그 보기</a><a class='btn' href='{{ url_for('logout') }}'>로그아웃</a>{% else %}<a class='btn' href='{{ url_for('login') }}'>로그인</a><a class='btn' href='{{ url_for('signup') }}'>회원가입</a>{% endif %}{% endblock %}{% block content %}<h2>{{ doc.title }}</h2><div class='muted'>업데이트: {{ doc.created_at.strftime('%Y-%m-%d %H:%M') }}</div><div class='content' style='margin-top:12px'>{{ doc.content|nl2br }}</div>{% if g.user %}<div style='margin-top:14px;display:flex;gap:6px'><a class='btn' href='{{ url_for('edit_document', doc_id=doc.id) }}'>수정</a><form method='post' action='{{ url_for('delete_document', doc_id=doc.id) }}' onsubmit="return confirm('정말 삭제할까요? 하위 문서도 함께 삭제됩니다.')"><button class='btn danger' type='submit'>삭제</button></form><a class='btn' href='{{ url_for('create_document') }}?parent_id={{ doc.id }}'>하위 문서 만들기</a></div>{% endif %}{% if children %}<h3 style='margin-top:24px'>하위 문서</h3><ul>{% for c in children %}<li><a href='{{ url_for('view_document', doc_id=c.id) }}'>{{ c.title }}</a></li>{% endfor %}</ul>{% endif %}{% endblock %}
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row between vcenter mb8">
+  <h2 class="page-title">{{ doc.title }}</h2>
+  {% if g.user %}
+  <div class="actions">
+    <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
+    <form method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" onsubmit="return confirm('문서를 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
+      <button class="btn danger" type="submit">삭제</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card content">
+  <pre style="white-space:pre-wrap">{{ doc.content }}</pre>
+</div>
+
+{% if children %}
+<div class="card mt12">
+  <h3>하위 문서</h3>
+  <ul>
+    {% for c in children %}
+      <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

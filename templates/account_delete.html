@@ -1,1 +1,12 @@
-{% extends 'base.html' %}{% block header_actions %}<a class='btn' href='{{ url_for('home') }}'>홈</a><a class='btn' href='{{ url_for('logout') }}'>로그아웃</a>{% endblock %}{% block content %}<h2>회원 탈퇴</h2><p class='muted'>탈퇴 시 계정 관련 정보는 즉시 파기됩니다.</p>{% if error %}<div class='alert'>{{ error }}</div>{% endif %}<form method='post' style='max-width:420px'><label>비밀번호 확인</label><input type='password' name='password' style='width:320px'><div style='margin-top:10px'><label>확인 문구 입력</label><br><input type='text' name='confirm' placeholder='DELETE' style='width:320px'></div><div style='margin-top:14px'><button class='btn danger' type='submit' onclick="return confirm('정말 탈퇴하시겠습니까?')">탈퇴하기</button></div></form>{% endblock %}
+
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">회원 탈퇴</h2>
+<p class="muted">탈퇴 즉시 계정 정보는 파기됩니다. 되돌릴 수 없습니다.</p>
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form card" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
+  <div class="field"><label>비밀번호 확인</label><input type="password" name="password" required></div>
+  <div class="field"><label><input type="checkbox" name="confirm_delete" value="yes"> 정말로 탈퇴합니다</label></div>
+  <button class="btn danger" type="submit">탈퇴</button>
+</form>
+{% endblock %}

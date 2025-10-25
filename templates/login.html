@@ -1,1 +1,11 @@
-{% extends 'base.html' %}{% block header_actions %}<a class='btn' href='{{ url_for('home') }}'>홈</a><a class='btn' href='{{ url_for('signup') }}'>회원가입</a>{% endblock %}{% block content %}<h2>로그인</h2>{% if error %}<div class='alert'>{{ error }}</div>{% endif %}<form method='post' style='max-width:360px'><label>이메일</label><input type='email' name='email' style='width:320px'><label>비밀번호</label><input type='password' name='password' style='width:320px'><div style='margin-top:10px'><button class='btn' type='submit'>로그인</button></div></form>{% endblock %}
+
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">로그인</h2>
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form card">
+  <div class="field"><label>이메일</label><input type="email" name="email" required></div>
+  <div class="field"><label>비밀번호</label><input type="password" name="password" required></div>
+  <button class="btn" type="submit">로그인</button>
+</form>
+{% endblock %}
