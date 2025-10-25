@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>회원 탈퇴</h2>
+<p>계정을 삭제하면 복구할 수 없습니다. 관련 세션 및 개인정보는 지체 없이 파기됩니다.</p>
+<form method="post">
+  <div style="margin:8px 0">
+    <label>비밀번호 확인</label><br>
+    <input type="password" name="password" required>
+  </div>
+  {% if error %}<div class="error" style="color:#c00">{{ error }}</div>{% endif %}
+  <button class="btn" onclick="return confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">정말 탈퇴하기</button>
+  <a class="btn" href="{{ url_for('index') }}">취소</a>
+</form>
+{% endblock %}

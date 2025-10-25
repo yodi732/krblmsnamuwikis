@@ -1,0 +1,12 @@
+<div style="display:flex; gap:8px; justify-content:flex-end; margin:4px 0 12px;">
+  {% if g.user %}
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+    <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
+    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
+    <a class="btn" href="{{ url_for('logout') }}">로그아웃</a>
+  {% else %}
+    <a class="btn" href="{{ url_for('home') }}">홈</a>
+    <a class="btn" href="{{ url_for('login') }}">로그인</a>
+    <a class="btn" href="{{ url_for('signup') }}">회원가입</a>
+  {% endif %}
+</div>
