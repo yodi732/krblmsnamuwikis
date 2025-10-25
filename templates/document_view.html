@@ -1,30 +1,20 @@
-
 {% extends "base.html" %}
 {% block content %}
-<div class="row between vcenter mb8">
-  <h2 class="page-title">{{ doc.title }}</h2>
-  {% if g.user %}
-  <div class="actions">
+<h2>{{ doc.title }}</h2>
+<div class="card" style="white-space:pre-wrap">{{ doc.content }}</div>
+{% if g.user %}
+  <div style="margin-top:12px">
     <a class="btn" href="{{ url_for('edit_document', doc_id=doc.id) }}">수정</a>
-    <form method="post" action="{{ url_for('delete_document', doc_id=doc.id) }}" onsubmit="return confirm('문서를 삭제할까요? 하위 문서도 함께 삭제됩니다.');">
-      <button class="btn danger" type="submit">삭제</button>
+    <a class="btn" href="{{ url_for('create_document', parent_id=doc.id) }}">하위 문서</a>
+    <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="post" style="display:inline">
+      <button class="btn" type="submit" onclick="return confirm('문서를 삭제하시겠습니까? 하위문서도 모두 삭제됩니다.');">삭제</button>
     </form>
   </div>
-  {% endif %}
-</div>
-
-<div class="card content">
-  <pre style="white-space:pre-wrap">{{ doc.content }}</pre>
-</div>
-
+{% endif %}
 {% if children %}
-<div class="card mt12">
-  <h3>하위 문서</h3>
-  <ul>
-    {% for c in children %}
-      <li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>
-    {% endfor %}
-  </ul>
+<div class="card" style="margin-top:16px">
+  <h4>하위 문서</h4>
+  <ul>{% for c in children %}<li><a href="{{ url_for('view_document', doc_id=c.id) }}">{{ c.title }}</a></li>{% endfor %}</ul>
 </div>
 {% endif %}
 {% endblock %}

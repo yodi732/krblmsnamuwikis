@@ -1,12 +1,1 @@
-
-{% extends "base.html" %}
-{% block content %}
-<h2 class="page-title">회원 탈퇴</h2>
-<p class="muted">탈퇴 즉시 계정 정보는 파기됩니다. 되돌릴 수 없습니다.</p>
-{% if error %}<div class="alert">{{ error }}</div>{% endif %}
-<form method="post" class="form card" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
-  <div class="field"><label>비밀번호 확인</label><input type="password" name="password" required></div>
-  <div class="field"><label><input type="checkbox" name="confirm_delete" value="yes"> 정말로 탈퇴합니다</label></div>
-  <button class="btn danger" type="submit">탈퇴</button>
-</form>
-{% endblock %}
+{% extends 'base.html' %}{% block content %}<h2>회원 탈퇴</h2><div class='card' style='max-width:560px'>{% if error %}<div style='color:#c0392b'>{{ error }}</div>{% endif %}<p>정말 회원 탈퇴를 진행하시겠습니까? 탈퇴하면 계정 정보는 즉시 삭제됩니다. 문서 자체는 유지됩니다.</p><form method='post'><label>비밀번호 확인</label><br><input type='password' name='password' style='width:100%;padding:8px;margin-top:6px'><div style='margin-top:12px'><button class='btn' type='submit' onclick="return confirm('회원 정보를 즉시 삭제합니다. 계속하시겠습니까?');">회원 탈퇴</button><a class='btn' href='{{ url_for('index') }}'>취소</a></div></form></div>{% endblock %}

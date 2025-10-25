@@ -1,28 +1,24 @@
-
 {% extends "base.html" %}
 {% block content %}
-<h2 class="page-title">회원가입</h2>
-<p class="muted">학교 계정(<b>@bl-m.kr</b>)만 가입할 수 있습니다.</p>
-{% if error %}<div class="alert">{{ error }}</div>{% endif %}
-<form method="post" class="form card">
-  <div class="field"><label>이메일</label><input type="email" name="email" placeholder="1234@bl-m.kr" required></div>
-  <div class="field"><label>비밀번호</label><input type="password" name="password" required></div>
-  <div class="field"><label>비밀번호 재확인</label><input type="password" name="password2" required></div>
-
-  <div class="field">
-    <label><input type="checkbox" name="agree_terms"> 이용약관에 동의합니다.</label><br>
-    <label><input type="checkbox" name="agree_priv"> 개인정보처리방침에 동의합니다.</label>
-  </div>
-  <button class="btn" type="submit">가입하기</button>
-</form>
-<div class="card mt12">
-  <details>
-    <summary>이용약관 전문 보기</summary>
-    <pre class="mono small">여기에 서비스 이용약관 전문을 넣으세요.</pre>
-  </details>
-  <details class="mt8">
-    <summary>개인정보처리방침 전문 보기</summary>
-    <pre class="mono small">여기에 개인정보처리방침 전문을 넣으세요.</pre>
-  </details>
+<h2>회원가입</h2>
+<div class="card" style="max-width:640px">
+  {% if error %}<div style="color:#c0392b">{{ error }}</div>{% endif %}
+  <form method="post">
+    <label>이메일</label><br>
+    <input name="email" placeholder="1234@bl-m.kr" style="width:100%;padding:8px;margin-bottom:10px">
+    <label>비밀번호</label><br>
+    <input name="password" type="password" style="width:100%;padding:8px;margin-bottom:10px">
+    <label>비밀번호 재확인</label><br>
+    <input name="password2" type="password" style="width:100%;padding:8px;margin-bottom:10px">
+    <div>
+      <input type="checkbox" id="agree_terms" name="agree_terms"> <label for="agree_terms">이용약관에 동의합니다.</label><br>
+      <input type="checkbox" id="agree_priv" name="agree_priv"> <label for="agree_priv">개인정보처리방침에 동의합니다.</label>
+    </div>
+    <div style="margin-top:12px"><button class="btn" type="submit">가입하기</button></div>
+  </form>
+</div>
+<div style="max-width:640px;margin-top:12px">
+  <details><summary>이용약관 전문 보기</summary><div style="white-space:pre-wrap;margin-top:8px">{{ terms_text }}</div></details>
+  <details style="margin-top:8px"><summary>개인정보처리방침 전문 보기</summary><div style="white-space:pre-wrap;margin-top:8px">{{ privacy_text }}</div></details>
 </div>
 {% endblock %}
