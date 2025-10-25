@@ -1,29 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>활동 로그</h2>
-
-{% include "_top_actions.html" %}
-
-<table class="table" style="width:100%; max-width:960px;">
-  <thead>
-    <tr>
-      <th style="width:180px">시간(UTC)</th>
-      <th style="width:260px">사용자</th>
-      <th style="width:120px">작업</th>
-      <th>대상 문서</th>
-    </tr>
-  </thead>
-  <tbody>
+  {% include "components/top_actions.html" %}
+  <h2>활동 로그</h2>
+  <div class="list">
+    <div class="row" style="font-weight:600;">
+      <div style="width:220px;">시간(UTC)</div>
+      <div style="width:260px;">사용자</div>
+      <div style="width:120px;">작업</div>
+      <div>대상 문서</div>
+    </div>
     {% for r in rows %}
-      <tr>
-        <td>{{ r.ts }}</td>
-        <td>{{ r.user }}</td>
-        <td>{{ r.action }}</td>
-        <td>{% if r.doc_id %}#{{ r.doc_id }} · {{ r.title }}{% endif %}</td>
-      </tr>
+      <div class="row">
+        <div style="width:220px;">{{ r.ts }}</div>
+        <div style="width:260px;">{{ r.user }}</div>
+        <div style="width:120px;">{{ r.action }}</div>
+        <div>{% if r.doc_id %}#{{ r.doc_id }} {{ r.title }}{% endif %}</div>
+      </div>
     {% else %}
-      <tr><td colspan="4" class="muted">기록이 없습니다.</td></tr>
+      <div class="row">기록이 없습니다.</div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
 {% endblock %}

@@ -1,0 +1,3 @@
+{% if g.user %}
+  &nbsp;·&nbsp; <a href="{{ url_for('account_delete') }}" onclick="return confirm('정말 탈퇴하시겠습니까?')">회원탈퇴</a>
+{% endif %}

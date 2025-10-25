@@ -1,25 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>홈</h2>
-
-{% include "_top_actions.html" %}
-
-{% macro render_node(n, depth) -%}
-  <div style="margin-left: {{ depth * 20 }}px; display:flex; gap:8px; align-items:center;">
-    <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
-    <small class="muted">{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
-    <a class="btn" href="{{ url_for('create_document', parent_id=n.id) }}">하위 문서</a>
-  </div>
-  {%- for c in n.children.order_by(doc_model.created_at.desc()) %}
-    {{ render_node(c, depth + 1) }}
-  {%- endfor %}
-{%- endmacro %}
-
-<div>
+  {% include "components/top_actions.html" %}
+  <h2>홈</h2>
+  {% macro render_node(n, depth) -%}
+    <div style="margin-left: {{ depth*16 }}px; line-height:1.9;">
+      <a href="{{ url_for('view_document', doc_id=n.id) }}">{{ n.title }}</a>
+      <small class="muted">{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+    </div>
+    {%- for c in n.children.order_by(doc_model.created_at.desc()).all() %}
+      {{ render_node(c, depth+1) }}
+    {%- endfor %}
+  {%- endmacro %}
   {% for r in roots %}
     {{ render_node(r, 0) }}
   {% else %}
-    <div class="row">상위 문서가 없습니다.</div>
+    <div class="row">문서가 없습니다.</div>
   {% endfor %}
-</div>
 {% endblock %}
