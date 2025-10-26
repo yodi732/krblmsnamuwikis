@@ -1,1 +1,6 @@
-{% extends 'base.html' %}{% block content %}<h2>개인정보처리방침</h2><div class='card' style='white-space:pre-wrap'>{{ content }}</div>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  {% include "legal/_privacy_body.html" %}
+</div>
+{% endblock %}
