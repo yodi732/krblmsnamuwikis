@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, inspect
 from datetime import datetime, timezone, timedelta
+from flask import send_from_directory
 import os, json
 
 app = Flask(__name__)
@@ -214,6 +215,10 @@ def privacy(): return render_template("legal_privacy.html", content=load_text_fi
 
 @app.route("/static/<path:filename>")
 def static_files(filename): return send_from_directory(os.path.join(app.root_path, "static"), filename)
+
+@app.route('/googlefb8d25750b3e6720.html')
+def google_verification():
+    return send_from_directory('.', 'googlefb8d25750b3e6720.html')
 
 with app.app_context(): safe_migrate()
 if __name__=="__main__": app.run(debug=True)
