@@ -238,5 +238,9 @@ def sitemap():
     xml.append('</urlset>')
     return Response('\n'.join(xml), mimetype='application/xml')
 
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('.', 'robots.txt')
+
 with app.app_context(): safe_migrate()
 if __name__=="__main__": app.run(debug=True)
