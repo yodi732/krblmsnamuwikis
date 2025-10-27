@@ -252,5 +252,15 @@ def robots_txt():
     resp.headers["Cache-Control"] = "public, max-age=86400"
     return resp
 
+NAVER_VERIFY_FILE = "naver34060f97d428ade4705f6c37cbaf8f5a.html"
+
+@app.route(f"/{NAVER_VERIFY_FILE}")
+def naver_verify():
+    return send_from_directory(
+        directory=os.path.abspath(os.path.dirname(__file__)),
+        path=NAVER_VERIFY_FILE,
+        mimetype="text/html"
+    )
+
 with app.app_context(): safe_migrate()
 if __name__=="__main__": app.run(debug=True)
