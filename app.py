@@ -238,9 +238,19 @@ def sitemap():
     xml.append('</urlset>')
     return Response('\n'.join(xml), mimetype='application/xml')
 
+from flask import make_response
+
 @app.route('/robots.txt')
-def serve_robots():
-    return send_from_directory('.', 'robots.txt', mimetype='text/plain')
+def robots_txt():
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Sitemap: https://krblmsnamuwikis.onrender.com/sitemap.xml\n"
+    )
+    resp = make_response(content, 200)
+    resp.headers["Content-Type"] = "text/plain; charset=utf-8"
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
 
 with app.app_context(): safe_migrate()
 if __name__=="__main__": app.run(debug=True)
