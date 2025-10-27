@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text, inspect
 from datetime import datetime, timezone, timedelta
 from flask import send_from_directory
+from flask import Response
 import os, json
 
 app = Flask(__name__)
@@ -219,6 +220,23 @@ def static_files(filename): return send_from_directory(os.path.join(app.root_pat
 @app.route('/googlefb8d25750b3e6720.html')
 def google_verification():
     return send_from_directory('.', 'googlefb8d25750b3e6720.html')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    pages = [
+        'https://krblmsnamuwikis.onrender.com/',
+        'https://krblmsnamuwikis.onrender.com/login',
+        'https://krblmsnamuwikis.onrender.com/register',
+        'https://krblmsnamuwikis.onrender.com/docs',
+        'https://krblmsnamuwikis.onrender.com/privacy',
+        'https://krblmsnamuwikis.onrender.com/terms'
+    ]
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for page in pages:
+        xml.append(f"<url><loc>{page}</loc></url>")
+    xml.append('</urlset>')
+    return Response('\n'.join(xml), mimetype='application/xml')
 
 with app.app_context(): safe_migrate()
 if __name__=="__main__": app.run(debug=True)
