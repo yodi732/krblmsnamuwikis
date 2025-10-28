@@ -1,1 +1,44 @@
-body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a{color:#3b2dbb;text-decoration:underline}input,textarea,select{border:1px solid #ddd;border-radius:4px;box-sizing:border-box}.btn{font-weight:600}.card ul{padding-left:18px}
+body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a{color:#3b2dbb;text-decoration:underline}input,textarea,select{border:1px solid #ddd;border-radius:4px;box-sizing:border-box}.btn{font-weight:600}.card ul{padding-left:18px
+} @media (max-width: 768px){}
+  body{
+    padding: 0.5rem;
+  }
+
+  /* 상단 메뉴를 세로 정렬로 */
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  /* 네비게이션 버튼 크기 조정 */
+  nav a {
+    display: block;
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+    margin: 0.2rem 0;
+  }
+
+  /* 문서 카드 크기 조정 */
+  .card {
+    width: 92%;
+    margin: 0.8rem auto;
+    padding: 0.8rem;
+  }
+
+  /* 버튼/링크 텍스트 줄맞춤 */
+  button, .btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.6rem;
+  }
+
+  /* 제목 및 문서 목록 폰트 살짝 키우기 */
+  h1, h2, h3 {
+    font-size: 1.3rem;
+  }
+
+  .table td, .table th {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
