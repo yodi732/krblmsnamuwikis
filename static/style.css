@@ -1,55 +1,89 @@
 body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a{color:#3b2dbb;text-decoration:underline}input,textarea,select{border:1px solid #ddd;border-radius:4px;box-sizing:border-box}.btn{font-weight:600}.card ul{padding-left:18px}
-/* ────────────────────────────────
-📱 모바일에서 PC 레이아웃처럼 보이게 정렬 보정
-──────────────────────────────── */
+/* ----------------------------------------------------------
+   모바일 전용 보정 (데스크탑엔 영향 없음)
+   ---------------------------------------------------------- */
 @media (max-width: 768px) {
 
-  /* 전체 여백 축소 */
-  body {
-    padding: 0.8rem;
+  /* 가로 스크롤 방지(원인 무관하게 강제로 차단) */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
-  /* 상단바 정렬 보정 */
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  /* 헤더 전체를 유연한 플렉스 레이아웃으로 */
+  header, .header, .topbar, .navbar, .nav, .nav-bar, .site-header {
+    display: flex !important;
     align-items: center;
-    text-align: center;
-    gap: 0.4rem;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;            /* 오른쪽이 잘릴 때 자동 줄바꿈 */
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px 14px;         /* 좌우 여백 보장 */
   }
 
-  nav a {
-    display: inline-block;
-    white-space: nowrap; /* 두 줄 방지 */
-    font-size: 0.95rem;
-    padding: 0.4rem 0.8rem;
-    margin: 0.2rem;
+  /* 어떤 이유로든 세로 글자(세로쓰기) 강제해둔 스타일 무력화 */
+  .brand, .logo, .site-title, .site-name, .brand-title,
+  header *, .header *, .navbar * {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
   }
 
-  /* 버튼 밀림 방지 */
-  button, .btn {
-    font-size: 0.95rem;
-    padding: 0.5rem 0.8rem;
+  /* "별내위키" 제목/로고가 세로로 나오던 문제를 수평으로 정리 */
+  .brand, .logo, .site-title, .site-name {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
     white-space: nowrap;
   }
 
-  /* 문서 목록 카드 여백 축소 */
-  .card, .document-list {
-    margin: 0.8rem auto;
-    padding: 0.8rem;
-    width: 95%;
-  }
-
-  /* 문서 목록의 각 항목 정렬 */
-  .document-item {
+  /* 네비게이션 버튼 영역(홈/문서 만들기/로그 보기)을 한 줄 정렬 + 자동 줄바꿈 */
+  .btn-group, .nav-buttons, .nav-items, .nav-links {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
   }
 
-  /* 제목 줄바꿈 방지 */
-  h1, h2, h3 {
-    word-break: keep-all;
+  /* 버튼이 두 줄로 깨지는 문제 완화(너무 커지지 않게) */
+  .btn, .button, .nav-link, .badge, .chip {
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    line-height: 1.1;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  /* 오른쪽 이메일/로그아웃 영역이 헤더를 밀어내지 못하게 */
+  .user, .user-info, .account, .auth, .header-right {
+    margin-left: auto;
+    max-width: 60vw;                 /* 너무 길면 말줄임 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 카드/박스가 화면 밖으로 밀려나지 않도록 */
+  .card, .panel, .box, .content, .container {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* 이미지/테이블/프리포맷이 가로로 터지지 않도록 */
+  img, table, pre, code, iframe {
+    max-width: 100%;
+  }
+
+  /* 본문 기본 여백 조금 키워서 가독성↑ */
+  main, .main, .page, .content {
+    padding: 0 14px;
+  }
+
+  /* 홈의 '목차/문서 목록' 카드 간격/여백 정리 */
+  .card, .panel {
+    margin: 10px 0;
+    padding: 12px;
   }
 }
