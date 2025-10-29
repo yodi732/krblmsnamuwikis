@@ -126,3 +126,46 @@ input, textarea, select {
     padding: 0 14px;
   }
 }
+
+/* ========================================
+   📱 모바일 이메일 잘림 + 로그아웃 안보임 수정
+   ======================================== */
+@media (max-width: 768px) {
+  .user, .user-info, .account, .auth, .header-right {
+    flex: 1 1 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+    margin-top: 8px;
+  }
+
+  .user .email, .account .email, .auth .email {
+    flex: 1 1 auto !important;
+    max-width: 80vw !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: right;
+    color: #fff;
+  }
+
+  .logout, .btn-logout, a[href*="logout"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    color: #fff;
+    border: 1px solid #fff2;
+    border-radius: 6px;
+    background-color: rgba(255,255,255,0.15);
+  }
+
+  header, .header, .topbar, .navbar, .site-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+}
