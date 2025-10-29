@@ -1,159 +1,110 @@
-body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a{color:#3b2dbb;text-decoration:underline}input,textarea,select{border:1px solid #ddd;border-radius:4px;box-sizing:border-box}.btn{font-weight:600}.card ul{padding-left:18px}
-/* ----------------------------------------------------------
-   모바일 전용 보정 (데스크탑엔 영향 없음)
-   ---------------------------------------------------------- */
-@media (max-width: 768px) {
-
-  /* 가로 스크롤 방지(원인 무관하게 강제로 차단) */
-  html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  /* 헤더 전체를 유연한 플렉스 레이아웃으로 */
-  header, .header, .topbar, .navbar, .nav, .nav-bar, .site-header {
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;            /* 오른쪽이 잘릴 때 자동 줄바꿈 */
-    box-sizing: border-box;
-    width: 100%;
-    padding: 10px 14px;         /* 좌우 여백 보장 */
-  }
-
-  /* 어떤 이유로든 세로 글자(세로쓰기) 강제해둔 스타일 무력화 */
-  .brand, .logo, .site-title, .site-name, .brand-title,
-  header *, .header *, .navbar * {
-    writing-mode: horizontal-tb !important;
-    text-orientation: mixed !important;
-  }
-
-  /* "별내위키" 제목/로고가 세로로 나오던 문제를 수평으로 정리 */
-  .brand, .logo, .site-title, .site-name {
-    font-weight: 700;
-    letter-spacing: 0;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  /* 네비게이션 버튼 영역(홈/문서 만들기/로그 보기)을 한 줄 정렬 + 자동 줄바꿈 */
-  .btn-group, .nav-buttons, .nav-items, .nav-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-  }
-
-  /* 버튼이 두 줄로 깨지는 문제 완화(너무 커지지 않게) */
-  .btn, .button, .nav-link, .badge, .chip {
-    font-size: 0.95rem;
-    padding: 8px 12px;
-    line-height: 1.1;
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  /* 오른쪽 이메일/로그아웃 영역이 헤더를 밀어내지 못하게 */
-  .user, .user-info, .account, .auth, .header-right {
-    margin-left: auto;
-    max-width: 60vw;                 /* 너무 길면 말줄임 */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* 카드/박스가 화면 밖으로 밀려나지 않도록 */
-  .card, .panel, .box, .content, .container {
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-
-  /* 이미지/테이블/프리포맷이 가로로 터지지 않도록 */
-  img, table, pre, code, iframe {
-    max-width: 100%;
-  }
-
-  /* 본문 기본 여백 조금 키워서 가독성↑ */
-  main, .main, .page, .content {
-    padding: 0 14px;
-  }
-
-  /* 홈의 '목차/문서 목록' 카드 간격/여백 정리 */
-  .card, .panel {
-    margin: 10px 0;
-    padding: 12px;
-  }
+body {
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  background: #f7f8fb;
+  color: #222;
 }
+a {
+  color: #3b2dbb;
+  text-decoration: underline;
+}
+input, textarea, select {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.btn {
+  font-weight: 600;
+}
+.card ul {
+  padding-left: 18px;
+}
+
+/* ===============================
+   📱 모바일 뷰 최적화 (데스크탑엔 영향 없음)
+   =============================== */
 @media (max-width: 768px) {
 
-  /* 혹시 모를 가로 넘침을 한 번 더 차단 */
+  /* 가로 스크롤 완전 차단 */
   html, body {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
   }
 
-  /* 배너(헤더) 영역: 좌우 여백 보장 + 줄바꿈 허용 */
-  header, .header, .topbar, .navbar, .site-header {
+  /* 헤더(파란 배너) 정렬 및 짤림 방지 */
+  header, .header, .topbar, .navbar, .nav-bar, .site-header {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 12px 16px;
     box-sizing: border-box;
     width: 100%;
-    flex-wrap: wrap;              /* 오른쪽이 잘릴 때 자동 줄바꿈 */
   }
 
-  /* 좌측 로고/브랜드는 가로쓰기 고정 (세로로 보이던 문제 방지) */
-  .brand, .logo, .site-title, .site-name {
+  /* 로고/브랜드 세로쓰기 방지 */
+  .brand, .logo, .site-title, .site-name, .brand-title {
     writing-mode: horizontal-tb !important;
     text-orientation: mixed !important;
-    white-space: nowrap;
+    white-space: nowrap !important;
     line-height: 1.2;
+    font-weight: 700;
+    display: inline-block;
   }
 
-  /* 네비 버튼 묶음(홈/문서 만들기/로그 보기) 안정화 */
+  /* 네비게이션 버튼 그룹 정리 */
   .btn-group, .nav-buttons, .nav-items, .nav-links {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 8px;
   }
 
-  /* 오른쪽 사용자/로그아웃 영역이 보이도록 줄바꿈+말줄임 처리 */
+  .btn, .button, .nav-link, .badge, .chip {
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  /* 사용자 이메일/로그아웃 오른쪽 정렬 및 말줄임 처리 */
   .user, .user-info, .account, .auth, .header-right {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     margin-left: auto;
-    flex-wrap: wrap;              /* 이메일이 길면 아래 줄로 내려감 */
+    justify-content: flex-end;
     max-width: 100%;
   }
+
   .user .email, .account .email, .auth .email {
-    max-width: 60vw;              /* 화면의 60%까지만 차지 */
+    max-width: 60vw;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .logout, .btn-logout {
-    flex: 0 0 auto;               /* 로그아웃 버튼이 줄바꿈돼도 폭 유지 */
+
+  .logout, .btn-logout, a[href*="logout"] {
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+    background-color: #ffffff22;
+    border-radius: 4px;
+    padding: 6px 10px;
   }
 
-  /* 카드/본문 안 링크가 '세로 글씨'로 보이던 현상 강제 해제 */
-  .card a, .panel a, .box a, .content a, li a, .list a {
+  /* 문서 제목 세로 깨짐 방지 */
+  main a, .content a, .card a, .list a, .panel a {
     writing-mode: horizontal-tb !important;
     text-orientation: mixed !important;
-    display: inline;
-    width: auto;
-    white-space: normal;          /* 1글자씩 줄바꿈되는 현상 방지 */
-    line-height: 1.4;
+    white-space: normal !important;
+    word-break: keep-all;
+    display: inline !important;
   }
 
-  /* 리스트/카드가 화면 밖으로 밀려나지 않게 폭 고정 */
+  /* 카드/본문이 화면 밖으로 밀려나지 않게 */
   .card, .panel, .box, .content, .container, .main, main {
     max-width: 100%;
     box-sizing: border-box;
@@ -161,10 +112,17 @@ body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a
     word-break: break-word;
     margin-left: auto;
     margin-right: auto;
+    padding: 10px 12px;
   }
 
-  /* 테이블/이미지 등 가로 넘침 방지 */
+  /* 이미지/테이블/코드 넘침 방지 */
   img, table, pre, code, iframe {
     max-width: 100%;
+    height: auto;
+  }
+
+  /* 본문 여백 조정 */
+  main, .main, .page, .content {
+    padding: 0 14px;
   }
 }
