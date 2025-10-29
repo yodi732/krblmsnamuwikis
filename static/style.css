@@ -169,3 +169,66 @@ input, textarea, select {
     align-items: stretch !important;
   }
 }
+
+/* ============================================
+   📱 모바일 헤더 오른쪽(이메일/로그아웃) 완전 고정
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* 부모가 잘라버리지 않도록 */
+  header, .header, .topbar, .navbar, .site-header {
+    overflow: visible !important;
+  }
+
+  /* 오른쪽 박스를 한 줄 전체(100%)로 내려서 공간 확보 */
+  .header-right, .user, .user-info, .account, .auth {
+    flex: 1 1 100% !important;        /* 배너 2번째 줄로 전체폭 사용 */
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;        /* 공간 모자라면 다음 줄로 내려감 */
+    margin-top: 6px;
+  }
+
+  /* 오른쪽 박스 안의 “텍스트류(이메일 후보)”는 가변폭 + 말줄임 */
+  .header-right span,
+  .header-right small,
+  .header-right b,
+  .header-right i,
+  .header-right div,
+  .user span, .user small, .user div,
+  .account span, .account small, .account div,
+  .auth span, .auth small, .auth div {
+    flex: 1 1 auto !important;         /* 남은 폭을 유연하게 차지 */
+    min-width: 0 !important;           /* 말줄임이 작동하려면 필요 */
+    max-width: calc(100% - 96px) !important; /* 버튼 자리 남겨두기 */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    color: #fff !important;            /* 파란 배너에서 가독성 */
+  }
+
+  /* 이메일을 별도 클래스로 쓰고 있다면 가산점(없어도 위 셀렉터가 커버) */
+  .user .email, .account .email, .auth .email {
+    max-width: 80vw !important;
+  }
+
+  /* 로그아웃 버튼 확실히 표시(링크/버튼 무엇이든 잡아줌) */
+  .header-right a,
+  .header-right button,
+  .user a, .account a, .auth a,
+  a[href*="logout"], a[href^="/logout"], a[href$="logout"] {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 6px 10px;
+    line-height: 1;
+    color: #fff !important;
+    border: 1px solid #ffffff33;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.15);
+    flex: 0 0 auto !important;         /* 버튼은 고정폭 */
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+}
