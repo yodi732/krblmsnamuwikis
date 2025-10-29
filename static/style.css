@@ -87,3 +87,84 @@ body{font-family:'Noto Sans KR',Arial,sans-serif;background:#f7f8fb;color:#222}a
     padding: 12px;
   }
 }
+@media (max-width: 768px) {
+
+  /* 혹시 모를 가로 넘침을 한 번 더 차단 */
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* 배너(헤더) 영역: 좌우 여백 보장 + 줄바꿈 허용 */
+  header, .header, .topbar, .navbar, .site-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    width: 100%;
+    flex-wrap: wrap;              /* 오른쪽이 잘릴 때 자동 줄바꿈 */
+  }
+
+  /* 좌측 로고/브랜드는 가로쓰기 고정 (세로로 보이던 문제 방지) */
+  .brand, .logo, .site-title, .site-name {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  /* 네비 버튼 묶음(홈/문서 만들기/로그 보기) 안정화 */
+  .btn-group, .nav-buttons, .nav-items, .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 오른쪽 사용자/로그아웃 영역이 보이도록 줄바꿈+말줄임 처리 */
+  .user, .user-info, .account, .auth, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;              /* 이메일이 길면 아래 줄로 내려감 */
+    max-width: 100%;
+  }
+  .user .email, .account .email, .auth .email {
+    max-width: 60vw;              /* 화면의 60%까지만 차지 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .logout, .btn-logout {
+    flex: 0 0 auto;               /* 로그아웃 버튼이 줄바꿈돼도 폭 유지 */
+  }
+
+  /* 카드/본문 안 링크가 '세로 글씨'로 보이던 현상 강제 해제 */
+  .card a, .panel a, .box a, .content a, li a, .list a {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    display: inline;
+    width: auto;
+    white-space: normal;          /* 1글자씩 줄바꿈되는 현상 방지 */
+    line-height: 1.4;
+  }
+
+  /* 리스트/카드가 화면 밖으로 밀려나지 않게 폭 고정 */
+  .card, .panel, .box, .content, .container, .main, main {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 테이블/이미지 등 가로 넘침 방지 */
+  img, table, pre, code, iframe {
+    max-width: 100%;
+  }
+}
