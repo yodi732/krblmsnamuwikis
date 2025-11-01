@@ -20,5 +20,6 @@ class Document(db.Model):
     is_system: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     parent_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("document.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-
+    __mapper_args__ = {"order_by": created_at.asc()}
+    
     parent = relationship("Document", remote_side=[id], backref="children")
