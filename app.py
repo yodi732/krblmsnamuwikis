@@ -73,7 +73,8 @@ def _parents():
 
 @app.route("/")
 def index():
-    docs=Document.query.filter_by(is_system=False).order_by(Document.created_at.desc()).all()
+     # 오래된 문서부터 위에 나오도록 오름차순 정렬
+    docs=Document.query.filter_by(is_system=False).order_by(Document.created_at.asc()).all()
     return render_template("index.html", docs=docs)
 
 @app.route("/home")
