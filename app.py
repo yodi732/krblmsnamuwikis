@@ -79,13 +79,13 @@ def index():
 
 @app.route("/home")
 def home():
-    roots=Document.query.filter_by(parent_id=None, is_system=False).order_by(Document.created_at.desc()).all()
+    roots=Document.query.filter_by(parent_id=None, is_system=False).order_by(Document.created_at.asc()).all()
     return render_template("home.html", roots=roots, doc_model=Document)
 
 @app.route("/document/<int:doc_id>")
 def view_document(doc_id):
     doc=db.session.get(Document, doc_id) or abort(404)
-    children=doc.children.order_by(Document.created_at.desc()).all()
+    children=doc.children.order_by(Document.created_at.acv()).all()
     return render_template("document_view.html", doc=doc, children=children)
 
 @app.route("/document/new", methods=["GET","POST"])
