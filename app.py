@@ -33,7 +33,7 @@ class Document(db.Model):
     is_system = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     parent_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=True, index=True)
-    parent = db.relationship("Document", remote_side=[id], backref=db.backref("children", lazy="dynamic"))
+    parent = db.relationship("Document", remote_side=[id], backref=db.backref("children", lazy="dynamic", order_by="Document.created_at.asc()"))
 
 def safe_migrate():
     insp = inspect(db.engine)
@@ -85,7 +85,7 @@ def home():
 @app.route("/document/<int:doc_id>")
 def view_document(doc_id):
     doc=db.session.get(Document, doc_id) or abort(404)
-    children=doc.children.order_by(Document.created_at.acv()).all()
+    children=doc.children.order_by(Document.created_at.asc()).all()
     return render_template("document_view.html", doc=doc, children=children)
 
 @app.route("/document/new", methods=["GET","POST"])
