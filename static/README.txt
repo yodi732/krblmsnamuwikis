@@ -1,1 +1,0 @@
-No static assets required for this patch.

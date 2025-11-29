@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Recent changes</h2>
-<ul class="page-list">
-{% for p in pages %}
-  <li><a href="{{ url_for('view_page', title=p['title']) }}">{{ p['title'] }}</a> <span class="muted">({{ p['updated_at'] }})</span></li>
-{% endfor %}
-</ul>
-{% endblock %}

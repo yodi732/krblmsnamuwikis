@@ -1,8 +1,0 @@
-<div style="float:right; display:flex; gap:6px;">
-  <a class="btn" href="{{ url_for('home') }}">홈</a>
-  {% if g.user %}
-    <a class="btn" href="{{ url_for('create_document') }}">문서 만들기</a>
-    <a class="btn" href="{{ url_for('logs') }}">로그 보기</a>
-  {% endif %}
-</div>
-<div style="clear:both;"></div>

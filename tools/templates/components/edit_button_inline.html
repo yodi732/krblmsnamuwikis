@@ -1,3 +1,0 @@
-{% if _doc and g.user and (not _doc.is_system) %}
-  <a class="btn" href="{{ url_for('edit_document', doc_id=_doc.id) }}">수정</a>
-{% endif %}

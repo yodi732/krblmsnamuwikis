@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Delete section: {{ section['title'] }}</h2>
-<p>Deleting this section will delete all its pages.</p>
-<form method="post">
-  <button type="submit" class="btn danger">Yes, delete section</button>
-  <a class="btn" href="{{ url_for('view_section', section_id=section['id']) }}">Cancel</a>
-</form>
-{% endblock %}

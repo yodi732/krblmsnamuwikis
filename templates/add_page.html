@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Add page to section: {{ section['title'] }}</h2>
-<form method="post">
-  <input name="title" placeholder="Page title"><br>
-  <textarea name="content" rows="10" cols="60" placeholder="Content (Markdown)"></textarea><br>
-  <button type="submit">Create Page</button>
-</form>
-{% endblock %}

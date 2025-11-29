@@ -1,9 +1,0 @@
-
-{% extends "base.html" %}
-{% block content %}
-<h2>로그</h2>
-<p class="muted">로그인된 사용자라면 누구나 열람 가능합니다. (표시 시각: UTC)</p>
-<pre style="max-height:65vh;overflow:auto;border:1px solid #e6e6e6;padding:12px;border-radius:6px;background:#fafafa;font-size:12px;line-height:1.5;">
-{% for ln in lines %}{{ ln }}{% endfor %}
-</pre>
-{% endblock %}

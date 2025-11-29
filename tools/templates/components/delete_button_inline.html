@@ -1,5 +1,0 @@
-{% if _doc and g.user and (not _doc.is_system) %}
-  <form method="post" action="{{ url_for('delete_document', doc_id=_doc.id) }}" style="display:inline;">
-    <button class="btn" onclick="return confirmDelete('{{ _doc.title|e }}');">삭제</button>
-  </form>
-{% endif %}

@@ -1,9 +1,0 @@
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial; margin:0; background:#f7f7fb; color:#222;}
-header { display:flex; justify-content:space-between; align-items:center; background:#272868; color:#fff; padding:10px 14px;}
-header .btn { background:#fff; color:#272868; padding:6px 10px; border-radius:8px; text-decoration:none; margin-right:8px; font-weight:600;}
-.brand { font-weight:700; }
-main { max-width:980px; margin:24px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,.06);}
-footer { max-width:980px; margin:18px auto 48px; padding:0 4px;}
-ul.flash { list-style:none; padding-left:0;}
-ul.flash li { padding:8px 12px; border-radius:8px; margin-bottom:8px;}
-ul.flash li.error { background:#ffe0e0; color:#8a1f1f;}

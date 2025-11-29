@@ -1,4 +1,0 @@
-{% extends "_layout.html" %}{% block content %}
-<div class="card"><h1>회원탈퇴</h1><p>정말 탈퇴하시겠습니까? 되돌릴 수 없습니다.</p>
-<div class="actions"><button class="btn danger" onclick="confirmWithdraw('{{ url_for('withdraw_confirm') }}')">네, 탈퇴할게요</button>
-<a class="btn secondary" href="{{ url_for('home') }}">취소</a></div></div>{% endblock %}
