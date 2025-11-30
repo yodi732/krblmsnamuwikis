@@ -94,44 +94,48 @@
     </div>
     <div class="muted">© 2025 별내중위키</div>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ytsavkksdgpvojovpoeh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...jaq7qmD6nuxU-em-_HTVIFwE';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const loginBtn = document.getElementById("google-login-btn");
+    const navAuth = document.getElementById("nav-auth");
+
+    async function checkAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (session && session.user && navAuth) {
+        navAuth.insertAdjacentHTML("beforeend", `
+          <div class="logged-in-badge">
+            ✔ ${session.user.email}
+          </div>
+        `);
+        if (loginBtn) {
+          loginBtn.style.display = "none";
+        }
+      }
+    }
+
+    if (loginBtn) {
+      loginBtn.addEventListener("click", async () => {
+        const redirectTo = 'https://krblmswiki.netlify.app/login.html';
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo }
+        });
+        if (error) {
+          console.error(error);
+          alert("로그인 중 오류가 발생했습니다: " + error.message);
+        }
+      });
+    }
+
+    checkAuth();
+  </script>
 </body>
 </html>
 
-<script type="module">
-  import { supabase } from "/js/supabaseClient.js";
-
-  const loginBtn = document.getElementById("google-login-btn");
-  const navAuth = document.getElementById("nav-auth");
-
-  async function checkAuth() {
-    const { data } = await supabase.auth.getUser();
-
-    if (data?.user && navAuth) {
-      navAuth.insertAdjacentHTML("beforeend", `
-        <div class="logged-in-badge">
-          ✔ ${data.user.email}
-        </div>
-      `);
-      if (loginBtn) {
-        loginBtn.style.display = "none";
-      }
-    }
-  }
-
-  if (loginBtn) {
-    loginBtn.addEventListener("click", async () => {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: "https://krblmswiki.netlify.app/login.html"
-        }
-      });
-      if (error) {
-        console.error(error);
-        alert("로그인 중 오류가 발생했습니다.");
-      }
-    });
-  }
-
-  checkAuth();
-</script>
