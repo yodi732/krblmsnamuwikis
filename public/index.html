@@ -20,9 +20,6 @@
       display:inline-flex;
       align-items:center;
       gap:6px;
-      background:#fff;
-      color:#20338f;
-      border-color:#fff;
     }
     .google-icon{
       display:inline-flex;
@@ -39,7 +36,7 @@
     .logged-in-badge{
       display:inline-flex;
       align-items:center;
-      gap:8px;
+      gap:6px;
       font-size:14px;
       background:#fff;
       color:#20338f;
@@ -53,17 +50,6 @@
       border-radius:50%;
       background:#22c55e;
     }
-    .logout-link{
-      border:none;
-      background:transparent;
-      color:#2563eb;
-      font-size:13px;
-      cursor:pointer;
-      text-decoration:underline;
-      padding:0;
-      margin-left:6px;
-    }
-
 </style>
   <script defer src="/js/home.js"></script>
 </head>
@@ -108,67 +94,48 @@
     </div>
     <div class="muted">© 2025 별내중위키</div>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ytsavkksdgpvojovpoeh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...jaq7qmD6nuxU-em-_HTVIFwE';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const loginBtn = document.getElementById("google-login-btn");
+    const navAuth = document.getElementById("nav-auth");
+
+    async function checkAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (session && session.user && navAuth) {
+        navAuth.insertAdjacentHTML("beforeend", `
+          <div class="logged-in-badge">
+            ✔ ${session.user.email}
+          </div>
+        `);
+        if (loginBtn) {
+          loginBtn.style.display = "none";
+        }
+      }
+    }
+
+    if (loginBtn) {
+      loginBtn.addEventListener("click", async () => {
+        const redirectTo = 'https://krblmswiki.netlify.app/login.html';
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo }
+        });
+        if (error) {
+          console.error(error);
+          alert("로그인 중 오류가 발생했습니다: " + error.message);
+        }
+      });
+    }
+
+    checkAuth();
+  </script>
 </body>
 </html>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://ytsavkksdgpvojovpoeh.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...jaq7qmD6nuxU-em-_HTVIFwE';
-
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const loginBtn = document.getElementById("google-login-btn");
-  const navAuth = document.getElementById("nav-auth");
-
-  async function renderAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-
-    if (session && session.user && navAuth) {
-      const email = session.user.email || '';
-
-      // 로그인 상태: 뱃지 + 로그아웃 버튼 표시
-      navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
-      navAuth.insertAdjacentHTML("beforeend", `
-        <div class="logged-in-badge">
-          ✔ ${email}
-          <button type="button" class="logout-link">로그아웃</button>
-        </div>
-      `);
-      if (loginBtn) loginBtn.style.display = "none";
-
-      const logoutBtn = navAuth.querySelector(".logout-link");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-          await supabaseClient.auth.signOut();
-          if (loginBtn) loginBtn.style.display = "";
-          navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
-          location.href = "/index.html";
-        });
-      }
-    } else {
-      // 비로그인 상태
-      if (loginBtn) loginBtn.style.display = "";
-      if (navAuth) {
-        navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
-      }
-    }
-  }
-
-  if (loginBtn) {
-    loginBtn.addEventListener("click", async () => {
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: "https://krblmswiki.netlify.app/login.html"
-        }
-      });
-      if (error) {
-        console.error(error);
-        alert("로그인 중 오류가 발생했습니다: " + error.message);
-      }
-    });
-  }
-
-  renderAuth();
-</script>
