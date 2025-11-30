@@ -60,3 +60,35 @@
   </footer>
 </body>
 </html>
+
+<script type="module">
+  import { supabase } from "/js/supabaseClient.js";
+
+  const loginBtn = document.getElementById("google-login-btn");
+  const navAuth = document.getElementById("nav-auth");
+
+  async function checkAuth() {
+    const { data } = await supabase.auth.getUser();
+
+    if (data?.user) {
+      // 로그인 상태 → 버튼을 체크 표시 뱃지로 변경
+      navAuth.innerHTML += `
+        <div class="logged-in-badge">
+          ✔ ${data.user.email}
+        </div>
+      `;
+      loginBtn.style.display = "none";
+    }
+  }
+
+  loginBtn.addEventListener("click", async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://krblmswiki.netlify.app/login.html"
+      }
+    });
+  });
+
+  checkAuth();
+</script>
