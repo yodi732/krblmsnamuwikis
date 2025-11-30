@@ -68,12 +68,13 @@
       }
     }
 
-    btn.addEventListener('click', async () => {
-      const redirectTo = window.location.origin + '/login.html';
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo }
-      });
+btn.addEventListener('click', async () => {
+  const redirectTo = 'https://krblmswiki.netlify.app/login.html';
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo }
+  });
+
       if (error) {
         console.error(error);
         alert('로그인 중 오류가 발생했습니다: ' + error.message);
