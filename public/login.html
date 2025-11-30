@@ -40,7 +40,6 @@
     <div class="card">
       <h2>구글 로그인</h2>
       <p class="muted">구글 계정으로 별내중위키에 로그인합니다.</p>
-      <p class="muted">별내중학교 구글 계정 (@bl-m.kr)으로만 로그인 할 수 있습니다.</p>
       <button class="btn" type="button" id="google-login-btn">Google 계정으로 로그인</button>
       <p class="muted" id="login-status"></p>
     </div>
@@ -63,24 +62,15 @@
 
   const statusEl = document.getElementById('login-status');
   const btn = document.getElementById('google-login-btn');
-  const allowedDomain = '@bl-m.kr';
 
   async function handleSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (session && session.user) {
       const email = session.user.email || '';
-
-      if (email.endsWith(allowedDomain)) {
-        statusEl.textContent = email + ' 계정으로 로그인되었습니다. 홈으로 이동합니다...';
-        // 허용된 학교 계정이면 바로 홈으로 이동
-        window.location.href = '/index.html';
-      } else {
-        // 다른 도메인 계정일 경우 즉시 로그아웃 처리
-        await supabaseClient.auth.signOut();
-        statusEl.textContent = '별내중학교 구글 계정(@bl-m.kr)으로만 로그인할 수 있습니다.';
-        alert('별내중학교 구글 계정(@bl-m.kr)으로만 로그인할 수 있습니다.');
-      }
+      statusEl.textContent = email + ' 계정으로 로그인되어 있습니다. 홈으로 이동합니다...';
+      // 어떤 구글 계정이든 로그인 후 홈으로 이동
+      window.location.href = '/index.html';
     } else {
       statusEl.textContent = '아직 로그인되어 있지 않습니다.';
     }
@@ -102,7 +92,8 @@
   }
 
   handleSession();
-</script>
+  </script>
+
 
 </body>
 </html>
