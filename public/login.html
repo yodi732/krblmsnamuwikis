@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>로그인 - 별내중위키</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+.topbar{background:#20338f;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+    .brand{font-weight:700}
+    .nav-actions{display:flex;gap:8px;align-items:center}
+    .btn{border-radius:6px;padding:6px 10px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#20338f;text-decoration:none;cursor:pointer}
+    .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2)}
+    .container{max-width:980px;margin:36px auto;padding:0 20px}
+    .card{background:#fff;padding:18px;border-radius:8px;box-shadow:0 6px 18px rgba(15,15,15,.04)}
+    footer{margin-top:40px;padding:20px 0;color:#666;font-size:14px;text-align:center}
+    .footer-links{display:flex;justify-content:center;gap:12px;margin-bottom:6px}
+    .muted{color:#777}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">별내중위키</div>
+    <div class="nav-actions">
+      <a class="btn" href="/index.html">홈</a>
+      <a class="btn" href="/new.html">문서 만들기</a>
+      <a class="btn" href="/login.html">로그인</a>
+      <a class="btn" href="/signup.html">회원가입</a>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="card">
+      <h2>구글 로그인</h2>
+      <p class="muted">구글 계정으로 별내중위키에 로그인합니다.</p>
+      <button class="btn" type="button" id="google-login-btn">Google 계정으로 로그인</button>
+      <p class="muted" id="login-status"></p>
+    </div>
+  </div>
+<footer>
+    <div class="footer-links">
+      <a href="/document.html?title=이용약관">이용약관</a> ·
+      <a href="/document.html?title=개인정보처리방침">개인정보처리방침</a>
+      <span class="muted">피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+    </div>
+    <div class="muted">© 2025 별내중위키</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ytsavkksdgpvojovpoeh.supabase.co'; // TODO: 프로젝트 URL로 교체
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE'; // TODO: Supabase anon public key로 교체
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const statusEl = document.getElementById('login-status');
+    const btn = document.getElementById('google-login-btn');
+
+    async function updateStatus() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        const email = session.user.email || '';
+        statusEl.textContent = email + ' 계정으로 로그인되어 있습니다.';
+        btn.textContent = '다른 계정으로 다시 로그인';
+      } else {
+        statusEl.textContent = '아직 로그인되어 있지 않습니다.';
+        btn.textContent = 'Google 계정으로 로그인';
+      }
+    }
+
+    btn.addEventListener('click', async () => {
+      const redirectTo = window.location.origin + '/login.html';
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo }
+      });
+      if (error) {
+        console.error(error);
+        alert('로그인 중 오류가 발생했습니다: ' + error.message);
+      }
+    });
+
+    updateStatus();
+  </script>
+
+</body>
+</html>

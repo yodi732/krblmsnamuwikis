@@ -66,6 +66,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('저장 중 오류가 발생했습니다.');
       }
     });
+
+  const deleteBtn = document.getElementById('delete-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm('정말 이 문서를 삭제하시겠습니까?')) return;
+      try {
+        const res = await fetch('/.netlify/functions/docs?id=' + encodeURIComponent(doc.id), {
+          method: 'DELETE',
+        });
+        if (!res.ok && res.status !== 204) {
+          throw new Error('삭제 실패: ' + (await res.text()));
+        }
+        alert('문서가 삭제되었습니다.');
+        window.location.href = '/';
+      } catch (err) {
+        console.error(err);
+        alert('문서 삭제 중 오류가 발생했습니다.');
+      }
+    });
+  }
+
   } catch (err) {
     console.error(err);
     alert('문서를 불러오는 중 오류가 발생했습니다.');
