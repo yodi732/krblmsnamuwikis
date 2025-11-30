@@ -120,16 +120,28 @@
 
   const loginBtn = document.getElementById("google-login-btn");
   const navAuth = document.getElementById("nav-auth");
+  const allowedDomain = '@bl-m.kr';
 
   async function renderAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (session && session.user && navAuth) {
-      // 로그인 상태: 뱃지 + 로그아웃
+      const email = session.user.email || '';
+
+      // 허용되지 않은 도메인일 경우 즉시 로그아웃
+      if (!email.endsWith(allowedDomain)) {
+        await supabaseClient.auth.signOut();
+        alert('별내중학교 구글 계정(@bl-m.kr)으로만 로그인할 수 있습니다.');
+        if (loginBtn) loginBtn.style.display = "";
+        navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
+        return;
+      }
+
+      // 로그인 상태: 뱃지 + 로그아웃 버튼 표시
       navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
       navAuth.insertAdjacentHTML("beforeend", `
         <div class="logged-in-badge">
-          ✔ ${session.user.email}
+          ✔ ${email}
           <button type="button" class="logout-link">로그아웃</button>
         </div>
       `);
@@ -141,14 +153,15 @@
           await supabaseClient.auth.signOut();
           if (loginBtn) loginBtn.style.display = "";
           navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
-          // 새로고침해서 전체 상태 초기화
           location.href = "/index.html";
         });
       }
     } else {
-      // 비로그인 상태: 로그인 버튼만 보이게
+      // 비로그인 상태
       if (loginBtn) loginBtn.style.display = "";
-      navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
+      if (navAuth) {
+        navAuth.querySelectorAll(".logged-in-badge").forEach(el => el.remove());
+      }
     }
   }
 
