@@ -1,4 +1,40 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>활동 로그</title>
-<link rel="stylesheet" href="/style.css"></head><body><h1>활동 로그</h1>
-<div id="logList"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="/js/logs.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>활동 로그 - 별내중위키</title>
+<link rel="stylesheet" href="/style.css">
+<script defer src="/js/home.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">별내중위키</div>
+  <div class="nav-actions" id="nav-auth">
+    <a class="btn" href="/index.html">홈</a>
+    <a class="btn" href="/new.html">문서 만들기</a>
+    <a class="btn" id="log-btn" href="/logs.html">로그 보기</a>
+    <button class="btn google-login-btn" id="google-login-btn" type="button">
+      <span class="google-icon">G</span>
+      <span>Google로 로그인</span>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>활동 로그</h2>
+  <div id="log-container">불러오는 중...</div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/terms.html">이용약관</a> ·
+    <a href="/privacy.html">개인정보처리방침</a>
+    <span class="muted">피드백 & 문의 -> <a href="mailto:lyhjs1115@gmail.com">lyhjs1115@gmail.com</a></span>
+  </div>
+  <div class="muted">© 2025 별내중위키</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/logs.js"></script>
+</body>
+</html>
