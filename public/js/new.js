@@ -27,12 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const session = await supabaseClient.auth.getSession();
-    const email = session.data.session?.user?.email || null;
-
     const payload = {
-      email,
-    
       title,
       content,
       parent_id: parentRaw ? Number(parentRaw) : null,
@@ -40,12 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const created = await createDoc(payload);
-      // 기록 저장
-      await supabaseClient.from("activity_logs").insert({
-          email: payload.email,
-          action: "create",
-          doc_id: created.id
-      });
       alert('문서가 생성되었습니다.');
       window.location.href = '/document.html?id=' + encodeURIComponent(created.id);
     } catch (err) {
