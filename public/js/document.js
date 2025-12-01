@@ -1,35 +1,68 @@
-const SUPABASE_URL='https://ytsavkksdgpvojovpoeh.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+// document.js
+document.addEventListener('DOMContentLoaded', loadDoc);
 
-async function loadDoc(){
-  const id=new URLSearchParams(location.search).get("id");
-  if(!id) return;
-  const {data,error}=await supabase.from("document").select("*").eq("id",id).single();
-  if(error){ alert("문서 불러오기 실패"); return;}
-  document.getElementById("title").value=data.title;
-  document.getElementById("content").value=data.content;
-  document.getElementById("parent_id").value=data.parent_id||"";
+const supabaseUrl = 'https://ytsavkksdgpvojovpoeh.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function loadDoc() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+        alert("잘못된 문서 ID");
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from('document')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error || !data) {
+        alert("문서를 불러오지 못했습니다.");
+        return;
+    }
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("title").value = data.title;
+    document.getElementById("content").value = data.content;
+
+    document.getElementById("saveBtn").onclick = () => saveDoc(id);
+    document.getElementById("deleteBtn").onclick = () => deleteDoc(id);
 }
-document.addEventListener("DOMContentLoaded",()=>{
-  loadDoc();
-  const up=document.getElementById("update-btn");
-  if(up) up.onclick=async ()=>{
-    const id=new URLSearchParams(location.search).get("id");
-    const title=document.getElementById("title").value;
-    const content=document.getElementById("content").value;
-    const pid_raw=document.getElementById("parent_id").value;
-    const parent_id=pid_raw?Number(pid_raw):null;
-    await supabase.from("document").update({title,content,parent_id}).eq("id",id);
-    await supabase.from("activity_logs").insert({email:"unknown",action:"update",doc_id:id});
-    alert("수정됨");
-  };
-  const del=document.getElementById("delete-btn");
-  if(del) del.onclick=async ()=>{
-    const id=new URLSearchParams(location.search).get("id");
-    await supabase.from("document").delete().eq("id",id);
-    await supabase.from("activity_logs").insert({email:"unknown",action:"delete",doc_id:id});
-    location.href="index.html";
-  };
-});
+
+async function saveDoc(id) {
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+
+    const { error } = await supabaseClient
+        .from('document')
+        .update({ title, content })
+        .eq('id', id);
+
+    if (error) {
+        alert("저장 실패: " + error.message);
+        return;
+    }
+
+    alert("저장되었습니다!");
+}
+
+async function deleteDoc(id) {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    const { error } = await supabaseClient
+        .from('document')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        alert("삭제 실패: " + error.message);
+        return;
+    }
+
+    alert("삭제되었습니다!");
+    location.href = "/";
+}
