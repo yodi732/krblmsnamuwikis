@@ -2,3 +2,9 @@
   publish = "public"
   functions = "netlify/functions"
 
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["pg", "@supabase/supabase-js"]
