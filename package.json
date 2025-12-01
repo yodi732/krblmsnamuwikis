@@ -1,11 +1,9 @@
 {
-  "name": "byeollae-ms-wiki-netlify",
+  "name": "byeollaewiki",
   "version": "1.0.0",
-  "scripts": {
-    "build": "echo \"no build step\"",
-    "test": "echo \"no tests\""
-  },
+  "main": "index.js",
+  "license": "MIT",
   "dependencies": {
-    "pg": "^8.11.5"
+    "@supabase/supabase-js": "^2.33.1"
   }
 }
