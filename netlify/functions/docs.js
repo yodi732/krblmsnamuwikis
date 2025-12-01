@@ -1,39 +1,40 @@
-// GET: 문서 목록 조회
-if (method === "GET") {
-  const result = await client.query(
-    "SELECT id, title, parent_id, created_at FROM document ORDER BY id DESC"
-  );
-  return {
-    statusCode: 200,
-    body: JSON.stringify(result.rows)
-  };
-}
-
 const { Client } = require("pg");
 const { createClient } = require("@supabase/supabase-js");
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-
 exports.handler = async (event) => {
+  // PostgreSQL 연결
   const client = new Client({
     connectionString: process.env.PG_CONNECTION_STRING,
   });
+
   await client.connect();
 
   const method = event.httpMethod;
 
-  // 📌 GET: 문서 목록 조회 (홈 화면 / 목차)
+  // Supabase (로그 저장 용)
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  );
+
+  // ---------------------------------------------------
+  // 📌 GET: 문서 목록 조회
+  // ---------------------------------------------------
   if (method === "GET") {
     const result = await client.query(
       "SELECT id, title, content, parent_id, created_at FROM document ORDER BY id DESC"
     );
+    await client.end();
+
     return {
       statusCode: 200,
       body: JSON.stringify(result.rows),
     };
   }
 
+  // ---------------------------------------------------
   // 📌 POST: 문서 생성
+  // ---------------------------------------------------
   if (method === "POST") {
     const body = JSON.parse(event.body);
     const { title, content, email } = body;
@@ -49,13 +50,17 @@ exports.handler = async (event) => {
       doc_id: result.rows[0].id,
     });
 
+    await client.end();
+
     return {
       statusCode: 200,
       body: JSON.stringify({ id: result.rows[0].id }),
     };
   }
 
+  // ---------------------------------------------------
   // 📌 PUT: 문서 수정
+  // ---------------------------------------------------
   if (method === "PUT") {
     const id = event.queryStringParameters.id;
     const { title, content, email } = JSON.parse(event.body);
@@ -71,10 +76,17 @@ exports.handler = async (event) => {
       doc_id: id,
     });
 
-    return { statusCode: 200, body: '"ok"' };
+    await client.end();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify("ok"),
+    };
   }
 
+  // ---------------------------------------------------
   // 📌 DELETE: 문서 삭제
+  // ---------------------------------------------------
   if (method === "DELETE") {
     const id = event.queryStringParameters.id;
     const email = event.queryStringParameters.email;
@@ -87,8 +99,15 @@ exports.handler = async (event) => {
       doc_id: id,
     });
 
-    return { statusCode: 200, body: '"deleted"' };
+    await client.end();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify("deleted"),
+    };
   }
 
-  return { statusCode: 400, body: "bad request" };
+  await client.end();
+
+  return { statusCode: 400, body: "Bad Request" };
 };
