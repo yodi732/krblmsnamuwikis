@@ -1,42 +1,6 @@
-// 문서 수정 및 삭제 + 로그 기록
-async function saveDocument(id) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  const email = session?.user?.email || null;
-
-  const title = document.getElementById("title").value;
-  const content = window.editor.getMarkdown();
-
-  const res = await fetch(`/.netlify/functions/docs?id=${id}`, {
-    method: "PUT",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ title, content, email })
-  });
-
-  const data = await res.json();
-  if (data) {
-    await supabaseClient.from("activity_logs").insert({
-      email,
-      action:"update",
-      doc_id: id
-    });
-    alert("저장되었습니다.");
-  }
-}
-
-async function deleteDocument(id) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  const email = session?.user?.email || null;
-
-  const res = await fetch(`/.netlify/functions/docs?id=${id}&email=${email}`, {
-    method:"DELETE"
-  });
-
-  await supabaseClient.from("activity_logs").insert({
-    email,
-    action:"delete",
-    doc_id:id
-  });
-
-  alert("문서가 삭제되었습니다.");
-  location.href="/index.html";
-}
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','eyJhbGciOiJIUzI...');
+const id=new URLSearchParams(location.search).get('id');
+async function load(){const {data}=await supabase.from('krblmswiki').select('*').eq('id',id).single();document.getElementById('title').value=data.title;document.getElementById('content').value=data.content;} load();
+document.getElementById('save').onclick=async()=>{const title=document.getElementById('title').value;const content=document.getElementById('content').value;await supabase.from('krblmswiki').update({title,content}).eq('id',id);location.reload();};
+document.getElementById('delete').onclick=async()=>{await supabase.from('krblmswiki').delete().eq('id',id);location.href='index.html';};

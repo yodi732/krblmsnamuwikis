@@ -1,27 +1,3 @@
-// 문서 생성 + 로그 기록
-async function createDocument() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  const email = session?.user?.email || null;
-
-  const title = document.getElementById("title").value;
-  const content = window.editor.getMarkdown();
-
-  const res = await fetch("/.netlify/functions/docs", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ title, content, email })
-  });
-
-  const data = await res.json();
-  if (data && data.id) {
-    await supabaseClient.from("activity_logs").insert({
-      email,
-      action:"create",
-      doc_id: data.id
-    });
-    alert("문서가 생성되었습니다.");
-    location.href = `/document.html?id=${data.id}`;
-  } else {
-    alert("문서 생성 실패");
-  }
-}
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','eyJhbGciOiJIUzI...');
+async function save(){const title=document.getElementById('title').value;const content=document.getElementById('content').value;const {data,error}=await supabase.from('krblmswiki').insert({title,content});if(error){alert(error.message);return;}location.href=`document.html?id=${data[0].id}`;} document.getElementById('save').onclick=save;
