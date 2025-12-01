@@ -1,3 +1,14 @@
+// GET: 문서 목록 조회
+if (method === "GET") {
+  const result = await client.query(
+    "SELECT id, title, parent_id, created_at FROM document ORDER BY id DESC"
+  );
+  return {
+    statusCode: 200,
+    body: JSON.stringify(result.rows)
+  };
+}
+
 const { Client } = require("pg");
 const { createClient } = require("@supabase/supabase-js");
 
