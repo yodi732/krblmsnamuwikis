@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.33.1"
+    "@supabase/supabase-js": "^2.33.1",
+    "pg": "^8.11.3"
   }
 }
