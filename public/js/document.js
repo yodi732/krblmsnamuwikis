@@ -50,7 +50,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const sessionUser = await supabaseClient.auth.getSession();
+      const email = sessionUser.data.session?.user?.email || null;
+
       const payload = {
+        email,
+    
         id: doc.id,
         title: editTitle.value.trim(),
         content: editContent.value,
@@ -58,6 +63,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       try {
         const updated = await updateDoc(payload);
+        // 로그 기록
+        await supabaseClient.from("activity_logs").insert({
+            email: payload.email,
+            action:"update",
+            doc_id: doc.id
+        });
         alert('저장되었습니다.');
         titleEl.textContent = updated.title;
         contentEl.textContent = updated.content;
@@ -78,6 +89,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok && res.status !== 204) {
           throw new Error('삭제 실패: ' + (await res.text()));
         }
+        // 삭제 로그
+        await supabaseClient.from("activity_logs").insert({
+            email: email,
+            action:"delete",
+            doc_id: doc.id
+        });
         alert('문서가 삭제되었습니다.');
         window.location.href = '/';
       } catch (err) {

@@ -73,6 +73,7 @@
     <div class="nav-actions" id="nav-auth">
       <a class="btn" href="/index.html">홈</a>
       <a class="btn" href="/new.html">문서 만들기</a>
+      <a class="btn" id="log-btn" href="/logs.html" style="display:none;">로그 보기</a>
       <button class="btn google-login-btn" id="google-login-btn" type="button">
         <span class="google-icon">G</span>
         <span>Google로 로그인</span>
@@ -168,6 +169,12 @@
   }
 
   renderAuth();
+  // Show Log button after login
+  supabaseClient.auth.getSession().then(({ data: { session } })=>{
+      if(session && session.user){
+         document.getElementById("log-btn").style.display = "inline-block";
+      }
+  });
 </script>
 </body>
 </html>
