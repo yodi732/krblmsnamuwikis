@@ -4,9 +4,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 document.addEventListener("DOMContentLoaded", async ()=>{
-  const box=document.getElementById("logs");
+  const box=document.getElementById("logs")||document.body;
   const {data,error}=await supabase.from("activity_logs").select("*").order("id",{ascending:false});
-  if(error){box.innerHTML="error";return;}
+  if(error){ box.innerHTML="ERR"; return;}
   box.innerHTML="";
   data.forEach(l=>{
     const div=document.createElement("div");

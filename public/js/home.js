@@ -4,15 +4,15 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 document.addEventListener("DOMContentLoaded", async ()=>{
-  const list=document.getElementById("doc-list");
+  const box=document.getElementById("doc-list") || document.body;
   const {data,error}=await supabase.from("document").select("*").order("id",{ascending:false});
-  if(error){ list.innerHTML="error"; return;}
-  list.innerHTML="";
+  if(error){ box.innerHTML="ERR"; return;}
+  box.innerHTML="";
   data.forEach(d=>{
     const a=document.createElement("a");
     a.href=`document.html?id=${d.id}`;
     a.textContent=d.title;
-    list.appendChild(a);
-    list.appendChild(document.createElement("br"));
+    box.appendChild(a);
+    box.appendChild(document.createElement("br"));
   });
 });

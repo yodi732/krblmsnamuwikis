@@ -4,13 +4,15 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 document.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("save-btn").onclick=async ()=>{
+  const btn=document.getElementById("save-btn");
+  if(!btn) return;
+  btn.onclick=async ()=>{
     const title=document.getElementById("title").value;
     const content=document.getElementById("content").value;
-    const parent_id_raw=document.getElementById("parent_id").value;
-    const parent_id=parent_id_raw?Number(parent_id_raw):null;
+    const pid_raw=document.getElementById("parent_id").value;
+    const parent_id=pid_raw?Number(pid_raw):null;
     const {data,error}=await supabase.from("document").insert({title,content,parent_id,is_system:false}).select().single();
-    if(error){alert("error");return;}
+    if(error){ alert(error.message); return;}
     await supabase.from("activity_logs").insert({email:"unknown",action:"create",doc_id:data.id});
     location.href=`document.html?id=${data.id}`;
   };
