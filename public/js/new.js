@@ -1,3 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','eyJhbGciOiJIUzI...');
 async function save(){const title=document.getElementById('title').value;const content=document.getElementById('content').value;const {data,error}=await supabase.from('document').insert({title,content});if(error){alert(error.message);return;}location.href=`document.html?id=${data[0].id}`;} document.getElementById('save').onclick=save;
+
+await supabase.from("activity_logs").insert({
+  action: "create",
+  doc_id: data[0].id,
+  doc_title: title,
+  user: currentUserEmail,
+});
