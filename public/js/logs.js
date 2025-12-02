@@ -1,15 +1,4 @@
-
-document.addEventListener("DOMContentLoaded", async ()=>{
-  const user=await requireLogin();
-  if(!user){ alert("로그인 필요"); location.href="/index.html"; }
-
-  const box=document.getElementById("log-box");
-  let {data, error}=await supabase.from("activity_logs").select("*").order("created_at",{ascending:false});
-  if(error){ box.innerText="로드 오류"; return;}
-  box.innerText="";
-  data.forEach(l=>{
-    const div=document.createElement("div");
-    div.innerText=`${l.created_at} / ${l.user_email} / ${l.action}`;
-    box.appendChild(div);
-  });
-});
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','eyJhbGciOiJIUzI...');
+async function load(){const {data}=await supabase.from('activity_logs').select('*').order('id',{ascending:false});document.getElementById('logs').innerHTML=data.map(l=>`<div>${l.email} - ${l.action} - ${l.doc_id} - ${l.created_at}</div>`).join('');}
+load();

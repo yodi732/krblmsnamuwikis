@@ -1,41 +1,6 @@
-
-document.addEventListener("DOMContentLoaded", async ()=>{
-  const params=new URLSearchParams(location.search);
-  const id=params.get("id");
-  const title=document.getElementById("doc-title");
-  const content=document.getElementById("doc-content");
-
-  let {data, error}=await supabase.from("document").select("*").eq("id",id).single();
-  if(error){ title.value="오류"; return;}
-  title.value=data.title;
-  content.value=data.content;
-
-  const user=await requireLogin();
-  if(!user){
-    document.getElementById("save-btn").style.display="none";
-    document.getElementById("del-btn").style.display="none";
-  }
-
-  document.getElementById("save-btn").onclick=async()=>{
-    await supabase.from("document").update({
-      title:title.value,
-      content:content.value
-    }).eq("id",id);
-    await supabase.from("activity_logs").insert({
-      user_email:user.email,
-      action:"문서 수정: "+title.value,
-      document_id:id
-    });
-    alert("저장되었습니다");
-  };
-
-  document.getElementById("del-btn").onclick=async()=>{
-    await supabase.from("document").delete().eq("id",id);
-    await supabase.from("activity_logs").insert({
-      user_email:user.email,
-      action:"문서 삭제: "+title.value,
-      document_id:id
-    });
-    location.href="/index.html";
-  };
-});
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','eyJhbGciOiJIUzI...');
+const id=new URLSearchParams(location.search).get('id');
+async function load(){const {data}=await supabase.from('krblmswiki').select('*').eq('id',id).single();document.getElementById('title').value=data.title;document.getElementById('content').value=data.content;} load();
+document.getElementById('save').onclick=async()=>{const title=document.getElementById('title').value;const content=document.getElementById('content').value;await supabase.from('krblmswiki').update({title,content}).eq('id',id);location.reload();};
+document.getElementById('delete').onclick=async()=>{await supabase.from('krblmswiki').delete().eq('id',id);location.href='index.html';};

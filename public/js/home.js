@@ -1,52 +1,45 @@
-// home.js supabase direct version
-import { supabase } from "./js/supabase.js";
-import { updateLoginUI } from "./js/auth.js";
+// home.js
+document.addEventListener('DOMContentLoaded', loadDocs);
 
-document.addEventListener("DOMContentLoaded", async () => {
-  updateLoginUI();
+const supabaseUrl = 'https://ytsavkksdgpvojovpoeh.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  const container = document.getElementById("doc-list");
-  const tocRoot = document.getElementById("toc-root");
+async function loadDocs() {
+    const listDiv = document.getElementById("doc-list");
+    const tocDiv = document.getElementById("toc");
 
-  const { data, error } = await supabase
-    .from("document")
-    .select("*")
-    .order("created_at", { ascending: true });
+    listDiv.innerHTML = "문서를 불러오는 중...";
+    tocDiv.innerHTML = "문서를 불러오는 중...";
 
-  if (error) {
-    container.innerHTML = "<p>문서 목록을 불러올 수 없습니다.</p>";
-    return;
-  }
+    const { data, error } = await supabaseClient
+        .from('document')
+        .select('*')
+        .order('id', { ascending: false });
 
-  function buildTree(docs) {
-    const byId = new Map();
-    const roots = [];
-    docs.forEach(d => { d.children = []; byId.set(d.id, d); });
-    docs.forEach(d => {
-      if (d.parent_id && byId.has(d.parent_id)) {
-        byId.get(d.parent_id).children.push(d);
-      } else {
-        roots.push(d);
-      }
+    if (error) {
+        listDiv.innerHTML = "불러오는데 실패함";
+        tocDiv.innerHTML = "불러오는데 실패함";
+        return;
+    }
+
+    // 문서 목록
+    listDiv.innerHTML = "";
+    data.forEach(doc => {
+        const a = document.createElement("a");
+        a.href = `/document.html?id=${doc.id}`;
+        a.textContent = doc.title;
+        listDiv.appendChild(a);
+        listDiv.appendChild(document.createElement("br"));
     });
-    return roots;
-  }
 
-  function renderToc(parent, nodes, depth) {
-    nodes.forEach(n => {
-      const item = document.createElement("div");
-      item.style.marginLeft = depth * 12 + "px";
-      item.innerHTML = `<a href="document.html?id=${n.id}">${n.title}</a>`;
-      parent.appendChild(item);
-      if (n.children.length) renderToc(parent, n.children, depth + 1);
+    // 목차 (parent_id 가 NULL인 것만)
+    tocDiv.innerHTML = "";
+    data.filter(d => d.parent_id === null).forEach(doc => {
+        const a = document.createElement("a");
+        a.href = `/document.html?id=${doc.id}`;
+        a.textContent = doc.title;
+        tocDiv.appendChild(a);
+        tocDiv.appendChild(document.createElement("br"));
     });
-  }
-
-  const tree = buildTree(data);
-  tocRoot.innerHTML = "";
-  renderToc(tocRoot, tree, 0);
-
-  container.innerHTML = data
-    .map(d => `<li><a href="document.html?id=${d.id}">${d.title}</a></li>`)
-    .join("");
-});
+}
