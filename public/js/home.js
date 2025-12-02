@@ -15,7 +15,7 @@ async function loadDocs() {
     const { data, error } = await supabaseClient
         .from('document')
         .select('*')
-        .order('id', { ascending: false });
+        .order('id', { ascending: true });
 
     if (error) {
         listDiv.innerHTML = "불러오는데 실패함";
@@ -33,7 +33,7 @@ async function loadDocs() {
         listDiv.appendChild(document.createElement("br"));
     });
 
-    // 목차 (parent_id 가 NULL인 것만)
+    // 목차 (parent_id가 NULL 인 것들)
     tocDiv.innerHTML = "";
     data.filter(d => d.parent_id === null).forEach(doc => {
         const a = document.createElement("a");
