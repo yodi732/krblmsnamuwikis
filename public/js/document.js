@@ -1,42 +1,27 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const supabase = createClient(
-  'https://ytsavkksdgpvojovpoeh.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE'
-);
+import { supabase } from "./supabase.js";
 
-const id = new URLSearchParams(location.search).get("id");
+const params=new URL(location.href).searchParams;
+const id=params.get("id");
 
-async function load() {
-  const { data } = await supabase
-      .from("document")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-  document.getElementById("title").value = data.title;
-  document.getElementById("content").value = data.content;
+async function loadDoc(){
+    const {data,error}=await supabase.from("document").select("*").eq("id",id).single();
+    if(error){ alert("문서 오류"); return;}
+    document.getElementById("title").value=data.title;
+    document.getElementById("content").value=data.content;
 }
-
-load();
-
-document.getElementById("save").onclick = async () => {
-  const title = document.getElementById("title").value;
-  const content = document.getElementById("content").value;
-
-  await supabase
-      .from("document")
-      .update({ title, content })
-      .eq("id", id);
-
-  location.reload();
-};
-
-document.getElementById("delete").onclick = async () => {
-  await supabase
-      .from("document")
-      .delete()
-      .eq("id", id);
-
-  location.href = "index.html";
-};
+async function saveDoc(){
+    const title=document.getElementById("title").value.trim();
+    const content=document.getElementById("content").value.trim();
+    await supabase.from("document").update({title,content}).eq("id",id);
+    await supabase.from("activity_logs").insert([{email:(await supabase.auth.getUser()).data.user.email, action:"update", document_id:id}]);
+    alert("저장됨");
+}
+async function deleteDoc(){
+    await supabase.from("document").delete().eq("id",id);
+    await supabase.from("activity_logs").insert([{email:(await supabase.auth.getUser()).data.user.email, action:"delete", document_id:id}]);
+    location.href="/index.html";
+}
+document.getElementById("save-btn").onclick=saveDoc;
+document.getElementById("delete-btn").onclick=deleteDoc;
+document.addEventListener("DOMContentLoaded", loadDoc);

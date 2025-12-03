@@ -1,27 +1,13 @@
 
-async function requireLogin(){
-  const { data:{ user }} = await supabase.auth.getUser();
-  return user;
+import { supabase } from "./supabase.js";
+
+async function syncButtons(){
+    const { data } = await supabase.auth.getUser();
+    const logged = !!data.user;
+    document.querySelectorAll(".login-btn").forEach(b=>b.style.display= logged?"none":"inline-block");
+    document.querySelectorAll(".logout-btn").forEach(b=>b.style.display= logged?"inline-block":"none");
 }
-async function updateLoginUI(){
-  const { data:{ user }} = await supabase.auth.getUser();
-  const btn=document.getElementById("login-btn");
-  const mail=document.getElementById("user-mail");
-  if(user){
-    btn.innerText="로그아웃";
-    mail.innerText=user.email;
-  } else {
-    btn.innerText="구글 로그인";
-    mail.innerText="";
-  }
-}
-async function toggleLogin(){
-  const { data:{ user }} = await supabase.auth.getUser();
-  if(user){
-    await supabase.auth.signOut();
-    location.reload();
-  } else {
-    await supabase.auth.signInWithOAuth({provider:"google"});
-  }
-}
-document.addEventListener("DOMContentLoaded",updateLoginUI);
+async function logout(){ await supabase.auth.signOut(); location.reload(); }
+
+document.addEventListener("DOMContentLoaded", syncButtons);
+document.querySelectorAll(".logout-btn").forEach(b=>b.onclick=logout);

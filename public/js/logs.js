@@ -1,4 +1,15 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase=createClient('https://ytsavkksdgpvojovpoeh.supabase.co','yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0c2F2a2tzZGdwdm9qb3Zwb2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MDg5NzEsImV4cCI6MjA3OTk4NDk3MX0.CHjdicKMkWROVmAt86Mjaq7qmD6nuxU-em-_HTVIFwE');
-async function load(){const {data}=await supabase.from('activity_logs').select('*').order('id',{ascending:false});document.getElementById('logs').innerHTML=data.map(l=>`<div>${l.email} - ${l.action} - ${l.doc_id} - ${l.created_at}</div>`).join('');}
-load();
+
+import { supabase } from "./supabase.js";
+async function loadLogs(){
+    const box=document.getElementById("logs");
+    box.innerHTML="불러오는 중...";
+    const {data,error}=await supabase.from("activity_logs").select("*").order("created_at",{ascending:false});
+    if(error){box.innerHTML="오류";return;}
+    box.innerHTML="";
+    data.forEach(log=>{
+        const div=document.createElement("div");
+        div.textContent=`${log.email} | ${log.action} | doc ${log.document_id} | ${log.created_at}`;
+        box.appendChild(div);
+    });
+}
+document.addEventListener("DOMContentLoaded",loadLogs);
